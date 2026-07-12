@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InkFlow – Professional Diagram & Whiteboard Application</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-slate-50 text-slate-800 antialiased overflow-hidden select-none">
+    <div id="app" class="relative w-screen h-screen overflow-hidden flex flex-col">
+      <!-- Infinite Canvas Container -->
+      <div id="canvas-container" class="absolute inset-0 z-0"></div>
+
+      <!-- Top Left Menu / Title Panel -->
+      <div id="menu-panel" class="absolute top-4 left-4 z-10 flex items-center gap-3 p-2 rounded-2xl floating-panel">
+        <div class="flex items-center gap-2 px-2 border-r border-slate-200">
+          <svg class="w-6 h-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122A3 3 0 00.22 17.5l.078.411A9.017 9.017 0 005.158 20.314m0-4.192a8.004 8.004 0 0113.684-6.129M18.842 10.015a9.01 9.01 0 01-4.159 4.159m-4.159-4.159a4.5 4.5 0 00-6.259 6.259" />
+          </svg>
+          <span class="font-bold text-slate-800 tracking-tight text-sm">InkFlow</span>
+        </div>
+        
+        <div class="flex items-center gap-1">
+          <!-- File actions -->
+          <button id="btn-import" class="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" title="Import JSON (Ctrl+O)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m0 0l-3-3m3 3l3-3m-12 1a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
+          </button>
+          <button id="btn-export-json" class="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" title="Export JSON (Ctrl+S)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9V3m0 0L9 6m3-3l3 3m-9 8a9 9 0 0018 0v-5a9 9 0 00-18 0v5z"></path></svg>
+          </button>
+          <button id="btn-export-png" class="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" title="Export PNG (Ctrl+Shift+E)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          </button>
+          
+          <div class="h-4 w-px bg-slate-200 mx-1"></div>
+          
+          <!-- History -->
+          <button id="btn-undo" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-30 transition-colors" title="Undo (Ctrl+Z)" disabled>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path></svg>
+          </button>
+          <button id="btn-redo" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-30 transition-colors" title="Redo (Ctrl+Shift+Z)" disabled>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Center Toolbar Panel -->
+      <div id="toolbar-panel" class="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 p-1.5 rounded-2xl floating-panel">
+        <button id="tool-select" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Select (V)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 7.827 5.34-5.886 1.905zm-3.083-7.074c-.947-.947-2.513-.947-3.46 0L2.83 20.267"></path></svg>
+        </button>
+        <button id="tool-rectangle" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Rectangle (R)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4z"></path></svg>
+        </button>
+        <button id="tool-circle" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Circle (C)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round"></circle></svg>
+        </button>
+        <button id="tool-diamond" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Diamond (D)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2l9 10-9 10-9-10z"></path></svg>
+        </button>
+        <button id="tool-line" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Line (L)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 19L19 5"></path></svg>
+        </button>
+        <button id="tool-arrow" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Arrow (A)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+        </button>
+        <button id="tool-pen" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Pen (P)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+        </button>
+        <button id="tool-text" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Text (T)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+        </button>
+        <div class="h-6 w-px bg-slate-200 mx-1"></div>
+        <button id="tool-laser" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Laser Pointer (K)">
+          <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Right Properties Panel (Hidden when nothing selected) -->
+      <div id="properties-panel" class="absolute top-20 right-4 max-h-[80vh] overflow-y-auto w-72 z-10 rounded-2xl floating-panel flex flex-col p-4 gap-4 hidden">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+          <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Properties</span>
+          <button id="btn-close-properties" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <!-- Position & Size (Informational/Editable) -->
+        <div class="flex flex-col gap-2">
+          <span class="text-xs font-semibold text-slate-500">Geometry</span>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase">Width</label>
+              <input id="prop-width" type="number" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase">Height</label>
+              <input id="prop-height" type="number" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase">Angle</label>
+              <input id="prop-rotation" type="number" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase">Opacity</label>
+              <input id="prop-opacity" type="range" min="0" max="1" step="0.1" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Style Properties -->
+        <div id="prop-section-style" class="flex flex-col gap-3">
+          <!-- Stroke Color -->
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-semibold text-slate-500">Stroke Color</span>
+            <div id="prop-stroke-palette" class="flex items-center gap-1.5 flex-wrap">
+              <!-- Colors added dynamically -->
+            </div>
+            <div class="flex items-center gap-2 mt-1">
+              <input id="prop-stroke-custom" type="color" class="w-6 h-6 p-0 border-0 rounded cursor-pointer" />
+              <span class="text-xs text-slate-500 font-mono">Custom</span>
+            </div>
+          </div>
+
+          <!-- Fill Color -->
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-semibold text-slate-500">Fill Color</span>
+            <div id="prop-fill-palette" class="flex items-center gap-1.5 flex-wrap">
+              <!-- Colors added dynamically -->
+            </div>
+            <div class="flex items-center gap-2 mt-1">
+              <input id="prop-fill-custom" type="color" class="w-6 h-6 p-0 border-0 rounded cursor-pointer" />
+              <span class="text-xs text-slate-500 font-mono">Custom</span>
+            </div>
+          </div>
+
+          <!-- Stroke Width -->
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-semibold text-slate-500">Stroke Width</span>
+            <div id="prop-stroke-width-group" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
+              <button data-val="2" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Thin</button>
+              <button data-val="4" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Medium</button>
+              <button data-val="7" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Thick</button>
+            </div>
+          </div>
+
+          <!-- Stroke Style -->
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-semibold text-slate-500">Stroke Style</span>
+            <div id="prop-stroke-style-group" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
+              <button data-val="solid" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Solid</button>
+              <button data-val="dashed" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Dashed</button>
+              <button data-val="dotted" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Dotted</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Specific Properties -->
+        <div id="prop-section-text" class="flex flex-col gap-3 hidden border-t border-slate-100 pt-3">
+          <span class="text-xs font-semibold text-slate-500">Typography</span>
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] text-slate-400 uppercase">Font Size</span>
+            <select id="prop-font-size" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500">
+              <option value="16">Small (16px)</option>
+              <option value="20">Medium (20px)</option>
+              <option value="28">Large (28px)</option>
+              <option value="40">Extra Large (40px)</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] text-slate-400 uppercase">Font Family</span>
+            <select id="prop-font-family" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500">
+              <option value="Inter">Sans-Serif (Inter)</option>
+              <option value="Georgia">Serif (Georgia)</option>
+              <option value="Architects Daughter">Handwriting</option>
+            </select>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] text-slate-400 uppercase">Alignment</span>
+            <div id="prop-text-align" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
+              <button data-val="left" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Left</button>
+              <button data-val="center" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Center</button>
+              <button data-val="right" class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Right</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Status Bar -->
+      <div id="status-bar" class="absolute bottom-4 left-4 z-10 rounded-xl floating-panel px-3 py-2 flex items-center gap-4 text-xs font-semibold text-slate-600">
+        <!-- Coordinates -->
+        <div class="flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-6 6m0 0l-3-3m3 3V9m0 12l-3-3m3 3h12"></path></svg>
+          <span id="coord-display">0, 0 px</span>
+        </div>
+        
+        <div class="h-3 w-px bg-slate-200"></div>
+
+        <!-- Zoom controls -->
+        <div class="flex items-center gap-1">
+          <button id="btn-zoom-out" class="p-1 rounded hover:bg-slate-100 transition-colors" title="Zoom Out">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"></path></svg>
+          </button>
+          <span id="zoom-display" class="min-w-[40px] text-center">100%</span>
+          <button id="btn-zoom-in" class="p-1 rounded hover:bg-slate-100 transition-colors" title="Zoom In">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+          </button>
+          <button id="btn-zoom-reset" class="px-1.5 py-0.5 rounded text-[10px] hover:bg-slate-100 transition-colors border border-slate-200">Reset</button>
+        </div>
+
+        <div class="h-3 w-px bg-slate-200"></div>
+
+        <!-- Grid Selector -->
+        <div class="flex items-center gap-1">
+          <span class="text-[10px] text-slate-400 uppercase mr-1">Canvas:</span>
+          <select id="grid-select" class="bg-transparent border-0 font-semibold focus:ring-0 focus:outline-none cursor-pointer py-0 pr-6 text-xs text-slate-600">
+            <option value="plain">Plain</option>
+            <option value="dot-grid" selected>Dot Grid</option>
+            <option value="square-grid">Square Grid</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Top Right Theme Toggle -->
+      <div id="theme-panel" class="absolute top-4 right-4 z-10 flex items-center p-1 rounded-xl floating-panel">
+        <button id="btn-theme-toggle" class="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-all duration-200" title="Toggle Dark Mode">
+          <!-- Sun icon (shown in light mode) -->
+          <svg id="theme-icon-sun" class="w-5 h-5 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+          </svg>
+          <!-- Moon icon (shown in dark mode) -->
+          <svg id="theme-icon-moon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
