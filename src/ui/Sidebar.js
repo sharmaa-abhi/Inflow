@@ -1,6 +1,7 @@
 import { eventBus } from '../core/EventBus';
 import { historyManager } from '../managers/HistoryManager';
 import { persistenceManager } from '../managers/PersistenceManager';
+import { shapeManager } from '../managers/ShapeManager';
 
 export class Sidebar {
   /**
@@ -13,6 +14,7 @@ export class Sidebar {
     this.btnImport = document.getElementById('btn-import');
     this.btnExportJson = document.getElementById('btn-export-json');
     this.btnExportPng = document.getElementById('btn-export-png');
+    this.btnClear = document.getElementById('btn-clear');
     this.btnUndo = document.getElementById('btn-undo');
     this.btnRedo = document.getElementById('btn-redo');
 
@@ -53,6 +55,44 @@ export class Sidebar {
     if (this.btnExportPng) {
       this.btnExportPng.addEventListener('click', () => {
         persistenceManager.exportPNG(this.canvasEngine);
+      });
+    }
+
+    // Clear Canvas
+    if (this.btnClear) {
+      this.btnClear.addEventListener('click', () => {
+        const shapes = shapeManager.getAllShapes();
+        if (shapes.length === 0) return;
+
+        if (!confirm('Are you sure you want to clear the canvas?')) return;
+
+        // Serialize all current shapes for undoing
+        const serialized = shapes.map(s => s.serialize());
+
+        // Perform clear
+        shapeManager.clear();
+        this.canvasEngine.shapeLayer.destroyChildren();
+        this.canvasEngine.batchDrawAll();
+
+        // Register action in history
+        historyManager.registerChange({
+          type: 'clear-canvas',
+          undo: () => {
+            // Restore all shapes
+            serialized.forEach(json => {
+              const restored = shapeManager.recreateShape(json);
+              if (restored) {
+                this.canvasEngine.shapeLayer.add(restored.konvaNode);
+              }
+            });
+            this.canvasEngine.batchDrawAll();
+          },
+          redo: () => {
+            shapeManager.clear();
+            this.canvasEngine.shapeLayer.destroyChildren();
+            this.canvasEngine.batchDrawAll();
+          }
+        });
       });
     }
 

@@ -142,3 +142,9 @@ body.dark ::-webkit-scrollbar-thumb:hover {
   background: #64748b; /* slate-500 */
 }
 
+body.dark #btn-clear:hover {
+  background-color: rgba(244, 63, 94, 0.15) !important;
+  color: #fb7185 !important;
+}
+
+

@@ -15,6 +15,11 @@ class ToolManager {
     this.tools = new Map();
     this.activeTool = null;
     this.activeToolType = 'select';
+    
+    // Keyboard arrow nudging states
+    this.isNudging = false;
+    this.nudgeStartPositions = null;
+    this.nudgeHistoryTimeout = null;
   }
 
   /**
@@ -44,6 +49,10 @@ class ToolManager {
 
   setTool(type) {
     if (!this.tools.has(type)) return;
+
+    if (this.isNudging) {
+      this.finishNudge();
+    }
 
     if (this.activeTool) {
       this.activeTool.deactivate();
@@ -85,6 +94,64 @@ class ToolManager {
         document.activeElement.isContentEditable
       )) {
         return;
+      }
+
+      // Keyboard arrow key nudging
+      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(e.key.toLowerCase())) {
+        const selected = shapeManager.getSelectedShapes();
+        if (selected.length > 0) {
+          e.preventDefault();
+          const step = e.shiftKey ? 10 : 1;
+          let dx = 0, dy = 0;
+          
+          switch (e.key.toLowerCase()) {
+            case 'arrowup':
+              dy = -step;
+              break;
+            case 'arrowdown':
+              dy = step;
+              break;
+            case 'arrowleft':
+              dx = -step;
+              break;
+            case 'arrowright':
+              dx = step;
+              break;
+          }
+
+          // Start nudging recording
+          if (!this.isNudging) {
+            this.isNudging = true;
+            this.nudgeStartPositions = selected.map(shape => ({
+              id: shape.id,
+              x: shape.konvaNode.x(),
+              y: shape.konvaNode.y()
+            }));
+          }
+
+          // Perform movement
+          selected.forEach(shape => {
+            const node = shape.konvaNode;
+            node.x(node.x() + dx);
+            node.y(node.y() + dy);
+          });
+
+          // Re-align transformer
+          const selectTool = this.tools.get('select');
+          if (selectTool && selectTool.active && selectTool.transformer) {
+            selectTool.transformer.forceUpdate();
+          }
+
+          this.canvasEngine.batchDrawAll();
+
+          // Debounce history save
+          if (this.nudgeHistoryTimeout) {
+            clearTimeout(this.nudgeHistoryTimeout);
+          }
+          this.nudgeHistoryTimeout = setTimeout(() => {
+            this.finishNudge();
+          }, 500);
+        }
       }
 
       // Check tool swaps
@@ -297,6 +364,58 @@ class ToolManager {
         }
       });
     }
+  }
+
+  finishNudge() {
+    if (!this.isNudging) return;
+    this.isNudging = false;
+    this.nudgeHistoryTimeout = null;
+
+    const startPositions = this.nudgeStartPositions;
+    this.nudgeStartPositions = null;
+
+    const selected = shapeManager.getSelectedShapes();
+    if (selected.length === 0 || !startPositions) return;
+
+    // Capture final positions of shapes
+    const finalPositions = selected.map(shape => ({
+      id: shape.id,
+      x: shape.konvaNode.x(),
+      y: shape.konvaNode.y()
+    }));
+
+    // Register movement in history!
+    historyManager.registerChange({
+      type: 'nudge-shapes',
+      undo: () => {
+        startPositions.forEach(start => {
+          const shape = shapeManager.getShape(start.id);
+          if (shape && shape.konvaNode) {
+            shape.konvaNode.x(start.x);
+            shape.konvaNode.y(start.y);
+          }
+        });
+        const selectTool = this.tools.get('select');
+        if (selectTool && selectTool.active && selectTool.transformer) {
+          selectTool.transformer.forceUpdate();
+        }
+        this.canvasEngine.batchDrawAll();
+      },
+      redo: () => {
+        finalPositions.forEach(final => {
+          const shape = shapeManager.getShape(final.id);
+          if (shape && shape.konvaNode) {
+            shape.konvaNode.x(final.x);
+            shape.konvaNode.y(final.y);
+          }
+        });
+        const selectTool = this.tools.get('select');
+        if (selectTool && selectTool.active && selectTool.transformer) {
+          selectTool.transformer.forceUpdate();
+        }
+        this.canvasEngine.batchDrawAll();
+      }
+    });
   }
 }
 
