@@ -123,3 +123,42 @@ Make sure you have [Node.js](https://nodejs.org/) installed.
 | `Space + Drag` | Pan Viewport |
 | `Mouse Wheel` | Zoom Canvas |
 | `Shift (while drawing)` | Lock aspect ratio (Square/Circle) or snap to 45° |
+
+---
+
+## 🔄 Project Evolution & Updates (Initial to Final)
+
+Here is a chronological summary of the updates made to transform the initial repository skeleton into the final, fully-featured whiteboard application:
+
+### 1. Initial State
+* Basic Konva stage bootloader skeleton.
+* Empty tool files and placeholder canvas styling.
+* No shape manipulation, selection bounds, history commands, or export options.
+
+### 2. Core Drawing & Shapes (Milestones 2 & 3)
+* **Custom Shape Adapters**: Created Konva.js wrappers for Diamond, Line, Arrow, Pen (freehand paths), and Text (character filling font overrides).
+* **Click-and-Drag Creation**: Implemented shape drawing with optional aspect-ratio lock (`Shift`).
+* **Text Input Overlay**: Mounted dynamic scaled HTML textareas matching zoom levels for editing text.
+
+### 3. Selection, Transforms & Smart Snapping (Milestones 4 & 5)
+* **Transformer Bounds**: Integrated rotation, resizing, and dragging using custom transformer borders.
+* **Marquee Multi-Select**: Implemented draggable selection box to group and drag multiple shapes.
+* **Smart Snap Alignments**: Built SnapManager rendering dashed vertical/horizontal guidelines to snap elements matching bounding edges/centers of nearby elements.
+* **Presentation Laser**: Created glowing laser pointer trails fading after `1000ms`, with pointer dot always visible at cursor during drag gestures.
+
+### 4. History, Clipboard & Persistence (Milestone 6)
+* **Autosave Backups**: Configured local storage syncing for canvas states.
+* **JSON File Exchange**: Enabled exporting/importing diagram states as structured JSON files.
+* **Cropped Image Render**: Built high-resolution PNG generation matching canvas bounding box contours of active shapes.
+* **Undo/Redo Actions**: Added stack-based Undo/Redo tracking.
+* **Clipboard keybinds**: Added Ctrl+C/V/D/Delete actions.
+
+### 5. Canvas Dark Mode (Milestone 7)
+* **Floating Theme Control**: Added a theme toggle in the upper-right corner.
+* **Slate-900 Theme Style**: Styled menus and properties inputs in dark glassmorphism.
+* **Auto-Contrast Grid**: Adjusted background dot and line colors automatically in dark mode.
+
+### 6. Productivity Controls (Milestone 8)
+* **Clear Canvas Action**: Added a trash icon that clears the canvas, fully recoverable via Undo (`Ctrl+Z`).
+* **Precise Arrow Nudging**: Enabled moving selection groups by 1px (or 10px with Shift) using keyboard arrows, committing single-group history changes debounced by inactivity.
+
