@@ -1,6 +1,7 @@
 import { eventBus } from '../core/EventBus';
 import { shapeManager } from '../managers/ShapeManager';
 import { styleManager } from '../managers/StyleManager';
+import { toolManager } from '../managers/ToolManager';
 
 export class PropertiesPanel {
   constructor() {
@@ -28,6 +29,12 @@ export class PropertiesPanel {
     this.inpFontSize = document.getElementById('prop-font-size');
     this.inpFontFamily = document.getElementById('prop-font-family');
     this.textAlignGroup = document.getElementById('prop-text-align');
+
+    // Arrange Buttons
+    this.btnSendBack = document.getElementById('btn-send-back');
+    this.btnSendBackward = document.getElementById('btn-send-backward');
+    this.btnBringForward = document.getElementById('btn-bring-forward');
+    this.btnBringFront = document.getElementById('btn-bring-front');
 
     this.colors = [
       '#1e293b', // slate-800 (default stroke)
@@ -59,6 +66,12 @@ export class PropertiesPanel {
         shapeManager.deselectAll();
       });
     }
+
+    // Bind Arrange actions
+    if (this.btnSendBack) this.btnSendBack.addEventListener('click', () => toolManager.reorderSelected('back'));
+    if (this.btnSendBackward) this.btnSendBackward.addEventListener('click', () => toolManager.reorderSelected('backward'));
+    if (this.btnBringForward) this.btnBringForward.addEventListener('click', () => toolManager.reorderSelected('forward'));
+    if (this.btnBringFront) this.btnBringFront.addEventListener('click', () => toolManager.reorderSelected('front'));
 
     this.setupGeometryListeners();
     this.setupStyleListeners();

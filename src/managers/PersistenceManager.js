@@ -100,20 +100,9 @@ class PersistenceManager {
     // 4. Restore shape instances
     if (data.shapes && Array.isArray(data.shapes)) {
       data.shapes.forEach((sData) => {
-        let shapeInstance = null;
-
-        // Custom instantiations for pen and text
-        if (sData.type === 'pen') {
-          shapeInstance = new PenShape(sData);
-        } else if (sData.type === 'text') {
-          shapeInstance = new TextShape(sData);
-        } else {
-          shapeInstance = shapeManager.recreateShape(sData);
-        }
-
-        if (shapeInstance && sData.type !== 'rectangle' && sData.type !== 'circle' && sData.type !== 'diamond' && sData.type !== 'line' && sData.type !== 'arrow') {
-          // If shapeManager.recreateShape didn't handle it (i.e. pen/text), add it manually
-          shapeManager.addShape(shapeInstance);
+        const shapeInstance = shapeManager.recreateShape(sData);
+        if (shapeInstance) {
+          this.canvasEngine.shapeLayer.add(shapeInstance.konvaNode);
         }
       });
     }

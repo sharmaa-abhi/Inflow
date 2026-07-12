@@ -7,6 +7,7 @@ import { Toolbar } from './ui/Toolbar';
 import { PropertiesPanel } from './ui/PropertiesPanel';
 import { Sidebar } from './ui/Sidebar';
 import { Statusbar } from './ui/Statusbar';
+import { ContextMenu } from './ui/ContextMenu';
 
 // Bootstrap InkFlow Application
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     new PropertiesPanel();
     new Sidebar(canvasEngine);
     new Statusbar(canvasEngine);
+    new ContextMenu(canvasEngine);
 
     console.log('InkFlow successfully initialized!');
   } catch (error) {

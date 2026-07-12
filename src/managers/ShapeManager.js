@@ -43,7 +43,16 @@ class ShapeManager {
   }
 
   getAllShapes() {
-    return Array.from(this.shapes.values());
+    const shapes = Array.from(this.shapes.values());
+    shapes.sort((a, b) => {
+      const nodeA = a.konvaNode;
+      const nodeB = b.konvaNode;
+      if (nodeA && nodeB && nodeA.getParent() && nodeB.getParent()) {
+        return nodeA.getZIndex() - nodeB.getZIndex();
+      }
+      return 0;
+    });
+    return shapes;
   }
 
   getShapes() {
@@ -52,6 +61,62 @@ class ShapeManager {
 
   getShapeById(id) {
     return this.getShape(id);
+  }
+
+  setShapesOrder(orderedIds) {
+    orderedIds.forEach((id, index) => {
+      const shape = this.shapes.get(id);
+      if (shape && shape.konvaNode) {
+        shape.konvaNode.setZIndex(index);
+      }
+    });
+    eventBus.emit('shapes-updated');
+  }
+
+  bringToFront(ids) {
+    const allShapes = this.getAllShapes();
+    const selectedSet = new Set(ids);
+    const remaining = allShapes.filter(s => !selectedSet.has(s.id));
+    const selected = allShapes.filter(s => selectedSet.has(s.id));
+    const newOrder = [...remaining, ...selected];
+    this.setShapesOrder(newOrder.map(s => s.id));
+  }
+
+  sendToBack(ids) {
+    const allShapes = this.getAllShapes();
+    const selectedSet = new Set(ids);
+    const remaining = allShapes.filter(s => !selectedSet.has(s.id));
+    const selected = allShapes.filter(s => selectedSet.has(s.id));
+    const newOrder = [...selected, ...remaining];
+    this.setShapesOrder(newOrder.map(s => s.id));
+  }
+
+  bringForward(ids) {
+    const allShapes = this.getAllShapes();
+    const selectedSet = new Set(ids);
+    const newOrder = [...allShapes];
+    for (let i = newOrder.length - 2; i >= 0; i--) {
+      if (selectedSet.has(newOrder[i].id) && !selectedSet.has(newOrder[i+1].id)) {
+        const temp = newOrder[i];
+        newOrder[i] = newOrder[i+1];
+        newOrder[i+1] = temp;
+      }
+    }
+    this.setShapesOrder(newOrder.map(s => s.id));
+  }
+
+  sendBackward(ids) {
+    const allShapes = this.getAllShapes();
+    const selectedSet = new Set(ids);
+    const newOrder = [...allShapes];
+    for (let i = 1; i < newOrder.length; i++) {
+      if (selectedSet.has(newOrder[i].id) && !selectedSet.has(newOrder[i-1].id)) {
+        const temp = newOrder[i];
+        newOrder[i] = newOrder[i-1];
+        newOrder[i-1] = temp;
+      }
+    }
+    this.setShapesOrder(newOrder.map(s => s.id));
   }
 
 

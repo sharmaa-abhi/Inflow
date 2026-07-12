@@ -46,6 +46,7 @@ export class TextTool extends BaseTool {
       });
       
       this.shapeManager.addShape(newTextShape, false);
+      this.canvasEngine.shapeLayer.add(newTextShape.konvaNode);
       this.startEditing(newTextShape, true);
     }
   }
@@ -63,7 +64,7 @@ export class TextTool extends BaseTool {
     
     // Temporarily hide the canvas text node while typing
     node.visible(false);
-    this.canvasEngine.textLayer.batchDraw();
+    this.canvasEngine.shapeLayer.batchDraw();
 
     // Get viewport details for styling the textarea overlay
     const stage = this.canvasEngine.stage;
@@ -175,7 +176,7 @@ export class TextTool extends BaseTool {
       // Wait, Konva Text computes its own height. Let's make sure it updates layout.
       node.height(node.getTextHeight());
 
-      this.canvasEngine.textLayer.batchDraw();
+      this.canvasEngine.shapeLayer.batchDraw();
 
       if (this.isNewShape) {
         // Save to history as a new shape

@@ -34,6 +34,7 @@ export class PenTool extends BaseTool {
     // Make temporary shape non-draggable during drawing
     this.activeShape.konvaNode.draggable(false);
     this.shapeManager.addShape(this.activeShape);
+    this.canvasEngine.shapeLayer.add(this.activeShape.konvaNode);
   }
 
   onPointerMove(data) {
@@ -48,7 +49,7 @@ export class PenTool extends BaseTool {
     if (dist > 2) {
       this.points.push(canvasPos.x, canvasPos.y);
       this.activeShape.updateGeometry({ points: [...this.points] });
-      this.canvasEngine.penLayer.batchDraw();
+      this.canvasEngine.shapeLayer.batchDraw();
     }
   }
 
@@ -72,7 +73,7 @@ export class PenTool extends BaseTool {
     }
 
     this.activeShape = null;
-    this.canvasEngine.penLayer.batchDraw();
+    this.canvasEngine.shapeLayer.batchDraw();
   }
 
   deactivate() {

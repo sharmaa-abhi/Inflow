@@ -191,6 +191,23 @@ class ToolManager {
           break;
       }
 
+      // Reorder shapes shortcuts
+      if (e.key === '[') {
+        e.preventDefault();
+        if (e.ctrlKey || e.metaKey) {
+          this.reorderSelected('backward');
+        } else {
+          this.reorderSelected('back');
+        }
+      } else if (e.key === ']') {
+        e.preventDefault();
+        if (e.ctrlKey || e.metaKey) {
+          this.reorderSelected('forward');
+        } else {
+          this.reorderSelected('front');
+        }
+      }
+
       // Multi-key commands: Ctrl+Z, Ctrl+Shift+Z, Ctrl+C, Ctrl+V, Ctrl+D
       if (e.ctrlKey || e.metaKey) {
         if (e.key.toLowerCase() === 'z') {
@@ -212,6 +229,50 @@ class ToolManager {
         }
       }
     });
+  }
+
+  reorderSelected(actionType) {
+    const selected = shapeManager.getSelectedShapes();
+    if (selected.length === 0) return;
+
+    const ids = selected.map(s => s.id);
+    const beforeIds = shapeManager.getAllShapes().map(s => s.id);
+
+    switch (actionType) {
+      case 'front':
+        shapeManager.bringToFront(ids);
+        break;
+      case 'back':
+        shapeManager.sendToBack(ids);
+        break;
+      case 'forward':
+        shapeManager.bringForward(ids);
+        break;
+      case 'backward':
+        shapeManager.sendBackward(ids);
+        break;
+    }
+
+    const afterIds = shapeManager.getAllShapes().map(s => s.id);
+
+    // Only register history if order actually changed
+    if (JSON.stringify(beforeIds) !== JSON.stringify(afterIds)) {
+      this.canvasEngine.shapeLayer.batchDraw();
+      
+      historyManager.registerChange({
+        type: `reorder-${actionType}`,
+        beforeIds,
+        afterIds,
+        undo: () => {
+          shapeManager.setShapesOrder(beforeIds);
+          this.canvasEngine.shapeLayer.batchDraw();
+        },
+        redo: () => {
+          shapeManager.setShapesOrder(afterIds);
+          this.canvasEngine.shapeLayer.batchDraw();
+        }
+      });
+    }
   }
 
   deleteSelectedShapes() {
