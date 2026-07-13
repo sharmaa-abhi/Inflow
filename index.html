@@ -232,7 +232,14 @@
           </button>
         </div>
         <div class="flex items-center justify-between gap-2 mt-1">
-          <span class="text-xs text-slate-500 font-medium">Z-Index Layer</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs text-slate-500 font-medium">Z-Index Layer</span>
+            <button id="btn-toggle-3d" class="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors" title="Toggle 3D Layer View">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+              </svg>
+            </button>
+          </div>
           <div class="flex items-center gap-1.5 font-sans">
             <input id="prop-zindex" type="number" min="0" step="1"
               class="w-16 bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500 text-center" />
@@ -249,9 +256,10 @@
           <div id="prop-stroke-palette" class="flex items-center gap-1.5 flex-wrap">
             <!-- Colors added dynamically -->
           </div>
-          <div class="flex items-center gap-2 mt-1">
-            <input id="prop-stroke-custom" type="color" class="w-6 h-6 p-0 border-0 rounded cursor-pointer" />
-            <span class="text-xs text-slate-500 font-mono">Custom</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <input id="prop-stroke-custom" type="color"
+              class="w-6 h-6 border-0 rounded cursor-pointer p-0 bg-transparent" title="Custom Stroke Color" />
+            <span class="text-[10px] text-slate-400 uppercase font-mono">Custom stroke</span>
           </div>
         </div>
 
@@ -261,90 +269,103 @@
           <div id="prop-fill-palette" class="flex items-center gap-1.5 flex-wrap">
             <!-- Colors added dynamically -->
           </div>
-          <div class="flex items-center gap-2 mt-1">
-            <input id="prop-fill-custom" type="color" class="w-6 h-6 p-0 border-0 rounded cursor-pointer" />
-            <span class="text-xs text-slate-500 font-mono">Custom</span>
+          <div class="flex items-center gap-2 mt-0.5">
+            <input id="prop-fill-custom" type="color"
+              class="w-6 h-6 border-0 rounded cursor-pointer p-0 bg-transparent" title="Custom Fill Color" />
+            <span class="text-[10px] text-slate-400 uppercase font-mono">Custom fill</span>
           </div>
         </div>
 
         <!-- Stroke Width -->
         <div class="flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-slate-500">Stroke Width</span>
-          <div id="prop-stroke-width-group" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
-            <button data-val="2" title="Thin Stroke"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Thin</button>
-            <button data-val="4" title="Medium Stroke"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Medium</button>
-            <button data-val="7" title="Thick Stroke"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Thick</button>
+          <div id="prop-stroke-width-group" class="grid grid-cols-3 gap-1 bg-slate-50 border border-slate-200 rounded-lg p-0.5">
+            <button data-val="2" class="py-1 rounded-md text-xs font-medium hover:bg-white text-slate-700 transition-colors">Thin</button>
+            <button data-val="4" class="py-1 rounded-md text-xs font-medium hover:bg-white text-slate-700 transition-colors">Medium</button>
+            <button data-val="6" class="py-1 rounded-md text-xs font-medium hover:bg-white text-slate-700 transition-colors">Thick</button>
           </div>
         </div>
 
         <!-- Stroke Style -->
         <div class="flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-slate-500">Stroke Style</span>
-          <div id="prop-stroke-style-group" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
-            <button data-val="solid" title="Solid Line"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Solid</button>
-            <button data-val="dashed" title="Dashed Line"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Dashed</button>
-            <button data-val="dotted" title="Dotted Line"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Dotted</button>
+          <div id="prop-stroke-style-group" class="grid grid-cols-3 gap-1 bg-slate-50 border border-slate-200 rounded-lg p-0.5">
+            <button data-val="solid" class="py-1 rounded-md text-xs font-medium hover:bg-white text-slate-700 transition-colors">Solid</button>
+            <button data-val="dashed" class="py-1 rounded-md text-xs font-medium hover:bg-white text-slate-700 transition-colors">Dashed</button>
+            <button data-val="dotted" class="py-1 rounded-md text-xs font-medium hover:bg-white text-slate-700 transition-colors">Dotted</button>
           </div>
         </div>
-      </div>
 
-      <!-- Text Specific Properties -->
-      <div id="prop-section-text" class="flex-col gap-3 hidden border-t border-slate-100 pt-3" style="display: none;">
-        <span class="text-xs font-semibold text-slate-500">Typography</span>
-        <div class="flex flex-col gap-1.5">
-          <span class="text-[10px] text-slate-400 uppercase">Font Size</span>
-          <select id="prop-font-size"
-            class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500">
-            <option value="16">Small (16px)</option>
-            <option value="20">Medium (20px)</option>
-            <option value="28">Large (28px)</option>
-            <option value="40">Extra Large (40px)</option>
-          </select>
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <span class="text-[10px] text-slate-400 uppercase">Font Family</span>
-          <select id="prop-font-family"
-            class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500">
-            <option value="Inter">Sans-Serif (Inter)</option>
-            <option value="Georgia">Serif (Georgia)</option>
-            <option value="Architects Daughter">Handwriting</option>
-          </select>
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <span class="text-[10px] text-slate-400 uppercase">Alignment</span>
-          <div id="prop-text-align" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
-            <button data-val="left" title="Align Left"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Left</button>
-            <button data-val="center" title="Align Center"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Center</button>
-            <button data-val="right" title="Align Right"
-              class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Right</button>
+        <!-- Typography Section (Shown conditionally) -->
+        <div id="prop-section-text" class="flex flex-col gap-3 border-t border-slate-100 pt-3 hidden">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-xs font-semibold text-slate-500">Font Family</span>
+            <select id="prop-font-family" class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500">
+              <option value="Inter, sans-serif">Sans-Serif (Clean)</option>
+              <option value="'Architects Daughter', cursive">Handwritten (Excalidraw)</option>
+              <option value="monospace">Monospace (Code)</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <span class="text-xs font-semibold text-slate-500 block mb-1">Font Size</span>
+              <input id="prop-font-size" type="number" min="8" max="120" step="2"
+                class="w-full bg-slate-50 border border-slate-200 rounded px-2 py-1 text-sm font-medium focus:outline-none focus:border-indigo-500" />
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-slate-500 block mb-1">Align</span>
+              <div id="prop-text-align" class="grid grid-cols-3 gap-0.5 bg-slate-50 border border-slate-200 rounded-lg p-0.5">
+                <button data-val="left" class="p-1 rounded hover:bg-white text-slate-700 flex justify-center items-center" title="Left">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h14" />
+                  </svg>
+                </button>
+                <button data-val="center" class="p-1 rounded hover:bg-white text-slate-700 flex justify-center items-center" title="Center">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M6 18h12" />
+                  </svg>
+                </button>
+                <button data-val="right" class="p-1 rounded hover:bg-white text-slate-700 flex justify-center items-center" title="Right">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M10 12h10M8 18h12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Bottom Status Bar -->
-    <div id="status-bar"
-      class="absolute bottom-4 left-4 z-10 rounded-xl floating-panel px-3 py-2 flex items-center gap-4 text-xs font-semibold text-slate-600">
-      <!-- Coordinates -->
-      <div class="flex items-center gap-1">
-        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-6 6m0 0l-3-3m3 3V9m0 12l-3-3m3 3h12"></path>
-        </svg>
-        <span id="coord-display">0, 0 px</span>
+    <!-- Sidebar Panels (Shapes List, Storage, etc.) -->
+    <div id="sidebar-panel"
+      class="absolute top-20 left-4 bottom-16 w-64 z-10 rounded-2xl floating-panel flex flex-col p-4 gap-4 hidden">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Shapes List</span>
+        <button id="btn-close-sidebar" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600" title="Close Panel">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
+      <div id="shapes-list-container" class="flex-1 overflow-y-auto flex flex-col gap-1.5 pr-1">
+        <!-- Rendered list of active shapes on canvas -->
+      </div>
+    </div>
+
+    <!-- Bottom Left Zoom Control Panel -->
+    <div id="statusbar-panel" class="absolute bottom-4 left-4 z-10 flex items-center gap-2 p-1.5 rounded-2xl floating-panel">
+      <!-- Sidebar Trigger -->
+      <button id="btn-toggle-sidebar" class="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors" title="Toggle Shapes Sidebar (L)">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
 
       <div class="h-3 w-px bg-slate-200"></div>
 
-      <!-- Zoom controls -->
-      <div class="flex items-center gap-1">
+      <!-- Zoom -->
+      <div class="flex items-center gap-1 text-xs text-slate-600 font-semibold">
         <button id="btn-zoom-out" class="p-1 rounded hover:bg-slate-100 transition-colors" title="Zoom Out">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"></path>
@@ -393,6 +414,31 @@
       </button>
     </div>
   </div>
+
+  <!-- 3D Layer Stacking Preview Overlay -->
+  <div id="three-d-overlay" class="fixed inset-0 z-40 hidden flex items-center justify-center bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300 opacity-0">
+    <div class="absolute inset-0" id="three-d-close-trigger"></div>
+    <div id="three-d-scene-container" class="relative w-full h-full flex items-center justify-center pointer-events-none">
+      <div id="three-d-viewport" class="relative w-[70vw] h-[70vh] preserve-3d transition-transform duration-500 ease-out cursor-grab active:cursor-grabbing pointer-events-auto" style="transform: rotateX(60deg) rotateY(0deg) rotateZ(-45deg);">
+        <!-- 3D layers/shapes dynamically appended here -->
+      </div>
+      
+      <!-- Controls overlay -->
+      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/95 dark:bg-slate-900/95 dark:text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-4 text-xs font-semibold backdrop-blur-md pointer-events-auto border border-slate-200/50 dark:border-slate-800/50">
+        <span class="text-slate-500 dark:text-slate-400">3D Depth Preview</span>
+        <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
+        <span class="text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 7.827 5.34-5.886 1.905zm-3.083-7.074c-.947-.947-2.513-.947-3.46 0L2.83 20.267" />
+          </svg>
+          Drag to Rotate
+        </span>
+        <div class="w-px h-4 bg-slate-200 dark:bg-slate-700"></div>
+        <button id="btn-exit-3d" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all duration-200 cursor-pointer shadow-sm shadow-indigo-600/20">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 

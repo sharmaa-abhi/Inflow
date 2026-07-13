@@ -9,6 +9,7 @@ import { Sidebar } from './ui/Sidebar';
 import { Statusbar } from './ui/Statusbar';
 import { ContextMenu } from './ui/ContextMenu';
 import { Tooltip } from './ui/Tooltip';
+import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
 
 // Bootstrap InkFlow Application
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Initialize Document Autosave & File Loaders
     persistenceManager.init(canvasEngine);
+    threeDPreviewManager.init(canvasEngine);
 
     // 4. Initialize UI Panel Overlay Controllers
     new Toolbar();

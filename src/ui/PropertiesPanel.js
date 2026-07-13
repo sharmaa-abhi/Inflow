@@ -2,6 +2,7 @@ import { eventBus } from '../core/EventBus';
 import { shapeManager } from '../managers/ShapeManager';
 import { styleManager } from '../managers/StyleManager';
 import { toolManager } from '../managers/ToolManager';
+import { threeDPreviewManager } from '../managers/ThreeDPreviewManager';
 
 export class PropertiesPanel {
   constructor() {
@@ -36,9 +37,10 @@ export class PropertiesPanel {
     this.btnBringForward = document.getElementById('btn-bring-forward');
     this.btnBringFront = document.getElementById('btn-bring-front');
 
-    // Z-Index Numeric Input
+    // Z-Index Numeric Input and 3D Toggle
     this.inpZIndex = document.getElementById('prop-zindex');
     this.lblZIndexMax = document.getElementById('prop-zindex-max');
+    this.btnToggle3D = document.getElementById('btn-toggle-3d');
 
     this.colors = [
       '#1e293b', // slate-800 (default stroke)
@@ -83,6 +85,35 @@ export class PropertiesPanel {
         const val = parseInt(e.target.value, 10);
         if (!isNaN(val)) {
           toolManager.changeSelectedZIndex(val);
+        }
+      });
+
+      // Auto-trigger 3D preview on focus
+      this.inpZIndex.addEventListener('focus', () => {
+        threeDPreviewManager.activate();
+      });
+
+      // Close 3D preview on blur unless manually activated
+      this.inpZIndex.addEventListener('blur', () => {
+        setTimeout(() => {
+          if (document.activeElement !== this.inpZIndex && !threeDPreviewManager.overlay.classList.contains('manual-active')) {
+            threeDPreviewManager.deactivate();
+          }
+        }, 300);
+      });
+    }
+
+    // Bind Manual 3D Toggle
+    if (this.btnToggle3D) {
+      this.btnToggle3D.addEventListener('click', () => {
+        if (threeDPreviewManager.isActive) {
+          threeDPreviewManager.overlay.classList.remove('manual-active');
+          this.btnToggle3D.classList.remove('btn-active');
+          threeDPreviewManager.deactivate();
+        } else {
+          threeDPreviewManager.overlay.classList.add('manual-active');
+          this.btnToggle3D.classList.add('btn-active');
+          threeDPreviewManager.activate();
         }
       });
     }
