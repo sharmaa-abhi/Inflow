@@ -47,9 +47,14 @@ class ThemeManager {
       localStorage.setItem('inkflow_theme_pref', 'light');
     }
 
-    // Force redraw background grid to reflect theme changes
+    // Force redraw all layers to reflect theme changes (including background grid and shapes)
     if (this.canvasEngine) {
-      this.canvasEngine.backgroundLayer.batchDraw();
+      if (typeof this.canvasEngine.batchDrawAll === 'function') {
+        this.canvasEngine.batchDrawAll();
+      } else {
+        this.canvasEngine.backgroundLayer.batchDraw();
+        this.canvasEngine.shapeLayer.batchDraw();
+      }
     }
 
     eventBus.emit('theme-changed', isDark ? 'dark' : 'light');

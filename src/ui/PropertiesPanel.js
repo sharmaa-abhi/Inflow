@@ -110,13 +110,27 @@ export class PropertiesPanel {
     eventBus.on('shapes-updated', () => {
       this.syncZIndexInput();
     });
+
+    // Rebuild palettes on theme change to swap default colors
+    eventBus.on('theme-changed', () => {
+      this.buildColorPalette(this.strokePalette, 'stroke', false);
+      this.buildColorPalette(this.fillPalette, 'fill', true);
+      this.syncStyleInputs();
+    });
   }
 
   buildColorPalette(container, styleKey, includeTransparent = false) {
     if (!container) return;
     container.innerHTML = '';
 
-    const colors = includeTransparent ? ['transparent', ...this.colors] : this.colors;
+    const isDark = document.body.classList.contains('dark');
+    // Swap the default dark slate with white in the palette depending on theme
+    const paletteColors = this.colors.map(c => {
+      if (isDark && c === '#1e293b') return '#ffffff';
+      return c;
+    });
+
+    const colors = includeTransparent ? ['transparent', ...paletteColors] : paletteColors;
 
     colors.forEach(color => {
       const btn = document.createElement('button');

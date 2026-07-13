@@ -14,6 +14,48 @@ class ShapeManager {
     this.shapes = new Map(); // id -> Shape instance
     this.selectedIds = new Set();
     this.clipboard = []; // List of serialized shape JSONs
+
+    // Listen to theme changes to convert default colors
+    eventBus.on('theme-changed', (theme) => {
+      this.handleThemeChange(theme);
+    });
+  }
+
+  handleThemeChange(theme) {
+    const allShapes = this.getAllShapes();
+    let modified = false;
+
+    allShapes.forEach(shape => {
+      const updates = {};
+      
+      if (theme === 'dark') {
+        // Light mode -> Dark mode: Convert dark slate / black (#1e293b) to white (#ffffff)
+        if (shape.style.stroke === '#1e293b') {
+          updates.stroke = '#ffffff';
+        }
+        if (shape.style.fill === '#1e293b') {
+          updates.fill = '#ffffff';
+        }
+      } else {
+        // Dark mode -> Light mode: Convert white (#ffffff) to dark slate / black (#1e293b)
+        if (shape.style.stroke === '#ffffff') {
+          updates.stroke = '#1e293b';
+        }
+        if (shape.style.fill === '#ffffff') {
+          updates.fill = '#1e293b';
+        }
+      }
+
+      if (Object.keys(updates).length > 0) {
+        shape.updateStyle(updates);
+        modified = true;
+      }
+    });
+
+    if (modified) {
+      eventBus.emit('shapes-style-modified', this.getSelectedShapes());
+      eventBus.emit('shapes-updated');
+    }
   }
 
   addShape(shape) {

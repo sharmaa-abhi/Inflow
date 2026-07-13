@@ -28,7 +28,7 @@ export class PenTool extends BaseTool {
 
     this.activeShape = new PenShape({
       points: [...this.points],
-      style: { ...this.styleManager.activeStyle },
+      style: this.styleManager.getActiveStyles(),
     });
 
     // Make temporary shape non-draggable during drawing

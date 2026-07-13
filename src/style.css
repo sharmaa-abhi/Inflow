@@ -13,7 +13,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   font-family: var(--font-sans);
-  background-color: #f8fafc; /* Tailwind slate-50 */
+  background-color: #ffffff; /* Pure white background */
 }
 
 /* Konva canvas container styling */
@@ -75,14 +75,14 @@ html, body {
 
 /* Dark Mode Overrides */
 body.dark {
-  background-color: #0f172a; /* slate-900 */
+  background-color: #000000 !important; /* Pure black background */
   color: #f1f5f9; /* slate-100 */
 }
 
 body.dark .floating-panel {
-  background: rgba(15, 23, 42, 0.85); /* slate-900 with opacity */
-  border-color: rgba(51, 65, 85, 0.8); /* slate-700 */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  background: rgba(10, 10, 12, 0.9) !important; /* Extremely dark slate/black glassmorphism */
+  border-color: rgba(38, 38, 41, 0.85) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   color: #f1f5f9;
 }
 
@@ -202,9 +202,9 @@ body.dark #btn-clear:hover {
 
 /* Dark Mode Context Menu */
 body.dark .context-menu {
-  background: rgba(15, 23, 42, 0.9);
-  border-color: rgba(51, 65, 85, 0.8);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
+  background: rgba(10, 10, 12, 0.95);
+  border-color: rgba(38, 38, 41, 0.85);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
 }
 
 body.dark .context-menu-item {

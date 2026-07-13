@@ -14,6 +14,26 @@ class StyleManager {
       fontFamily: 'Inter', // 'Inter', 'Georgia', 'Architects Daughter'
       align: 'left', // 'left', 'center', 'right'
     };
+
+    // Listen to theme changes to swap default styles
+    eventBus.on('theme-changed', (theme) => {
+      if (theme === 'dark') {
+        if (this.activeStyles.stroke === '#1e293b') {
+          this.activeStyles.stroke = '#ffffff';
+        }
+        if (this.activeStyles.fill === '#1e293b') {
+          this.activeStyles.fill = '#ffffff';
+        }
+      } else {
+        if (this.activeStyles.stroke === '#ffffff') {
+          this.activeStyles.stroke = '#1e293b';
+        }
+        if (this.activeStyles.fill === '#ffffff') {
+          this.activeStyles.fill = '#1e293b';
+        }
+      }
+      eventBus.emit('active-style-changed', this.activeStyles);
+    });
   }
 
   getActiveStyles() {

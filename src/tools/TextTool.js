@@ -36,7 +36,7 @@ export class TextTool extends BaseTool {
       this.startEditing(existingShape, false);
     } else {
       // Create new text shape
-      const style = { ...this.styleManager.activeStyle };
+      const style = this.styleManager.getActiveStyles();
       const newTextShape = new TextShape({
         x: canvasPos.x,
         y: canvasPos.y,
