@@ -266,10 +266,43 @@ class ToolManager {
         undo: () => {
           shapeManager.setShapesOrder(beforeIds);
           this.canvasEngine.shapeLayer.batchDraw();
+          eventBus.emit('selection-changed', shapeManager.getSelectedShapes());
         },
         redo: () => {
           shapeManager.setShapesOrder(afterIds);
           this.canvasEngine.shapeLayer.batchDraw();
+          eventBus.emit('selection-changed', shapeManager.getSelectedShapes());
+        }
+      });
+    }
+  }
+
+  changeSelectedZIndex(newIndex) {
+    const selected = shapeManager.getSelectedShapes();
+    if (selected.length !== 1) return;
+
+    const shape = selected[0];
+    const result = shapeManager.setShapeZIndex(shape.id, newIndex);
+    if (!result) return;
+
+    const { beforeIds, afterIds } = result;
+
+    if (JSON.stringify(beforeIds) !== JSON.stringify(afterIds)) {
+      this.canvasEngine.shapeLayer.batchDraw();
+      
+      historyManager.registerChange({
+        type: 'set-zindex',
+        beforeIds,
+        afterIds,
+        undo: () => {
+          shapeManager.setShapesOrder(beforeIds);
+          this.canvasEngine.shapeLayer.batchDraw();
+          eventBus.emit('selection-changed', shapeManager.getSelectedShapes());
+        },
+        redo: () => {
+          shapeManager.setShapesOrder(afterIds);
+          this.canvasEngine.shapeLayer.batchDraw();
+          eventBus.emit('selection-changed', shapeManager.getSelectedShapes());
         }
       });
     }

@@ -36,6 +36,10 @@ export class PropertiesPanel {
     this.btnBringForward = document.getElementById('btn-bring-forward');
     this.btnBringFront = document.getElementById('btn-bring-front');
 
+    // Z-Index Numeric Input
+    this.inpZIndex = document.getElementById('prop-zindex');
+    this.lblZIndexMax = document.getElementById('prop-zindex-max');
+
     this.colors = [
       '#1e293b', // slate-800 (default stroke)
       '#ef4444', // red-500
@@ -73,6 +77,16 @@ export class PropertiesPanel {
     if (this.btnBringForward) this.btnBringForward.addEventListener('click', () => toolManager.reorderSelected('forward'));
     if (this.btnBringFront) this.btnBringFront.addEventListener('click', () => toolManager.reorderSelected('front'));
 
+    // Bind Z-index change
+    if (this.inpZIndex) {
+      this.inpZIndex.addEventListener('change', (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val)) {
+          toolManager.changeSelectedZIndex(val);
+        }
+      });
+    }
+
     this.setupGeometryListeners();
     this.setupStyleListeners();
     this.setupTypographyListeners();
@@ -90,6 +104,11 @@ export class PropertiesPanel {
     // Sync styles back if they are updated by undo/redo
     eventBus.on('shapes-style-modified', () => {
       this.syncStyleInputs();
+    });
+
+    // Sync Z-index back when shapes list is updated/reordered
+    eventBus.on('shapes-updated', () => {
+      this.syncZIndexInput();
     });
   }
 
@@ -156,6 +175,7 @@ export class PropertiesPanel {
 
       this.syncGeometryInputs();
       this.syncStyleInputs();
+      this.syncZIndexInput();
     }
   }
 
@@ -208,6 +228,32 @@ export class PropertiesPanel {
       if (this.inpFontSize) this.inpFontSize.value = style.fontSize || 20;
       if (this.inpFontFamily) this.inpFontFamily.value = style.fontFamily || 'Inter';
       this.syncGroupButtonsActive(this.textAlignGroup, style.align || 'left');
+    }
+  }
+
+  syncZIndexInput() {
+    if (!this.inpZIndex) return;
+
+    if (this.selectedShapes.length !== 1) {
+      this.inpZIndex.disabled = true;
+      this.inpZIndex.value = '';
+      if (this.lblZIndexMax) {
+        this.lblZIndexMax.textContent = '';
+      }
+      return;
+    }
+
+    this.inpZIndex.disabled = false;
+    const shape = this.selectedShapes[0];
+    const allShapes = shapeManager.getAllShapes();
+    const currentIndex = allShapes.findIndex(s => s.id === shape.id);
+
+    this.inpZIndex.value = currentIndex;
+    this.inpZIndex.max = allShapes.length - 1;
+    this.inpZIndex.min = 0;
+
+    if (this.lblZIndexMax) {
+      this.lblZIndexMax.textContent = `/ ${allShapes.length - 1}`;
     }
   }
 

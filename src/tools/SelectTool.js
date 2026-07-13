@@ -46,11 +46,26 @@ export class SelectTool extends BaseTool {
     this.canvasEngine.selectionLayer.add(this.transformer);
 
     this.initTransformerEvents();
+
+    // Unified selection subscription
+    eventBus.on('selection-changed', (selectedShapes) => {
+      this.selectedShapes = selectedShapes;
+      const nodes = this.selectedShapes.map((shape) => shape.konvaNode);
+      this.transformer.nodes(nodes);
+      if (this.active) {
+        this.canvasEngine.selectionLayer.batchDraw();
+      }
+    });
   }
 
   activate() {
     super.activate();
     this.transformer.visible(true);
+    // Draw current selection from shapeManager
+    const selected = this.shapeManager.getSelectedShapes();
+    this.selectedShapes = selected;
+    const nodes = selected.map(s => s.konvaNode);
+    this.transformer.nodes(nodes);
     this.canvasEngine.selectionLayer.batchDraw();
   }
 
@@ -79,22 +94,13 @@ export class SelectTool extends BaseTool {
       newSelection = [...shapes];
     }
 
-    this.selectedShapes = newSelection;
-
-    // Attach Konva nodes to transformer
-    const nodes = this.selectedShapes.map((shape) => shape.konvaNode);
-    this.transformer.nodes(nodes);
-    
-    this.canvasEngine.selectionLayer.batchDraw();
-    eventBus.emit('selection-changed', this.selectedShapes);
+    // Delegate selection state management to shapeManager
+    this.shapeManager.select(newSelection.map(s => s.id));
   }
 
   clearSelection() {
     if (this.selectedShapes.length === 0) return;
-    this.selectedShapes = [];
-    this.transformer.nodes([]);
-    this.canvasEngine.selectionLayer.batchDraw();
-    eventBus.emit('selection-changed', []);
+    this.shapeManager.deselectAll();
   }
 
   onPointerDown(data) {

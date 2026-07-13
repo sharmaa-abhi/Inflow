@@ -27,7 +27,7 @@ class ShapeManager {
       this.shapes.delete(id);
       this.selectedIds.delete(id);
       eventBus.emit('shapes-updated');
-      eventBus.emit('selection-changed', this.getSelectedShapeIds());
+      eventBus.emit('selection-changed', this.getSelectedShapes());
     }
   }
 
@@ -39,7 +39,7 @@ class ShapeManager {
     this.shapes.clear();
     this.selectedIds.clear();
     eventBus.emit('shapes-updated');
-    eventBus.emit('selection-changed', this.getSelectedShapeIds());
+    eventBus.emit('selection-changed', this.getSelectedShapes());
   }
 
   getAllShapes() {
@@ -119,6 +119,24 @@ class ShapeManager {
     this.setShapesOrder(newOrder.map(s => s.id));
   }
 
+  setShapeZIndex(id, newIndex) {
+    const allShapes = this.getAllShapes();
+    const currentIndex = allShapes.findIndex(s => s.id === id);
+    if (currentIndex === -1) return null;
+
+    newIndex = Math.max(0, Math.min(newIndex, allShapes.length - 1));
+    if (currentIndex === newIndex) return null;
+
+    const beforeIds = allShapes.map(s => s.id);
+    const [target] = allShapes.splice(currentIndex, 1);
+    allShapes.splice(newIndex, 0, target);
+
+    const afterIds = allShapes.map(s => s.id);
+    this.setShapesOrder(afterIds);
+
+    return { beforeIds, afterIds };
+  }
+
 
   // Selection state
   select(ids) {
@@ -128,7 +146,7 @@ class ShapeManager {
         this.selectedIds.add(id);
       }
     }
-    eventBus.emit('selection-changed', this.getSelectedShapeIds());
+    eventBus.emit('selection-changed', this.getSelectedShapes());
   }
 
   toggleSelect(id) {
@@ -137,13 +155,13 @@ class ShapeManager {
     } else if (this.shapes.has(id)) {
       this.selectedIds.add(id);
     }
-    eventBus.emit('selection-changed', this.getSelectedShapeIds());
+    eventBus.emit('selection-changed', this.getSelectedShapes());
   }
 
   deselectAll() {
     if (this.selectedIds.size > 0) {
       this.selectedIds.clear();
-      eventBus.emit('selection-changed', this.getSelectedShapeIds());
+      eventBus.emit('selection-changed', this.getSelectedShapes());
     }
   }
 
