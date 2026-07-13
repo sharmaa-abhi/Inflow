@@ -225,4 +225,38 @@ body.dark .context-menu-separator {
   background-color: rgba(51, 65, 85, 0.6);
 }
 
+/* Custom Tooltip Styling */
+.custom-tooltip {
+  position: absolute;
+  background: rgba(15, 23, 42, 0.85); /* Slate-900 transparent */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.12s cubic-bezier(0.4, 0, 0.2, 1), transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-tooltip.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Dark Mode Tooltip Adjustment */
+body.dark .custom-tooltip {
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 

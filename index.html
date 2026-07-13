@@ -154,7 +154,7 @@
       class="absolute top-20 right-4 max-h-[80vh] overflow-y-auto w-72 z-10 rounded-2xl floating-panel flex flex-col p-4 gap-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
         <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Properties</span>
-        <button id="btn-close-properties" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600">
+        <button id="btn-close-properties" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600" title="Close Panel">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
@@ -271,11 +271,11 @@
         <div class="flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-slate-500">Stroke Width</span>
           <div id="prop-stroke-width-group" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
-            <button data-val="2"
+            <button data-val="2" title="Thin Stroke"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Thin</button>
-            <button data-val="4"
+            <button data-val="4" title="Medium Stroke"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Medium</button>
-            <button data-val="7"
+            <button data-val="7" title="Thick Stroke"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Thick</button>
           </div>
         </div>
@@ -284,11 +284,11 @@
         <div class="flex flex-col gap-1.5">
           <span class="text-xs font-semibold text-slate-500">Stroke Style</span>
           <div id="prop-stroke-style-group" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
-            <button data-val="solid"
+            <button data-val="solid" title="Solid Line"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Solid</button>
-            <button data-val="dashed"
+            <button data-val="dashed" title="Dashed Line"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Dashed</button>
-            <button data-val="dotted"
+            <button data-val="dotted" title="Dotted Line"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Dotted</button>
           </div>
         </div>
@@ -319,11 +319,11 @@
         <div class="flex flex-col gap-1.5">
           <span class="text-[10px] text-slate-400 uppercase">Alignment</span>
           <div id="prop-text-align" class="flex bg-slate-50 border border-slate-200 rounded-lg p-0.5 gap-0.5">
-            <button data-val="left"
+            <button data-val="left" title="Align Left"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Left</button>
-            <button data-val="center"
+            <button data-val="center" title="Align Center"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Center</button>
-            <button data-val="right"
+            <button data-val="right" title="Align Right"
               class="flex-1 text-xs py-1 rounded-md font-medium text-slate-600 hover:bg-white transition-colors">Right</button>
           </div>
         </div>
@@ -356,14 +356,14 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path>
           </svg>
         </button>
-        <button id="btn-zoom-reset"
+        <button id="btn-zoom-reset" title="Reset Zoom to 100%"
           class="px-1.5 py-0.5 rounded text-[10px] hover:bg-slate-100 transition-colors border border-slate-200">Reset</button>
       </div>
 
       <div class="h-3 w-px bg-slate-200"></div>
 
       <!-- Grid Selector -->
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1" title="Change Canvas Grid">
         <span class="text-[10px] text-slate-400 uppercase mr-1">Canvas:</span>
         <select id="grid-select"
           class="bg-transparent border-0 font-semibold focus:ring-0 focus:outline-none cursor-pointer py-0 pr-6 text-xs text-slate-600">
