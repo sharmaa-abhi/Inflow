@@ -10,6 +10,8 @@ import { Statusbar } from './ui/Statusbar';
 import { ContextMenu } from './ui/ContextMenu';
 import { Tooltip } from './ui/Tooltip';
 import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
+import { initMobileUI } from './mobile-ui';
+
 
 // Bootstrap InkFlow Application
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,8 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
     new ContextMenu(canvasEngine);
     new Tooltip();
 
+    // 5. Init mobile responsive UI (works on all screen sizes, CSS controls visibility)
+    initMobileUI(canvasEngine);
+
     console.log('InkFlow successfully initialized!');
   } catch (error) {
     console.error('Error bootstrapping InkFlow application:', error);
   }
 });
+
