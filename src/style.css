@@ -756,3 +756,6 @@ body.dark .mobile-toast {
   background: rgba(241, 245, 249, 0.92);
   color: #0f172a;
 }
+
+/* ── Mobile UI components (shown only on ≤768px) ─────────────────────────── */
+@import './mobile-components.css';
