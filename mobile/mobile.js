@@ -89,12 +89,14 @@ class MobilePropertiesSheet {
   constructor() {
     this.sheet    = document.getElementById('props-sheet');
     this.backdrop = document.getElementById('props-sheet-backdrop');
+    this.titleEl  = this.sheet?.querySelector('.sheet-title');
 
     // Panel state
-    this._isOpen    = false;
-    this._isDragging = false;
-    this._dragStartY = 0;
-    this._dragCurrentY = 0;
+    this._isOpen         = false;
+    this._userDismissed  = false; // true after user manually closes
+    this._isDragging     = false;
+    this._dragStartY     = 0;
+    this._dragCurrentY   = 0;
 
     this._buildColorPalettes();
     this._bindEvents();
@@ -148,24 +150,32 @@ class MobilePropertiesSheet {
   }
 
   // ── Open / Close sheet ──────────────────────────────────────────
-  open() {
+  open(bySelection = false) {
     if (this._isOpen) return;
     this._isOpen = true;
+    if (bySelection) this._userDismissed = false; // selection always overrides
 
     this.sheet.classList.add('sheet-open');
     this.sheet.setAttribute('aria-hidden', 'false');
 
+    // No backdrop blur when showing default styles (no shape selected)
+    const hasSelection = this._hasActiveSelection();
     this.backdrop.classList.remove('hidden');
-    // Force reflow for transition
     void this.backdrop.offsetWidth;
-    this.backdrop.classList.add('visible');
+    if (hasSelection) {
+      this.backdrop.classList.add('visible');
+    } else {
+      this.backdrop.classList.remove('visible');
+    }
 
     this._syncFromActiveStyles();
+    this._syncToggleBtn(true);
   }
 
-  close() {
+  close(byUser = false) {
     if (!this._isOpen) return;
     this._isOpen = false;
+    if (byUser) this._userDismissed = true;
 
     this.sheet.classList.remove('sheet-open');
     this.sheet.setAttribute('aria-hidden', 'true');
@@ -174,6 +184,27 @@ class MobilePropertiesSheet {
     setTimeout(() => {
       if (!this._isOpen) this.backdrop.classList.add('hidden');
     }, 300);
+    this._syncToggleBtn(false);
+  }
+
+  _hasActiveSelection() {
+    // Check if any shapes are currently selected via the selection layer
+    try {
+      const selected = toolManager.getSelectedShapes?.() ?? [];
+      return selected.length > 0;
+    } catch { return false; }
+  }
+
+  // ── Called once on startup to show defaults ──────────────────────
+  showDefaults() {
+    this._userDismissed = false;
+    if (this.titleEl) this.titleEl.textContent = 'Style';
+    this.open();
+  }
+
+  _syncToggleBtn(isOpen) {
+    document.getElementById('btn-toggle-style')
+      ?.classList.toggle('panel-open', isOpen);
   }
 
   toggle() {
@@ -218,11 +249,11 @@ class MobilePropertiesSheet {
 
   // ── Wire up all the interactive controls ────────────────────────
   _bindEvents() {
-    // Close button
-    document.getElementById('btn-close-sheet')?.addEventListener('click', () => this.close());
+    // Close button — counts as user dismissal
+    document.getElementById('btn-close-sheet')?.addEventListener('click', () => this.close(true));
 
-    // Backdrop tap
-    this.backdrop.addEventListener('click', () => this.close());
+    // Backdrop tap — counts as user dismissal
+    this.backdrop.addEventListener('click', () => this.close(true));
 
     // Custom color inputs
     document.getElementById('mobile-stroke-custom')?.addEventListener('input', (e) => {
@@ -288,9 +319,9 @@ class MobilePropertiesSheet {
       this.sheet.style.transition = '';
       this.sheet.style.transform = '';
 
-      // If dragged more than 80px down, dismiss
+      // If dragged more than 80px down, dismiss as user action
       if (this._dragCurrentY > 80) {
-        this.close();
+        this.close(true);
       }
     });
 
@@ -303,12 +334,23 @@ class MobilePropertiesSheet {
 
   // ── Listen to canvas selection events ───────────────────────────
   _listenToCanvas() {
-    // Show sheet when shapes are selected
     eventBus.on('selection-changed', (selectedShapes) => {
       if (selectedShapes && selectedShapes.length > 0) {
-        this.open();
+        // A shape was selected — always open and update title
+        if (this.titleEl) this.titleEl.textContent = 'Properties';
+        this.open(true);
       } else {
-        this.close();
+        // Deselected — close backdrop, revert title, but keep sheet open
+        // as a default-style panel (unless user had manually dismissed it)
+        this.backdrop.classList.remove('visible');
+        if (this.titleEl) this.titleEl.textContent = 'Style';
+        if (!this._userDismissed) {
+          // Keep sheet open showing default styles
+          if (!this._isOpen) this.open();
+          this._syncFromActiveStyles();
+        } else {
+          this.close();
+        }
       }
     });
 
@@ -503,12 +545,21 @@ document.addEventListener('DOMContentLoaded', () => {
     new MobileZoomBar(canvasEngine);
     new MobileExportButton();
 
+    // Wire the style-toggle button in toolbar
+    document.getElementById('btn-toggle-style')?.addEventListener('click', () => {
+      propsSheet._userDismissed = false; // user explicitly wants it
+      propsSheet.toggle();
+    });
+
     // 6. Prevent default browser gestures on the canvas container
     //    (pinch-zoom, scroll) — our TouchGestureHandler takes over
     const canvasEl = canvasEngine.stage.container();
     canvasEl.style.touchAction = 'none';
 
-    // 7. Brief welcome toast
+    // 7. Auto-open sheet with default styles on startup
+    setTimeout(() => propsSheet.showDefaults(), 300);
+
+    // 8. Brief welcome toast
     setTimeout(() => showToast('InkFlow Mobile ready ✦', 2500), 400);
 
     console.log('✦ InkFlow Mobile initialized!');

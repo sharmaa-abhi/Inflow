@@ -331,6 +331,19 @@ body.dark .tool-btn.active-tool {
   color: #ef4444;
 }
 
+/* Style-panel toggle button — indigo accent */
+.style-toggle-btn {
+  color: var(--accent);
+}
+.style-toggle-btn.panel-open {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+body.dark .style-toggle-btn.panel-open {
+  background: rgba(79, 70, 229, 0.22);
+  color: #a5b4fc;
+}
+
 /* Tool divider line */
 .tool-divider {
   flex-shrink: 0;
@@ -371,8 +384,9 @@ body.dark .tool-btn.active-tool {
   bottom: 0;
   z-index: 40;
 
-  max-height: 75vh;
-  max-height: 75dvh;
+  /* Compact height for mobile screens */
+  max-height: 52vh;
+  max-height: 52dvh;
 
   background: var(--sheet-bg);
   backdrop-filter: blur(20px);
@@ -402,7 +416,7 @@ body.dark .tool-btn.active-tool {
 /* Drag handle area */
 .sheet-handle-area {
   flex-shrink: 0;
-  padding: 12px 0 4px;
+  padding: 7px 0 2px;
   display: flex;
   justify-content: center;
   cursor: grab;
@@ -424,13 +438,13 @@ body.dark .tool-btn.active-tool {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 20px 12px;
+  padding: 2px 16px 8px;
   border-bottom: 1px solid var(--border);
 }
 
 .sheet-title {
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--text-primary);
   text-transform: uppercase;
@@ -439,10 +453,10 @@ body.dark .tool-btn.active-tool {
 }
 
 .sheet-close-btn {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--surface-hover);
   color: var(--text-muted);
   display: flex;
@@ -454,8 +468,8 @@ body.dark .tool-btn.active-tool {
 }
 
 .sheet-close-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
 }
 
 .sheet-close-btn:active {
@@ -468,14 +482,14 @@ body.dark .tool-btn.active-tool {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 16px 20px 0;
+  padding: 10px 14px 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
 }
 
 .sheet-safe-bottom {
-  height: calc(env(safe-area-inset-bottom, 16px) + 16px);
+  height: calc(env(safe-area-inset-bottom, 8px) + 8px);
   flex-shrink: 0;
 }
 
@@ -486,12 +500,12 @@ body.dark .tool-btn.active-tool {
 .prop-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .prop-label {
   font-family: 'Inter', sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -503,13 +517,13 @@ body.dark .tool-btn.active-tool {
 .color-palette {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 5px;
 }
 
 .color-swatch {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
   border: 2px solid transparent;
   cursor: pointer;
   transition: transform 0.15s var(--ease-bounce), box-shadow 0.15s;
@@ -544,14 +558,14 @@ body.dark .color-swatch.swatch-transparent {
 .custom-color-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
 }
 
 .custom-color-input {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border: 2px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 2px;
   cursor: pointer;
   background: transparent;
@@ -559,7 +573,7 @@ body.dark .color-swatch.swatch-transparent {
 }
 
 .custom-color-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -571,20 +585,20 @@ body.dark .color-swatch.swatch-transparent {
 .btn-group {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
+  gap: 3px;
   background: var(--surface-hover);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 4px;
+  border-radius: 10px;
+  padding: 3px;
 }
 
 .btn-group-item {
-  padding: 10px 4px;
+  padding: 7px 4px;
   border: none;
-  border-radius: 10px;
+  border-radius: 7px;
   background: transparent;
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
@@ -613,15 +627,15 @@ body.dark .btn-group-item.active-group-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  padding: 14px;
+  padding: 10px;
   border: 1.5px solid rgba(239, 68, 68, 0.25);
-  border-radius: 14px;
+  border-radius: 10px;
   background: rgba(239, 68, 68, 0.05);
   color: #ef4444;
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
@@ -629,8 +643,8 @@ body.dark .btn-group-item.active-group-item {
 }
 
 .danger-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
 }
 
 .danger-btn:active {
