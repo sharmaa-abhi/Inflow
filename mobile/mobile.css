@@ -503,6 +503,81 @@ body.dark .style-toggle-btn.panel-open {
   gap: 6px;
 }
 
+/* Thin divider between sections */
+.sheet-divider {
+  height: 1px;
+  background: var(--border);
+  border-radius: 1px;
+  margin: 2px 0;
+  flex-shrink: 0;
+}
+
+/* Horizontal row of action buttons (Dark Mode, Export, Zoom…) */
+.sheet-action-row {
+  display: flex;
+  gap: 6px;
+}
+
+.sheet-action-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Inter', sans-serif;
+}
+
+.sheet-action-btn:active {
+  transform: scale(0.93);
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.sheet-action-btn.action-active {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+body.dark .sheet-action-btn.action-active {
+  background: rgba(79, 70, 229, 0.22);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.sheet-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet-action-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
+.sheet-action-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: inherit;
+  text-align: center;
+}
+
+
+
 .prop-label {
   font-family: 'Inter', sans-serif;
   font-size: 10px;

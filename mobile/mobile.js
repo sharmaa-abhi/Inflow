@@ -212,7 +212,22 @@ class MobilePropertiesSheet {
   }
 
   // ── Sync sheet UI to current active styles ───────────────────────
+  // ── Sync dark-mode button in the sheet ──────────────────────────
+  _syncThemeBtn() {
+    const isDark = document.body.classList.contains('dark');
+    const sun  = document.getElementById('sheet-theme-sun');
+    const moon = document.getElementById('sheet-theme-moon');
+    const label = document.getElementById('sheet-theme-label');
+    const btn  = document.getElementById('sheet-btn-theme');
+
+    if (sun)  sun.classList.toggle('hidden', isDark);
+    if (moon) moon.classList.toggle('hidden', !isDark);
+    if (label) label.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    if (btn)  btn.classList.toggle('action-active', isDark);
+  }
+
   _syncFromActiveStyles() {
+
     const styles = styleManager.getActiveStyles();
 
     // Stroke palette highlight
@@ -286,8 +301,41 @@ class MobilePropertiesSheet {
       showToast('Shape deleted');
     });
 
+    // ── Sheet Header Settings ───────────────────────────────────────
+
+    // Dark Mode — mirror the top-bar toggle button click
+    document.getElementById('sheet-btn-theme')?.addEventListener('click', () => {
+      // Trigger the existing top-bar toggle (ThemeManager listens to it)
+      document.getElementById('btn-theme-toggle')?.click();
+      this._syncThemeBtn();
+    });
+
+    // Export PNG
+    document.getElementById('sheet-btn-export')?.addEventListener('click', () => {
+      persistenceManager.exportPNG();
+      showToast('Exported as PNG!');
+    });
+
+    // ── Sheet Footer / Canvas Actions ───────────────────────────────
+
+    // Zoom controls — delegate to the canvas engine via existing buttons
+    document.getElementById('sheet-btn-zoom-out')?.addEventListener('click', () => {
+      document.getElementById('btn-zoom-out')?.click();
+    });
+    document.getElementById('sheet-btn-zoom-reset')?.addEventListener('click', () => {
+      document.getElementById('zoom-display')?.click();
+    });
+    document.getElementById('sheet-btn-zoom-in')?.addEventListener('click', () => {
+      document.getElementById('btn-zoom-in')?.click();
+    });
+
+    // Sync theme button state immediately and whenever theme changes
+    this._syncThemeBtn();
+    eventBus.on('theme-changed', () => this._syncThemeBtn());
+
     // Drag-to-dismiss the sheet
     this._initDragDismiss();
+
   }
 
   // ── Drag-to-dismiss gesture ──────────────────────────────────────
