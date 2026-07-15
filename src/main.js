@@ -51,19 +51,32 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Wire up the merged HTML's mb- prefixed mobile elements to core actions
     _wireMobileElements(canvasEngine);
 
-    // 6. Handle resize across breakpoint — re-initialize desktop UI if needed
+    // 6. Handle resize across breakpoint — re-initialize correct UI once per crossing
     let _desktopInitialized = window.innerWidth > BREAKPOINT;
+    let _resizeTimer = null;
     window.addEventListener('resize', () => {
-      const isDesktop = window.innerWidth > BREAKPOINT;
-      if (isDesktop && !_desktopInitialized) {
-        _desktopInitialized = true;
-        new Toolbar();
-        new PropertiesPanel();
-        new Sidebar(canvasEngine);
-        new Statusbar(canvasEngine);
-        new ContextMenu(canvasEngine);
-        new Tooltip();
-      }
+      // Debounce: wait 150ms after last resize event before acting
+      clearTimeout(_resizeTimer);
+      _resizeTimer = setTimeout(() => {
+        const isDesktop = window.innerWidth > BREAKPOINT;
+
+        if (isDesktop && !_desktopInitialized) {
+          // ── Crossed to DESKTOP ─────────────────────────────────────────────
+          _desktopInitialized = true;
+          new Toolbar();
+          new PropertiesPanel();
+          new Sidebar(canvasEngine);
+          new Statusbar(canvasEngine);
+          new ContextMenu(canvasEngine);
+          new Tooltip();
+          console.log('InkFlow: switched to Desktop UI (>' + BREAKPOINT + 'px)');
+        } else if (!isDesktop && _desktopInitialized) {
+          // ── Crossed to MOBILE ──────────────────────────────────────────────
+          _desktopInitialized = false;
+          console.log('InkFlow: switched to Mobile UI (<=' + BREAKPOINT + 'px)');
+          // CSS handles hiding desktop panels; mobile-ui.js handles touch activation
+        }
+      }, 150);
     });
 
     console.log('InkFlow successfully initialized!');

@@ -65,7 +65,7 @@ body.dark {
 }
 
 /* On mobile (≤768px): show mobile elements, hide desktop elements */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
 
   /* ── Show mobile UI ──────────────────────────────────────────── */
   #top-bar      { display: flex !important; }
@@ -96,6 +96,206 @@ body.dark {
     overscroll-behavior: none;
     touch-action: none;
   }
+
+@media (max-width: 900px) {
+    --top-bar-height: 48px;
+    --toolbar-height: 60px;
+  }
+
+  /* TOP BAR — shorter, tighter padding */
+  #top-bar {
+    height: var(--top-bar-height);
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .brand-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .brand-name {
+    font-size: 13px;
+  }
+
+  .top-bar-actions {
+    gap: 2px;
+  }
+
+  .top-action-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .top-action-btn svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  /* ZOOM PILL — compact */
+  #zoom-pill {
+    top: calc(var(--top-bar-height) + 8px + env(safe-area-inset-top, 0px));
+    padding: 4px 6px;
+    gap: 1px;
+  }
+
+  .zoom-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .zoom-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  #mb-zoom-display {
+    min-width: 36px;
+    font-size: 11px;
+  }
+
+  /* BOTTOM TOOLBAR — tighter */
+  #bottom-toolbar {
+    padding-top: 6px;
+    padding-bottom: env(safe-area-inset-bottom, 6px);
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  #toolbar-scroll {
+    gap: 1px;
+    padding: 2px 0;
+  }
+
+  /* TOOL BUTTONS — smaller for compact mobile */
+  .tool-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    gap: 2px;
+  }
+
+  .tool-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .tool-label {
+    font-size: 8px;
+    letter-spacing: 0.2px;
+  }
+
+  .tool-divider {
+    height: 26px;
+    margin: 0 2px;
+  }
+
+  /* BOTTOM SHEET — more compact */
+  .bottom-sheet {
+    max-height: 48vh;
+    max-height: 48dvh;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+  }
+
+  .sheet-handle-area {
+    padding: 6px 0 2px;
+  }
+
+  .sheet-handle {
+    width: 32px;
+    height: 3px;
+  }
+
+  .sheet-header {
+    padding: 2px 12px 6px;
+  }
+
+  .sheet-title {
+    font-size: 10px;
+  }
+
+  .sheet-close-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+
+  .sheet-close-btn svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .sheet-body {
+    padding: 8px 12px 0;
+    gap: 8px;
+  }
+
+  /* COLOR SWATCHES — tighter */
+  .color-swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+  }
+
+  .color-palette {
+    gap: 4px;
+  }
+
+  .custom-color-input {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+
+  .custom-color-row {
+    gap: 5px;
+  }
+
+  .custom-color-label {
+    font-size: 9px;
+  }
+
+  /* BUTTON GROUPS */
+  .btn-group {
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .btn-group-item {
+    padding: 5px 2px;
+    font-size: 10px;
+  }
+
+  /* PROP LABELS */
+  .prop-label {
+    font-size: 9px;
+  }
+
+  .prop-section {
+    gap: 4px;
+  }
+
+  /* DELETE BUTTON */
+  .danger-btn {
+    padding: 8px;
+    font-size: 11px;
+    border-radius: 8px;
+  }
+
+  .danger-btn svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  /* TOAST */
+  .toast {
+    font-size: 11px;
+    padding: 8px 16px;
+    bottom: calc(var(--toolbar-height) + env(safe-area-inset-bottom, 0px) + 10px);
+  }
+
 }
 
 /* ──────────────────────────────────────────────────────────────── */
