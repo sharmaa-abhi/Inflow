@@ -64,7 +64,11 @@ class PersistenceManager {
   loadScene() {
     try {
       const raw = localStorage.getItem(this.storageKey);
-      if (!raw) return;
+      if (!raw) {
+        // No saved state! Load the default architecture diagram
+        this.loadDefaultArchitecture();
+        return;
+      }
       
       const data = JSON.parse(raw);
       this.importSceneData(data);
@@ -74,12 +78,209 @@ class PersistenceManager {
   }
 
   /**
+   * Fetches and loads the default InkFlow architecture diagram.
+   */
+  loadDefaultArchitecture() {
+    fetch('/InkFlow-Architecture.excalidraw')
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to fetch default architecture diagram');
+        return response.json();
+      })
+      .then(data => {
+        this.importSceneData(data);
+        historyManager.clear();
+      })
+      .catch(err => {
+        console.error('Error loading default architecture diagram:', err);
+      });
+  }
+
+  /**
+   * Translates Excalidraw JSON structure into InkFlow shapes representation.
+   * @param {Object} excalidrawObj 
+   * @returns {Object} InkFlow scene data
+   */
+  convertExcalidrawToInkFlow(excalidrawObj) {
+    const shapes = [];
+
+    (excalidrawObj.elements || []).forEach(el => {
+      if (!el.type) return;
+
+      const angle = el.angle || 0;
+      const rotation = angle * (180 / Math.PI); // Convert radians to degrees
+
+      const strokeStyle = el.strokeStyle || 'solid';
+      const strokeWidth = el.strokeWidth || 2;
+      const strokeColor = el.strokeColor || '#1e293b';
+      const fillColor = el.backgroundColor === 'transparent' ? 'transparent' : (el.backgroundColor || 'transparent');
+      const opacity = el.opacity !== undefined ? el.opacity / 100 : 1;
+
+      const style = {
+        stroke: strokeColor,
+        fill: fillColor,
+        strokeWidth: strokeWidth,
+        strokeStyle: strokeStyle,
+        opacity: opacity
+      };
+
+      let shapeData = null;
+
+      if (el.type === 'rectangle') {
+        shapeData = {
+          id: el.id || `rect-${Date.now()}-${Math.random()}`,
+          type: 'rectangle',
+          x: el.x,
+          y: el.y,
+          width: el.width,
+          height: el.height,
+          rotation: rotation,
+          style: style
+        };
+        shapes.push(shapeData);
+      } else if (el.type === 'ellipse') {
+        shapeData = {
+          id: el.id || `ellipse-${Date.now()}-${Math.random()}`,
+          type: 'circle',
+          x: el.x + el.width / 2,
+          y: el.y + el.height / 2,
+          width: el.width,
+          height: el.height,
+          rotation: rotation,
+          style: style
+        };
+        shapes.push(shapeData);
+      } else if (el.type === 'diamond') {
+        shapeData = {
+          id: el.id || `diamond-${Date.now()}-${Math.random()}`,
+          type: 'diamond',
+          x: el.x,
+          y: el.y,
+          width: el.width,
+          height: el.height,
+          rotation: rotation,
+          style: style
+        };
+        shapes.push(shapeData);
+      } else if (el.type === 'line' || el.type === 'arrow') {
+        const type = el.type === 'arrow' ? 'arrow' : 'line';
+        let width = el.width || 0;
+        let height = el.height || 0;
+        
+        if (el.points && el.points.length >= 2) {
+          width = el.points[1][0] - el.points[0][0];
+          height = el.points[1][1] - el.points[0][1];
+        }
+
+        shapeData = {
+          id: el.id || `line-${Date.now()}-${Math.random()}`,
+          type: type,
+          x: el.x,
+          y: el.y,
+          width: width,
+          height: height,
+          rotation: rotation,
+          style: style
+        };
+        shapes.push(shapeData);
+      } else if (el.type === 'text') {
+        let fontFamily = 'Inter, sans-serif';
+        if (el.fontFamily === 3) {
+          fontFamily = "'Architects Daughter', cursive";
+        } else if (el.fontFamily === 2) {
+          fontFamily = 'Georgia, serif';
+        } else if (typeof el.fontFamily === 'string') {
+          fontFamily = el.fontFamily;
+        }
+
+        const textStyle = {
+          ...style,
+          fontSize: el.fontSize || 20,
+          fontFamily: fontFamily,
+          textAlign: el.textAlign || 'left'
+        };
+
+        shapeData = {
+          id: el.id || `text-${Date.now()}-${Math.random()}`,
+          type: 'text',
+          x: el.x,
+          y: el.y,
+          width: el.width,
+          height: el.height,
+          rotation: rotation,
+          text: el.text || '',
+          style: textStyle
+        };
+        shapes.push(shapeData);
+      }
+
+      // If the shape has text inside it (for container shapes in Excalidraw)
+      if (el.type !== 'text' && el.text && el.text.trim()) {
+        let fontFamily = 'Inter, sans-serif';
+        if (el.fontFamily === 3) {
+          fontFamily = "'Architects Daughter', cursive";
+        } else if (el.fontFamily === 2) {
+          fontFamily = 'Georgia, serif';
+        }
+
+        const lines = el.text.split('\n');
+        const fontSize = el.fontSize || 14;
+        const textHeight = lines.length * fontSize * 1.25;
+        const textY = el.y + (el.height - textHeight) / 2;
+
+        const containerTextStyle = {
+          stroke: strokeColor,
+          fill: 'transparent',
+          strokeWidth: 1,
+          strokeStyle: 'solid',
+          opacity: opacity,
+          fontSize: fontSize,
+          fontFamily: fontFamily,
+          textAlign: el.textAlign || 'center'
+        };
+
+        shapes.push({
+          id: `${el.id || Date.now()}-text`,
+          type: 'text',
+          x: el.x + 5,
+          y: textY,
+          width: el.width - 10,
+          height: textHeight,
+          rotation: rotation,
+          text: el.text,
+          style: containerTextStyle
+        });
+      }
+    });
+
+    return {
+      version: '1.0.0',
+      app: 'InkFlow',
+      background: {
+        type: 'dot-grid'
+      },
+      viewport: {
+        x: 0,
+        y: 0,
+        zoom: 1
+      },
+      shapes: shapes
+    };
+  }
+
+  /**
    * Clears the board and imports the given scene data.
    * @param {Object} data 
    */
   importSceneData(data) {
+    if (!data) return;
+
+    // Detect Excalidraw formats and convert them
+    if (data.type === 'excalidraw' || (data.elements && Array.isArray(data.elements))) {
+      data = this.convertExcalidrawToInkFlow(data);
+    }
+
     if (!data || data.app !== 'InkFlow') {
-      alert('Invalid InkFlow document format.');
+      alert('Invalid InkFlow or Excalidraw document format.');
       return;
     }
 

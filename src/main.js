@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Wire up the merged HTML's mb- prefixed mobile elements to core actions
     _wireMobileElements(canvasEngine);
 
+    // 5b. Wire up drag and drop support for importing files
+    _setupDragAndDrop(canvasEngine);
+
     // 6. Handle resize across breakpoint — re-initialize correct UI once per crossing
     let _desktopInitialized = window.innerWidth > BREAKPOINT;
     let _resizeTimer = null;
@@ -306,5 +309,29 @@ function _wireMobileElements(canvasEngine) {
       propsSheet.style.transform = '';
     });
   }
+}
+
+// ── Setup drag & drop file loaders ───────────────────────────────────────────
+function _setupDragAndDrop(canvasEngine) {
+  window.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  });
+
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+    
+    const file = e.dataTransfer.files[0];
+    const isJson = file.name.endsWith('.json') || file.name.endsWith('.excalidraw');
+    
+    if (isJson) {
+      persistenceManager.importJSON(file, canvasEngine);
+    } else {
+      alert('Please drop an InkFlow (.json) or Excalidraw (.excalidraw) file.');
+    }
+  });
 }
 
