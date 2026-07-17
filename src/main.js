@@ -213,12 +213,12 @@ function _wireMobileElements(canvasEngine) {
 
   // ── Color palettes in bottom sheet ────────────────────────────────────────────
   const STROKE_COLORS = [
-    '#1e293b', '#ef4444', '#f97316', '#eab308',
-    '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#ffffff',
+    '#1e3a5f', '#c2410c', '#047857', '#dc2626',
+    '#b45309', '#6d28d9', '#1e40af', '#64748b', '#ffffff',
   ];
   const FILL_COLORS = [
-    'transparent', '#fee2e2', '#fef3c7', '#dcfce7',
-    '#dbeafe', '#ede9fe', '#fce7f3', '#f1f5f9', '#1e293b',
+    'transparent', '#3b82f6', '#60a5fa', '#93c5fd',
+    '#fed7aa', '#a7f3d0', '#fee2e2', '#fef3c7', '#ddd6fe',
   ];
 
   function buildPalette(containerId, colors, onChange) {

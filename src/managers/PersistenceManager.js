@@ -111,7 +111,7 @@ class PersistenceManager {
 
       const strokeStyle = el.strokeStyle || 'solid';
       const strokeWidth = el.strokeWidth || 2;
-      const strokeColor = el.strokeColor || '#1e293b';
+      const strokeColor = el.strokeColor || '#1e3a5f';
       const fillColor = el.backgroundColor === 'transparent' ? 'transparent' : (el.backgroundColor || 'transparent');
       const opacity = el.opacity !== undefined ? el.opacity / 100 : 1;
 

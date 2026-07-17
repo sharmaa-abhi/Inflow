@@ -43,16 +43,16 @@ export class PropertiesPanel {
     this.btnToggle3D = document.getElementById('btn-toggle-3d');
 
     this.colors = [
-      '#1e293b', // slate-800 (default stroke)
-      '#ef4444', // red-500
-      '#f97316', // orange-500
-      '#eab308', // yellow-500
-      '#22c55e', // green-500
-      '#06b6d4', // cyan-500
-      '#3b82f6', // blue-500
-      '#6366f1', // indigo-500
-      '#a855f7', // purple-500
-      '#ec4899', // pink-500
+      '#3b82f6', // Primary/Neutral Blue
+      '#60a5fa', // Secondary Light Blue
+      '#93c5fd', // Tertiary Pale Blue
+      '#fed7aa', // Start/Trigger Orange
+      '#a7f3d0', // End/Success Green
+      '#fee2e2', // Warning/Reset Light Red
+      '#fef3c7', // Decision Light Yellow
+      '#ddd6fe', // AI/LLM Pale Purple
+      '#dbeafe', // Inactive/Disabled
+      '#fecaca', // Error Light Pink
     ];
 
     this.selectedShapes = [];
