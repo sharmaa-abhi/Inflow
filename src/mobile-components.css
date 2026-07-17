@@ -96,8 +96,10 @@ body.dark {
     overscroll-behavior: none;
     touch-action: none;
   }
+}
 
 @media (max-width: 900px) {
+  :root {
     --top-bar-height: 48px;
     --toolbar-height: 60px;
   }
