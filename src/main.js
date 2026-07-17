@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 5. Wire up the merged HTML's mb- prefixed mobile elements to core actions
     _wireMobileElements(canvasEngine);
 
+    // 5b. Wire up drag and drop support for importing files
+    _setupDragAndDrop(canvasEngine);
+
     // 6. Handle resize across breakpoint — re-initialize correct UI once per crossing
     let _desktopInitialized = window.innerWidth > BREAKPOINT;
     let _resizeTimer = null;
@@ -210,12 +213,12 @@ function _wireMobileElements(canvasEngine) {
 
   // ── Color palettes in bottom sheet ────────────────────────────────────────────
   const STROKE_COLORS = [
-    '#1e293b', '#ef4444', '#f97316', '#eab308',
-    '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#ffffff',
+    '#1e3a5f', '#c2410c', '#047857', '#dc2626',
+    '#b45309', '#6d28d9', '#1e40af', '#64748b', '#ffffff',
   ];
   const FILL_COLORS = [
-    'transparent', '#fee2e2', '#fef3c7', '#dcfce7',
-    '#dbeafe', '#ede9fe', '#fce7f3', '#f1f5f9', '#1e293b',
+    'transparent', '#3b82f6', '#60a5fa', '#93c5fd',
+    '#fed7aa', '#a7f3d0', '#fee2e2', '#fef3c7', '#ddd6fe',
   ];
 
   function buildPalette(containerId, colors, onChange) {
@@ -306,5 +309,29 @@ function _wireMobileElements(canvasEngine) {
       propsSheet.style.transform = '';
     });
   }
+}
+
+// ── Setup drag & drop file loaders ───────────────────────────────────────────
+function _setupDragAndDrop(canvasEngine) {
+  window.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
+  });
+
+  window.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+    
+    const file = e.dataTransfer.files[0];
+    const isJson = file.name.endsWith('.json') || file.name.endsWith('.excalidraw');
+    
+    if (isJson) {
+      persistenceManager.importJSON(file, canvasEngine);
+    } else {
+      alert('Please drop an InkFlow (.json) or Excalidraw (.excalidraw) file.');
+    }
+  });
 }
 

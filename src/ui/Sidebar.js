@@ -11,6 +11,7 @@ export class Sidebar {
     this.canvasEngine = canvasEngine;
 
     // Cache DOM Elements
+    this.btnLoadArchitecture = document.getElementById('btn-load-architecture');
     this.btnImport = document.getElementById('btn-import');
     this.btnExportJson = document.getElementById('btn-export-json');
     this.btnExportPng = document.getElementById('btn-export-png');
@@ -21,7 +22,7 @@ export class Sidebar {
     // Create a hidden file input for imports
     this.fileInput = document.createElement('input');
     this.fileInput.type = 'file';
-    this.fileInput.accept = '.json';
+    this.fileInput.accept = '.json,.excalidraw';
     this.fileInput.style.display = 'none';
     document.body.appendChild(this.fileInput);
 
@@ -29,6 +30,13 @@ export class Sidebar {
   }
 
   init() {
+    // Load Architecture action
+    if (this.btnLoadArchitecture) {
+      this.btnLoadArchitecture.addEventListener('click', () => {
+        persistenceManager.loadDefaultArchitecture();
+      });
+    }
+
     // Import action
     if (this.btnImport) {
       this.btnImport.addEventListener('click', () => {
