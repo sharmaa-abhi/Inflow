@@ -33,15 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     persistenceManager.init(canvasEngine);
     threeDPreviewManager.init(canvasEngine);
 
-    if (window.innerWidth > BREAKPOINT) {
-      // ── DESKTOP mode: initialize all desktop UI panels ──────────────────────
-      new Toolbar();
-      new PropertiesPanel();
-      new Sidebar(canvasEngine);
-      new Statusbar(canvasEngine);
-      new ContextMenu(canvasEngine);
-      new Tooltip();
-    }
+    // Desktop UI will be initialized in the resize handler below if needed
 
     // 4. Initialize mobile responsive UI — always runs (CSS controls visibility)
     //    On desktop it injects mobile-only DOM for responsive resize support.
@@ -57,6 +49,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. Handle resize across breakpoint — re-initialize correct UI once per crossing
     let _desktopInitialized = window.innerWidth > BREAKPOINT;
     let _resizeTimer = null;
+    let _desktopUIInstances = {
+      toolbar: null,
+      propertiesPanel: null,
+      sidebar: null,
+      statusbar: null,
+      contextMenu: null,
+      tooltip: null
+    };
+    
+    // Initialize desktop UI on startup if needed
+    if (_desktopInitialized) {
+      _desktopUIInstances.toolbar = new Toolbar();
+      _desktopUIInstances.propertiesPanel = new PropertiesPanel();
+      _desktopUIInstances.sidebar = new Sidebar(canvasEngine);
+      _desktopUIInstances.statusbar = new Statusbar(canvasEngine);
+      _desktopUIInstances.contextMenu = new ContextMenu(canvasEngine);
+      _desktopUIInstances.tooltip = new Tooltip();
+    }
+    
     window.addEventListener('resize', () => {
       // Debounce: wait 150ms after last resize event before acting
       clearTimeout(_resizeTimer);
@@ -66,12 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isDesktop && !_desktopInitialized) {
           // ── Crossed to DESKTOP ─────────────────────────────────────────────
           _desktopInitialized = true;
-          new Toolbar();
-          new PropertiesPanel();
-          new Sidebar(canvasEngine);
-          new Statusbar(canvasEngine);
-          new ContextMenu(canvasEngine);
-          new Tooltip();
+          _desktopUIInstances.toolbar = new Toolbar();
+          _desktopUIInstances.propertiesPanel = new PropertiesPanel();
+          _desktopUIInstances.sidebar = new Sidebar(canvasEngine);
+          _desktopUIInstances.statusbar = new Statusbar(canvasEngine);
+          _desktopUIInstances.contextMenu = new ContextMenu(canvasEngine);
+          _desktopUIInstances.tooltip = new Tooltip();
           console.log('InkFlow: switched to Desktop UI (>' + BREAKPOINT + 'px)');
         } else if (!isDesktop && _desktopInitialized) {
           // ── Crossed to MOBILE ──────────────────────────────────────────────

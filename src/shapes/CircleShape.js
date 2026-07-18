@@ -6,15 +6,17 @@ export class CircleShape extends BaseShape {
     super('circle', config);
 
     // If width/height are provided, use them to compute radiusX/radiusY
-    const width = config.width || 0;
-    const height = config.height || 0;
+    this.width = config.width || 0;
+    this.height = config.height || 0;
+    this.radiusX = config.radiusX || (this.width / 2) || 0;
+    this.radiusY = config.radiusY || (this.height / 2) || 0;
 
     this.konvaNode = new Konva.Ellipse({
       id: this.id,
-      x: config.x || 0, // center x
-      y: config.y || 0, // center y
-      radiusX: config.radiusX || (width / 2) || 0,
-      radiusY: config.radiusY || (height / 2) || 0,
+      x: this.x, // center x
+      y: this.y, // center y
+      radiusX: this.radiusX,
+      radiusY: this.radiusY,
       rotation: config.rotation || 0,
       scaleX: config.scaleX || 1,
       scaleY: config.scaleY || 1,
@@ -25,20 +27,38 @@ export class CircleShape extends BaseShape {
   }
 
   updateGeometry(geom) {
-    if (geom.x !== undefined) this.konvaNode.x(geom.x);
-    if (geom.y !== undefined) this.konvaNode.y(geom.y);
-    if (geom.width !== undefined) this.konvaNode.radiusX(Math.abs(geom.width / 2));
-    if (geom.height !== undefined) this.konvaNode.radiusY(Math.abs(geom.height / 2));
-    if (geom.radiusX !== undefined) this.konvaNode.radiusX(geom.radiusX);
-    if (geom.radiusY !== undefined) this.konvaNode.radiusY(geom.radiusY);
+    if (geom.x !== undefined) {
+      this.x = geom.x;
+      this.konvaNode.x(geom.x);
+    }
+    if (geom.y !== undefined) {
+      this.y = geom.y;
+      this.konvaNode.y(geom.y);
+    }
+    if (geom.width !== undefined) {
+      this.width = geom.width;
+      this.konvaNode.radiusX(Math.abs(geom.width / 2));
+    }
+    if (geom.height !== undefined) {
+      this.height = geom.height;
+      this.konvaNode.radiusY(Math.abs(geom.height / 2));
+    }
+    if (geom.radiusX !== undefined) {
+      this.radiusX = geom.radiusX;
+      this.konvaNode.radiusX(geom.radiusX);
+    }
+    if (geom.radiusY !== undefined) {
+      this.radiusY = geom.radiusY;
+      this.konvaNode.radiusY(geom.radiusY);
+    }
   }
 
   getGeometry() {
     const rx = this.konvaNode.radiusX();
     const ry = this.konvaNode.radiusY();
     return {
-      x: this.konvaNode.x(),
-      y: this.konvaNode.y(),
+      x: this.x,
+      y: this.y,
       width: rx * 2,
       height: ry * 2,
       radiusX: rx,

@@ -172,48 +172,138 @@ function getOrthoDistance(p, lineStart, lineEnd) {
 }
 
 /**
- * Simplifies a flat coordinate path array [x1, y1, x2, y2, ...] using an
- * Enhanced Ramer-Douglas-Peucker (ERDP) algorithm that weights point thresholds
- * by local point curvature (angle of direction change) to preserve sharp corners.
- * @param {number[]} points - Flat coordinate array
- * @param {number} [epsilon=1] - Base distance threshold
- * @param {number} [sensitivity=1] - Curve curvature sensitivity (higher = preserves more corners)
+ * Adaptive path simplification engine.
+ * Maps user-facing quality presets to internal algorithm parameters.
+ *
+ * @param {number[]} points     - Flat coordinate array [x1,y1,x2,y2,...]
+ * @param {object}   opts
+ * @param {string}   opts.quality           - 'fast' | 'balanced' | 'precise'
+ * @param {number}   opts.smoothness        - 0–1 slider value
+ * @param {number}   opts.cornerPreservation - 0–1 (higher = preserve more corners)
+ * @param {number[]} [opts.timestamps]      - optional per-point timestamps for speed calc
  * @returns {number[]} Simplified coordinate array
  */
-export function simplifyPathERDP(points, epsilon = 1, sensitivity = 1) {
-  if (points.length < 6) return points; // Need at least 3 points to simplify
+export function simplifyPathAdaptive(points, opts = {}) {
+  if (points.length < 6) return points;
+
+  const {
+    quality = 'balanced',
+    smoothness = 0.5,
+    cornerPreservation = 0.6,
+    timestamps = null,
+  } = opts;
+
+  // ── Map quality preset to algorithm choice & base epsilon ──────────────────
+  let useEnhanced = true;
+  let baseEpsilon;
+
+  switch (quality) {
+    case 'fast':
+      useEnhanced = false;
+      baseEpsilon = 1.2 + smoothness * 2.0; // aggressive simplification
+      break;
+    case 'precise':
+      useEnhanced = true;
+      baseEpsilon = 0.3 + smoothness * 0.7; // keep lots of detail
+      break;
+    case 'balanced':
+    default:
+      useEnhanced = true;
+      baseEpsilon = 0.5 + smoothness * 1.5;
+      break;
+  }
+
+  if (!useEnhanced) {
+    return simplifyPath(points, baseEpsilon);
+  }
+
+  return simplifyPathERDP(points, baseEpsilon, cornerPreservation, timestamps);
+}
+
+/**
+ * Enhanced Ramer-Douglas-Peucker (ERDP) that weighs point significance using:
+ *   1. Local curvature (angle change between consecutive segments)
+ *   2. Drawing speed   (slow strokes keep detail, fast strokes simplify)
+ *   3. Stroke density  (clusters of very close points are thinned)
+ *
+ * @param {number[]} points            - Flat coordinate array
+ * @param {number}   [epsilon=1]       - Base distance threshold
+ * @param {number}   [cornerSens=0.6]  - Corner preservation sensitivity 0–1
+ * @param {number[]} [timestamps]      - Optional per-point timestamps (ms)
+ * @returns {number[]} Simplified coordinate array
+ */
+export function simplifyPathERDP(points, epsilon = 1, cornerSens = 0.6, timestamps = null) {
+  if (points.length < 6) return points;
 
   const pts = [];
   for (let i = 0; i < points.length; i += 2) {
     pts.push({ x: points[i], y: points[i + 1] });
   }
 
-  // Pre-calculate curvature weights for each point
+  // ── Build per-point weights ────────────────────────────────────────────────
   const weights = new Array(pts.length).fill(1.0);
+
+  // Always keep endpoints
+  weights[0] = 0.01;
+  weights[pts.length - 1] = 0.01;
+
+  // Compute segment speeds if timestamps are available
+  let speeds = null;
+  if (timestamps && timestamps.length === pts.length) {
+    speeds = new Array(pts.length).fill(1.0);
+    for (let i = 1; i < pts.length; i++) {
+      const dt = Math.max(1, timestamps[i] - timestamps[i - 1]);
+      const dx = pts[i].x - pts[i - 1].x;
+      const dy = pts[i].y - pts[i - 1].y;
+      speeds[i] = Math.hypot(dx, dy) / dt; // px/ms
+    }
+  }
+
+  // Compute median segment length for density weighting
+  const segLens = [];
+  for (let i = 1; i < pts.length; i++) {
+    segLens.push(Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
+  }
+  const medianLen = segLens.slice().sort((a, b) => a - b)[Math.floor(segLens.length / 2)] || 1;
+
   for (let i = 1; i < pts.length - 1; i++) {
     const pPrev = pts[i - 1];
     const pCurr = pts[i];
     const pNext = pts[i + 1];
 
+    // ── 1. Curvature weight ──────────────────────────────────────────────────
     const dx1 = pCurr.x - pPrev.x;
     const dy1 = pCurr.y - pPrev.y;
     const dx2 = pNext.x - pCurr.x;
     const dy2 = pNext.y - pCurr.y;
-
     const len1 = Math.hypot(dx1, dy1);
     const len2 = Math.hypot(dx2, dy2);
 
+    let curvatureWeight = 1.0;
     if (len1 > 0.1 && len2 > 0.1) {
       const dot = (dx1 * dx2 + dy1 * dy2) / (len1 * len2);
       const clampedDot = Math.max(-1, Math.min(1, dot));
-      const angleDev = Math.acos(clampedDot); // Angle of deviation (0 = straight, Math.PI = sharp 180)
-
-      // Reduce epsilon weight for sharp angles
-      // weight goes from 1.0 (straight) down to 0.1 (extremely sharp)
-      // weight is effective scale on epsilon. Smaller weight = easier to exceed epsilon, keeping the point
-      const weight = Math.max(0.1, 1.0 - (angleDev / Math.PI) * 1.5 * sensitivity);
-      weights[i] = weight;
+      const angleDev = Math.acos(clampedDot);
+      curvatureWeight = Math.max(0.05, 1.0 - (angleDev / Math.PI) * 1.8 * cornerSens);
     }
+
+    // ── 2. Speed weight (optional) ───────────────────────────────────────────
+    let speedWeight = 1.0;
+    if (speeds) {
+      const spd = speeds[i];
+      speedWeight = 0.3 + Math.min(0.7, spd * 0.5);
+    }
+
+    // ── 3. Density weight ────────────────────────────────────────────────────
+    const avgNeighborLen = (len1 + len2) / 2;
+    let densityWeight = 1.0;
+    if (avgNeighborLen < medianLen * 0.3) {
+      densityWeight = 1.5; // very dense region → easier to simplify
+    } else if (avgNeighborLen > medianLen * 2.0) {
+      densityWeight = 0.5; // sparse region → keep detail
+    }
+
+    weights[i] = curvatureWeight * speedWeight * densityWeight;
   }
 
   const simplified = rdpSimplifyWeighted(pts, weights, epsilon);
@@ -235,10 +325,7 @@ function rdpSimplifyWeighted(points, weights, epsilon) {
 
   for (let i = 1; i < end; i++) {
     const dist = getOrthoDistance(points[i], points[0], points[end]);
-    const weight = weights[i];
-    // Scale distance up for important points so they exceed epsilon easily
-    const weightedDist = dist / weight;
-
+    const weightedDist = dist / weights[i];
     if (weightedDist > maxWeightedDist) {
       index = i;
       maxWeightedDist = weightedDist;
@@ -253,5 +340,6 @@ function rdpSimplifyWeighted(points, weights, epsilon) {
     return [points[0], points[end]];
   }
 }
+
 
 

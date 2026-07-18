@@ -36,6 +36,15 @@ function showToast(msg, ms = 1800) {
 // DOM CREATION — inject all mobile-only elements once
 // ═════════════════════════════════════════════════════════════════════════════
 function createMobileDOM() {
+  // Check if already initialized to prevent duplicates
+  if (document.getElementById('mobile-backdrop')) {
+    _toastEl = document.getElementById('mobile-toast');
+    return {
+      backdrop: document.getElementById('mobile-backdrop'),
+      moreSheet: document.getElementById('mobile-more-sheet')
+    };
+  }
+
   // ── Backdrop ────────────────────────────────────────────────────────────────
   const backdrop = el('div', { id: 'mobile-backdrop', className: 'mobile-backdrop' });
   document.body.appendChild(backdrop);

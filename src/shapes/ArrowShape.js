@@ -5,15 +5,21 @@ export class ArrowShape extends BaseShape {
   constructor(config = {}) {
     super('arrow', config);
 
-    const width = config.width || 0;
-    const height = config.height || 0;
-    const strokeWidth = config.style?.strokeWidth || 2;
+    this.width = config.width || 0;
+    this.height = config.height || 0;
+    this.points = config.points || [[0, 0], [this.width, this.height]];
+    this.startBinding = config.startBinding || null;
+    this.endBinding = config.endBinding || null;
+    this.startArrowhead = config.startArrowhead || null;
+    this.endArrowhead = config.endArrowhead || 'arrow';
+
+    const strokeWidth = this.strokeWidth || 2;
 
     this.konvaNode = new Konva.Arrow({
       id: this.id,
-      x: config.x || 0,
-      y: config.y || 0,
-      points: [0, 0, width, height],
+      x: this.x,
+      y: this.y,
+      points: this.points.flat(),
       pointerLength: 10 + strokeWidth,
       pointerWidth: 10 + strokeWidth,
       rotation: config.rotation || 0,
@@ -30,41 +36,61 @@ export class ArrowShape extends BaseShape {
   applyStyles() {
     super.applyStyles();
     if (this.konvaNode) {
-      const strokeWidth = this.style.strokeWidth || 2;
+      const strokeWidth = this.strokeWidth || 2;
       this.konvaNode.pointerLength(10 + strokeWidth);
       this.konvaNode.pointerWidth(10 + strokeWidth);
       
-      // For arrows, if fill is set, it fills the arrowhead.
-      // Usually, in Excalidraw, arrowheads match stroke color or are filled solid.
-      // Let's make the arrowhead fill match the stroke color.
-      this.konvaNode.fill(this.style.stroke);
+      // For arrows, make the arrowhead fill match the stroke color
+      this.konvaNode.fill(this.strokeColor);
       this.konvaNode.fillEnabled(true);
     }
   }
 
   updateGeometry(geom) {
-    if (geom.x !== undefined) this.konvaNode.x(geom.x);
-    if (geom.y !== undefined) this.konvaNode.y(geom.y);
+    if (geom.x !== undefined) {
+      this.x = geom.x;
+      this.konvaNode.x(geom.x);
+    }
+    if (geom.y !== undefined) {
+      this.y = geom.y;
+      this.konvaNode.y(geom.y);
+    }
 
-    const currentPoints = this.konvaNode.points();
-    let dx = currentPoints[2];
-    let dy = currentPoints[3];
+    if (geom.width !== undefined) {
+      this.width = geom.width;
+    }
+    if (geom.height !== undefined) {
+      this.height = geom.height;
+    }
+    if (geom.points !== undefined) {
+      this.points = geom.points;
+    }
 
-    if (geom.width !== undefined) dx = geom.width;
-    if (geom.height !== undefined) dy = geom.height;
-
-    if (geom.width !== undefined || geom.height !== undefined) {
-      this.konvaNode.points([0, 0, dx, dy]);
+    if (geom.width !== undefined || geom.height !== undefined || geom.points !== undefined) {
+      const pointsArray = this.points ? this.points.flat() : [0, 0, this.width, this.height];
+      this.konvaNode.points(pointsArray);
     }
   }
 
   getGeometry() {
-    const points = this.konvaNode.points();
     return {
-      x: this.konvaNode.x(),
-      y: this.konvaNode.y(),
-      width: points[2] || 0,
-      height: points[3] || 0,
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height,
+      points: this.points,
+    };
+  }
+
+  serialize() {
+    const baseData = super.serialize();
+    return {
+      ...baseData,
+      points: this.points,
+      startBinding: this.startBinding,
+      endBinding: this.endBinding,
+      startArrowhead: this.startArrowhead,
+      endArrowhead: this.endArrowhead,
     };
   }
 }
