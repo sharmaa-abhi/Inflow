@@ -171,3 +171,87 @@ function getOrthoDistance(p, lineStart, lineEnd) {
   return Math.hypot(p.x - ix, p.y - iy);
 }
 
+/**
+ * Simplifies a flat coordinate path array [x1, y1, x2, y2, ...] using an
+ * Enhanced Ramer-Douglas-Peucker (ERDP) algorithm that weights point thresholds
+ * by local point curvature (angle of direction change) to preserve sharp corners.
+ * @param {number[]} points - Flat coordinate array
+ * @param {number} [epsilon=1] - Base distance threshold
+ * @param {number} [sensitivity=1] - Curve curvature sensitivity (higher = preserves more corners)
+ * @returns {number[]} Simplified coordinate array
+ */
+export function simplifyPathERDP(points, epsilon = 1, sensitivity = 1) {
+  if (points.length < 6) return points; // Need at least 3 points to simplify
+
+  const pts = [];
+  for (let i = 0; i < points.length; i += 2) {
+    pts.push({ x: points[i], y: points[i + 1] });
+  }
+
+  // Pre-calculate curvature weights for each point
+  const weights = new Array(pts.length).fill(1.0);
+  for (let i = 1; i < pts.length - 1; i++) {
+    const pPrev = pts[i - 1];
+    const pCurr = pts[i];
+    const pNext = pts[i + 1];
+
+    const dx1 = pCurr.x - pPrev.x;
+    const dy1 = pCurr.y - pPrev.y;
+    const dx2 = pNext.x - pCurr.x;
+    const dy2 = pNext.y - pCurr.y;
+
+    const len1 = Math.hypot(dx1, dy1);
+    const len2 = Math.hypot(dx2, dy2);
+
+    if (len1 > 0.1 && len2 > 0.1) {
+      const dot = (dx1 * dx2 + dy1 * dy2) / (len1 * len2);
+      const clampedDot = Math.max(-1, Math.min(1, dot));
+      const angleDev = Math.acos(clampedDot); // Angle of deviation (0 = straight, Math.PI = sharp 180)
+
+      // Reduce epsilon weight for sharp angles
+      // weight goes from 1.0 (straight) down to 0.1 (extremely sharp)
+      // weight is effective scale on epsilon. Smaller weight = easier to exceed epsilon, keeping the point
+      const weight = Math.max(0.1, 1.0 - (angleDev / Math.PI) * 1.5 * sensitivity);
+      weights[i] = weight;
+    }
+  }
+
+  const simplified = rdpSimplifyWeighted(pts, weights, epsilon);
+
+  const result = [];
+  for (const p of simplified) {
+    result.push(p.x, p.y);
+  }
+  return result;
+}
+
+function rdpSimplifyWeighted(points, weights, epsilon) {
+  const len = points.length;
+  if (len < 3) return points;
+
+  let maxWeightedDist = 0;
+  let index = 0;
+  const end = len - 1;
+
+  for (let i = 1; i < end; i++) {
+    const dist = getOrthoDistance(points[i], points[0], points[end]);
+    const weight = weights[i];
+    // Scale distance up for important points so they exceed epsilon easily
+    const weightedDist = dist / weight;
+
+    if (weightedDist > maxWeightedDist) {
+      index = i;
+      maxWeightedDist = weightedDist;
+    }
+  }
+
+  if (maxWeightedDist > epsilon) {
+    const part1 = rdpSimplifyWeighted(points.slice(0, index + 1), weights.slice(0, index + 1), epsilon);
+    const part2 = rdpSimplifyWeighted(points.slice(index), weights.slice(index), epsilon);
+    return part1.slice(0, part1.length - 1).concat(part2);
+  } else {
+    return [points[0], points[end]];
+  }
+}
+
+

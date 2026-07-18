@@ -13,6 +13,8 @@ class StyleManager {
       fontSize: 20,
       fontFamily: 'Inter', // 'Inter', 'Georgia', 'Architects Daughter'
       align: 'left', // 'left', 'center', 'right'
+      smoothingMode: 'erdp', // 'standard' or 'erdp'
+      smoothingTension: 0.4, // float from 0 to 1
     };
 
     // Listen to theme changes to swap default styles
@@ -101,6 +103,30 @@ class StyleManager {
         }
       });
     }
+  }
+
+  setStrokeColor(color) {
+    this.updateStyles({ stroke: color });
+  }
+
+  setFillColor(color) {
+    this.updateStyles({ fill: color });
+  }
+
+  setStrokeWidth(width) {
+    this.updateStyles({ strokeWidth: width });
+  }
+
+  setStrokeStyle(style) {
+    this.updateStyles({ strokeStyle: style });
+  }
+
+  setSmoothingMode(mode) {
+    this.updateStyles({ smoothingMode: mode });
+  }
+
+  setSmoothingTension(tension) {
+    this.updateStyles({ smoothingTension: tension });
   }
 }
 

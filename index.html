@@ -320,6 +320,30 @@
           </div>
         </div>
 
+        <!-- Line Smoothing (Pen Only) -->
+        <div id="prop-section-smoothing" class="flex flex-col gap-2.5 border-t border-slate-100 pt-2.5">
+          <span class="text-xs font-semibold text-slate-500">Line Smoothing</span>
+          <div class="flex flex-col gap-2">
+            <!-- Toggle Mode -->
+            <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-1.5">
+              <span class="text-xs font-medium text-slate-600 pl-1">Enhanced Smoothing (ERDP)</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="prop-toggle-erdp" class="sr-only peer" checked>
+                <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
+              </label>
+            </div>
+            <!-- Slider -->
+            <div class="flex flex-col gap-1">
+              <div class="flex justify-between text-[10px] text-slate-400 font-semibold uppercase">
+                <span>Smoothing Intensity</span>
+                <span id="prop-val-smoothing">40%</span>
+              </div>
+              <input id="prop-slider-smoothing" type="range" min="0" max="100" value="40"
+                class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+            </div>
+          </div>
+        </div>
+
         <!-- Typography Section (Shown conditionally) -->
         <div id="prop-section-text" class="flex flex-col gap-3 border-t border-slate-100 pt-3 hidden">
           <div class="flex flex-col gap-1.5">
@@ -493,6 +517,13 @@
     </div>
 
     <div class="top-bar-actions">
+      <!-- Pen Settings (shown only when Pen tool active) -->
+      <button id="mb-btn-pen-settings" class="top-action-btn hidden" title="Pen Settings" aria-label="Pen Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+        </svg>
+      </button>
+
       <!-- Export PNG -->
       <button id="mb-btn-export-png" class="top-action-btn" title="Export PNG" aria-label="Export as PNG">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -687,6 +718,30 @@
           <button class="btn-group-item active-group-item" data-val="solid">Solid</button>
           <button class="btn-group-item" data-val="dashed">Dashed</button>
           <button class="btn-group-item" data-val="dotted">Dotted</button>
+        </div>
+      </section>
+
+      <!-- Line Smoothing -->
+      <section id="mb-section-smoothing" class="prop-section">
+        <h3 class="prop-label">Line Smoothing</h3>
+        <div class="flex flex-col gap-3">
+          <!-- Toggle Mode -->
+          <div class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-lg p-1.5">
+            <span class="text-xs font-medium text-slate-600 pl-1">Enhanced Smoothing (ERDP)</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" id="mb-toggle-erdp" class="sr-only peer" checked>
+              <div class="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-indigo-600"></div>
+            </label>
+          </div>
+          <!-- Slider -->
+          <div class="flex flex-col gap-1">
+            <div class="flex justify-between text-xs text-slate-500 font-medium">
+              <span>Smoothness Intensity</span>
+              <span id="mb-val-smoothing">40%</span>
+            </div>
+            <input id="mb-slider-smoothing" type="range" min="0" max="100" value="40"
+              class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+          </div>
         </div>
       </section>
 

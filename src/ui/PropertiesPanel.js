@@ -31,6 +31,12 @@ export class PropertiesPanel {
     this.inpFontFamily = document.getElementById('prop-font-family');
     this.textAlignGroup = document.getElementById('prop-text-align');
 
+    // Line Smoothing
+    this.sectionSmoothing = document.getElementById('prop-section-smoothing');
+    this.toggleERDP = document.getElementById('prop-toggle-erdp');
+    this.sliderSmoothing = document.getElementById('prop-slider-smoothing');
+    this.valSmoothing = document.getElementById('prop-val-smoothing');
+
     // Arrange Buttons
     this.btnSendBack = document.getElementById('btn-send-back');
     this.btnSendBackward = document.getElementById('btn-send-backward');
@@ -218,6 +224,16 @@ export class PropertiesPanel {
         this.sectionText.classList.add('hidden');
       }
 
+      // Check if line smoothing properties need to be displayed
+      const hasPen = selectedShapes.some(s => s.type === 'pen');
+      if (this.sectionSmoothing) {
+        if (hasPen) {
+          this.sectionSmoothing.classList.remove('hidden');
+        } else {
+          this.sectionSmoothing.classList.add('hidden');
+        }
+      }
+
       this.syncGeometryInputs();
       this.syncStyleInputs();
       this.syncZIndexInput();
@@ -273,6 +289,18 @@ export class PropertiesPanel {
       if (this.inpFontSize) this.inpFontSize.value = style.fontSize || 20;
       if (this.inpFontFamily) this.inpFontFamily.value = style.fontFamily || 'Inter';
       this.syncGroupButtonsActive(this.textAlignGroup, style.align || 'left');
+    }
+
+    // Sync line smoothing styles
+    if (this.toggleERDP) {
+      this.toggleERDP.checked = (style.smoothingMode || 'erdp') === 'erdp';
+    }
+    if (this.sliderSmoothing) {
+      const tension = style.smoothingTension !== undefined ? style.smoothingTension : 0.4;
+      this.sliderSmoothing.value = Math.round(tension * 100);
+      if (this.valSmoothing) {
+        this.valSmoothing.textContent = `${Math.round(tension * 100)}%`;
+      }
     }
   }
 
@@ -381,6 +409,24 @@ export class PropertiesPanel {
 
     bindGroupClick(this.strokeWidthGroup, 'strokeWidth');
     bindGroupClick(this.strokeStyleGroup, 'strokeStyle');
+
+    // Smoothing controls
+    if (this.toggleERDP) {
+      this.toggleERDP.addEventListener('change', (e) => {
+        const mode = e.target.checked ? 'erdp' : 'standard';
+        styleManager.updateStyles({ smoothingMode: mode });
+      });
+    }
+
+    if (this.sliderSmoothing) {
+      this.sliderSmoothing.addEventListener('input', (e) => {
+        const val = Number(e.target.value);
+        if (this.valSmoothing) {
+          this.valSmoothing.textContent = `${val}%`;
+        }
+        styleManager.updateStyles({ smoothingTension: val / 100 });
+      });
+    }
   }
 
   setupTypographyListeners() {

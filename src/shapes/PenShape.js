@@ -25,6 +25,15 @@ export class PenShape extends BaseShape {
     this.applyStyles();
   }
 
+  applyStyles() {
+    super.applyStyles();
+    if (!this.konvaNode) return;
+
+    // Apply tension for smooth curves (default to 0.4)
+    const tension = this.style.smoothingTension !== undefined ? this.style.smoothingTension : 0.4;
+    this.konvaNode.tension(tension);
+  }
+
   updateGeometry(geom) {
     if (geom.x !== undefined) this.konvaNode.x(geom.x);
     if (geom.y !== undefined) this.konvaNode.y(geom.y);

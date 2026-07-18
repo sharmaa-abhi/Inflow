@@ -118,11 +118,21 @@ function _wireMobileElements(canvasEngine) {
 
   // ── Sync active tool state from toolManager events ──────────────────────────
   import('./core/EventBus.js').then(({ eventBus }) => {
-    eventBus.on('tool:changed', (toolName) => {
+    eventBus.on('tool-changed', (toolName) => {
       if (!isMobile()) return;
       document.querySelectorAll('.tool-btn[id^="mb-tool-"]').forEach(b => b.classList.remove('active-tool'));
       const activeBtn = document.getElementById(`mb-tool-${toolName}`);
       if (activeBtn) activeBtn.classList.add('active-tool');
+
+      // Show/hide Pen Settings button in top bar
+      const penSettingsBtn = document.getElementById('mb-btn-pen-settings');
+      if (penSettingsBtn) {
+        if (toolName === 'pen') {
+          penSettingsBtn.classList.remove('hidden');
+        } else {
+          penSettingsBtn.classList.add('hidden');
+        }
+      }
     });
   });
 
@@ -185,8 +195,45 @@ function _wireMobileElements(canvasEngine) {
   const closeSheetBtn  = document.getElementById('mb-btn-close-sheet');
   const deleteShapeBtn = document.getElementById('mb-btn-delete-shape');
 
-  function openPropsSheet() {
+  let isConfiguringPen = false;
+
+  function openPropsSheet(isPenConfig = false) {
     if (!isMobile() || !propsSheet) return;
+    isConfiguringPen = isPenConfig;
+
+    // Update title
+    const sheetTitle = propsSheet.querySelector('.sheet-title');
+    if (sheetTitle) {
+      sheetTitle.textContent = isPenConfig ? 'Pen Settings' : 'Properties';
+    }
+
+    // Toggle delete shape button
+    if (deleteShapeBtn) {
+      if (isPenConfig) {
+        deleteShapeBtn.classList.add('hidden');
+      } else {
+        deleteShapeBtn.classList.remove('hidden');
+      }
+    }
+
+    // Toggle smoothing section (only show if configuring pen, or if selected shape is a Pen shape)
+    const smoothingSection = document.getElementById('mb-section-smoothing');
+    if (smoothingSection) {
+      if (isPenConfig) {
+        smoothingSection.classList.remove('hidden');
+      } else {
+        import('./managers/ShapeManager.js').then(({ shapeManager }) => {
+          const selected = shapeManager.getSelectedShapes();
+          const hasPen = selected.some(s => s.type === 'pen');
+          if (hasPen) {
+            smoothingSection.classList.remove('hidden');
+          } else {
+            smoothingSection.classList.add('hidden');
+          }
+        });
+      }
+    }
+
     propsSheet.classList.add('sheet-open');
     propsSheet.setAttribute('aria-hidden', 'false');
     if (propsBackdrop) {
@@ -205,6 +252,10 @@ function _wireMobileElements(canvasEngine) {
 
   closeSheetBtn?.addEventListener('click', closePropsSheet);
   propsBackdrop?.addEventListener('click', closePropsSheet);
+
+  document.getElementById('mb-btn-pen-settings')?.addEventListener('click', () => {
+    openPropsSheet(true);
+  });
 
   deleteShapeBtn?.addEventListener('click', () => {
     document.getElementById('btn-clear')?.click();
@@ -238,7 +289,10 @@ function _wireMobileElements(canvasEngine) {
     });
   }
 
-  import('./managers/StyleManager.js').then(({ styleManager }) => {
+  Promise.all([
+    import('./managers/StyleManager.js'),
+    import('./core/EventBus.js')
+  ]).then(([{ styleManager }, { eventBus }]) => {
     buildPalette('mb-stroke-palette', STROKE_COLORS, (c) => styleManager.setStrokeColor(c));
     buildPalette('mb-fill-palette',   FILL_COLORS,   (c) => styleManager.setFillColor(c));
 
@@ -266,12 +320,52 @@ function _wireMobileElements(canvasEngine) {
         styleManager.setStrokeStyle(btn.dataset.val);
       });
     });
+
+    // ── Line Smoothing controls ──────────────────────────────────────────────────
+    const mbToggleERDP = document.getElementById('mb-toggle-erdp');
+    const mbSliderSmoothing = document.getElementById('mb-slider-smoothing');
+    const mbValSmoothing = document.getElementById('mb-val-smoothing');
+
+    mbToggleERDP?.addEventListener('change', (e) => {
+      const mode = e.target.checked ? 'erdp' : 'standard';
+      styleManager.setSmoothingMode(mode);
+    });
+
+    mbSliderSmoothing?.addEventListener('input', (e) => {
+      const val = Number(e.target.value);
+      if (mbValSmoothing) mbValSmoothing.textContent = `${val}%`;
+      styleManager.setSmoothingTension(val / 100);
+    });
+
+    // Subscribe to style changes to sync mobile controls back
+    eventBus.on('active-style-changed', (style) => {
+      if (mbToggleERDP) {
+        mbToggleERDP.checked = (style.smoothingMode || 'erdp') === 'erdp';
+      }
+      if (mbSliderSmoothing) {
+        const tension = style.smoothingTension !== undefined ? style.smoothingTension : 0.4;
+        mbSliderSmoothing.value = Math.round(tension * 100);
+        if (mbValSmoothing) mbValSmoothing.textContent = `${Math.round(tension * 100)}%`;
+      }
+      
+      // Also sync active width/style button active states
+      if (style.strokeWidth) {
+        document.getElementById('mb-stroke-width-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+          btn.classList.toggle('active-group-item', Number(btn.dataset.val) === style.strokeWidth);
+        });
+      }
+      if (style.strokeStyle) {
+        document.getElementById('mb-stroke-style-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+          btn.classList.toggle('active-group-item', btn.dataset.val === style.strokeStyle);
+        });
+      }
+    });
   });
 
   // ── Show props sheet when a shape is selected ─────────────────────────────────
   import('./core/EventBus.js').then(({ eventBus }) => {
     eventBus.on('shape:selected', () => {
-      if (isMobile()) openPropsSheet();
+      if (isMobile()) openPropsSheet(false);
     });
     eventBus.on('shape:deselected', () => {
       if (isMobile()) closePropsSheet();
