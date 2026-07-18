@@ -16,20 +16,7 @@ export class SnapManager {
   }
 
   subscribeEvents() {
-    const stage = this.canvasEngine.stage;
-
-    stage.on('dragmove', (e) => {
-      // Only snap if drag is initiated on a shape node (excluding transformers/marquee)
-      const target = e.target;
-      const movingShape = this.shapeManager.getShapeById(target.id());
-      if (movingShape) {
-        this.handleSnapping(movingShape);
-      }
-    });
-
-    stage.on('dragend', () => {
-      this.clearGuides();
-    });
+    // Drag events are handled explicitly by SelectTool to prevent duplicate execution
   }
 
   clearGuides() {
@@ -175,3 +162,24 @@ export class SnapManager {
     }
   }
 }
+
+export const snapManager = {
+  instance: null,
+  init(canvasEngine, shapeManager) {
+    this.instance = new SnapManager(canvasEngine, shapeManager);
+  },
+  snap(canvasEngine, node) {
+    if (this.instance) {
+      const movingShape = this.instance.shapeManager.getShapeById(node.id());
+      if (movingShape) {
+        this.instance.handleSnapping(movingShape);
+      }
+    }
+  },
+  clearGuides(canvasEngine) {
+    if (this.instance) {
+      this.instance.clearGuides();
+    }
+  }
+};
+

@@ -3,6 +3,8 @@ import { CanvasEngine } from './core/CanvasEngine';
 import { toolManager } from './managers/ToolManager';
 import { persistenceManager } from './managers/PersistenceManager';
 import { themeManager } from './managers/ThemeManager';
+import { snapManager } from './managers/SnapManager';
+import { shapeManager } from './managers/ShapeManager';
 import { Toolbar } from './ui/Toolbar';
 import { PropertiesPanel } from './ui/PropertiesPanel';
 import { Sidebar } from './ui/Sidebar';
@@ -25,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Initialize Tool Orchestration
     toolManager.init(canvasEngine);
+    snapManager.init(canvasEngine, shapeManager);
 
     // Save a reference to toolManager on the stage for cross-tool interactions (like double-click editing)
     canvasEngine.stage.setAttr('toolManager', toolManager);
