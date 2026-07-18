@@ -13,6 +13,8 @@ import { ContextMenu } from './ui/ContextMenu';
 import { Tooltip } from './ui/Tooltip';
 import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
 import { initMobileUI } from './mobile-ui';
+import { eventBus } from './core/EventBus';
+import { styleManager } from './managers/StyleManager';
 
 const BREAKPOINT = 768;
 
@@ -131,23 +133,21 @@ function _wireMobileElements(canvasEngine) {
   });
 
   // ── Sync active tool state from toolManager events ──────────────────────────
-  import('./core/EventBus.js').then(({ eventBus }) => {
-    eventBus.on('tool-changed', (toolName) => {
-      if (!isMobile()) return;
-      document.querySelectorAll('.tool-btn[id^="mb-tool-"]').forEach(b => b.classList.remove('active-tool'));
-      const activeBtn = document.getElementById(`mb-tool-${toolName}`);
-      if (activeBtn) activeBtn.classList.add('active-tool');
+  eventBus.on('tool-changed', (toolName) => {
+    if (!isMobile()) return;
+    document.querySelectorAll('.tool-btn[id^="mb-tool-"]').forEach(b => b.classList.remove('active-tool'));
+    const activeBtn = document.getElementById(`mb-tool-${toolName}`);
+    if (activeBtn) activeBtn.classList.add('active-tool');
 
-      // Show/hide Pen Settings button in top bar
-      const penSettingsBtn = document.getElementById('mb-btn-pen-settings');
-      if (penSettingsBtn) {
-        if (toolName === 'pen') {
-          penSettingsBtn.classList.remove('hidden');
-        } else {
-          penSettingsBtn.classList.add('hidden');
-        }
+    // Show/hide Pen Settings button in top bar
+    const penSettingsBtn = document.getElementById('mb-btn-pen-settings');
+    if (penSettingsBtn) {
+      if (toolName === 'pen') {
+        penSettingsBtn.classList.remove('hidden');
+      } else {
+        penSettingsBtn.classList.add('hidden');
       }
-    });
+    }
   });
 
   // ── Zoom buttons ─────────────────────────────────────────────────────────────
@@ -181,17 +181,15 @@ function _wireMobileElements(canvasEngine) {
   });
 
   // Keep icons in sync when theme changes via desktop button
-  import('./managers/ThemeManager.js').then(({ themeManager }) => {
-    const origToggle = themeManager.toggle?.bind(themeManager);
-    if (origToggle) {
-      themeManager.toggle = (...args) => {
-        origToggle(...args);
-        const isDark = document.body.classList.contains('dark');
-        mbSunIcon?.classList.toggle('hidden', isDark);
-        mbMoonIcon?.classList.toggle('hidden', !isDark);
-      };
-    }
-  });
+  const origToggle = themeManager.toggle?.bind(themeManager);
+  if (origToggle) {
+    themeManager.toggle = (...args) => {
+      origToggle(...args);
+      const isDark = document.body.classList.contains('dark');
+      mbSunIcon?.classList.toggle('hidden', isDark);
+      mbMoonIcon?.classList.toggle('hidden', !isDark);
+    };
+  }
 
   // ── Export PNG ────────────────────────────────────────────────────────────────
   document.getElementById('mb-btn-export-png')?.addEventListener('click', () => {
@@ -236,15 +234,13 @@ function _wireMobileElements(canvasEngine) {
       if (isPenConfig) {
         smoothingSection.classList.remove('hidden');
       } else {
-        import('./managers/ShapeManager.js').then(({ shapeManager }) => {
-          const selected = shapeManager.getSelectedShapes();
-          const hasPen = selected.some(s => s.type === 'pen');
-          if (hasPen) {
-            smoothingSection.classList.remove('hidden');
-          } else {
-            smoothingSection.classList.add('hidden');
-          }
-        });
+        const selected = shapeManager.getSelectedShapes();
+        const hasPen = selected.some(s => s.type === 'pen');
+        if (hasPen) {
+          smoothingSection.classList.remove('hidden');
+        } else {
+          smoothingSection.classList.add('hidden');
+        }
       }
     }
 
@@ -303,90 +299,83 @@ function _wireMobileElements(canvasEngine) {
     });
   }
 
-  Promise.all([
-    import('./managers/StyleManager.js'),
-    import('./core/EventBus.js')
-  ]).then(([{ styleManager }, { eventBus }]) => {
-    buildPalette('mb-stroke-palette', STROKE_COLORS, (c) => styleManager.setStrokeColor(c));
-    buildPalette('mb-fill-palette',   FILL_COLORS,   (c) => styleManager.setFillColor(c));
+  buildPalette('mb-stroke-palette', STROKE_COLORS, (c) => styleManager.setStrokeColor(c));
+  buildPalette('mb-fill-palette',   FILL_COLORS,   (c) => styleManager.setFillColor(c));
 
-    document.getElementById('mb-stroke-custom')?.addEventListener('input', (e) => {
-      styleManager.setStrokeColor(e.target.value);
-    });
-    document.getElementById('mb-fill-custom')?.addEventListener('input', (e) => {
-      styleManager.setFillColor(e.target.value);
-    });
+  document.getElementById('mb-stroke-custom')?.addEventListener('input', (e) => {
+    styleManager.setStrokeColor(e.target.value);
+  });
+  document.getElementById('mb-fill-custom')?.addEventListener('input', (e) => {
+    styleManager.setFillColor(e.target.value);
+  });
 
-    // ── Stroke width group ──────────────────────────────────────────────────────
-    document.getElementById('mb-stroke-width-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('mb-stroke-width-group').querySelectorAll('.btn-group-item').forEach(b => b.classList.remove('active-group-item'));
-        btn.classList.add('active-group-item');
-        styleManager.setStrokeWidth(Number(btn.dataset.val));
-      });
-    });
-
-    // ── Stroke style group ──────────────────────────────────────────────────────
-    document.getElementById('mb-stroke-style-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('mb-stroke-style-group').querySelectorAll('.btn-group-item').forEach(b => b.classList.remove('active-group-item'));
-        btn.classList.add('active-group-item');
-        styleManager.setStrokeStyle(btn.dataset.val);
-      });
-    });
-
-    // ── Line Smoothing controls ──────────────────────────────────────────────────
-    const mbToggleERDP = document.getElementById('mb-toggle-erdp');
-    const mbSliderSmoothing = document.getElementById('mb-slider-smoothing');
-    const mbValSmoothing = document.getElementById('mb-val-smoothing');
-
-    mbToggleERDP?.addEventListener('change', (e) => {
-      const mode = e.target.checked ? 'erdp' : 'standard';
-      styleManager.setSmoothingMode(mode);
-    });
-
-    mbSliderSmoothing?.addEventListener('input', (e) => {
-      const val = Number(e.target.value);
-      if (mbValSmoothing) mbValSmoothing.textContent = `${val}%`;
-      styleManager.setSmoothingTension(val / 100);
-    });
-
-    // Subscribe to style changes to sync mobile controls back
-    eventBus.on('active-style-changed', (style) => {
-      if (mbToggleERDP) {
-        mbToggleERDP.checked = (style.smoothingMode || 'erdp') === 'erdp';
-      }
-      if (mbSliderSmoothing) {
-        const tension = style.smoothingTension !== undefined ? style.smoothingTension : 0.4;
-        mbSliderSmoothing.value = Math.round(tension * 100);
-        if (mbValSmoothing) mbValSmoothing.textContent = `${Math.round(tension * 100)}%`;
-      }
-      
-      // Also sync active width/style button active states
-      if (style.strokeWidth) {
-        document.getElementById('mb-stroke-width-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
-          btn.classList.toggle('active-group-item', Number(btn.dataset.val) === style.strokeWidth);
-        });
-      }
-      if (style.strokeStyle) {
-        document.getElementById('mb-stroke-style-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
-          btn.classList.toggle('active-group-item', btn.dataset.val === style.strokeStyle);
-        });
-      }
+  // ── Stroke width group ──────────────────────────────────────────────────────
+  document.getElementById('mb-stroke-width-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('mb-stroke-width-group').querySelectorAll('.btn-group-item').forEach(b => b.classList.remove('active-group-item'));
+      btn.classList.add('active-group-item');
+      styleManager.setStrokeWidth(Number(btn.dataset.val));
     });
   });
 
+  // ── Stroke style group ──────────────────────────────────────────────────────
+  document.getElementById('mb-stroke-style-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('mb-stroke-style-group').querySelectorAll('.btn-group-item').forEach(b => b.classList.remove('active-group-item'));
+      btn.classList.add('active-group-item');
+      styleManager.setStrokeStyle(btn.dataset.val);
+    });
+  });
+
+  // ── Line Smoothing controls ──────────────────────────────────────────────────
+  const mbToggleERDP = document.getElementById('mb-toggle-erdp');
+  const mbSliderSmoothing = document.getElementById('mb-slider-smoothing');
+  const mbValSmoothing = document.getElementById('mb-val-smoothing');
+
+  mbToggleERDP?.addEventListener('change', (e) => {
+    const mode = e.target.checked ? 'erdp' : 'standard';
+    styleManager.setSmoothingMode(mode);
+  });
+
+  mbSliderSmoothing?.addEventListener('input', (e) => {
+    const val = Number(e.target.value);
+    if (mbValSmoothing) mbValSmoothing.textContent = `${val}%`;
+    styleManager.setSmoothingTension(val / 100);
+  });
+
+  // Subscribe to style changes to sync mobile controls back
+  eventBus.on('active-style-changed', (style) => {
+    if (mbToggleERDP) {
+      mbToggleERDP.checked = (style.smoothingMode || 'erdp') === 'erdp';
+    }
+    if (mbSliderSmoothing) {
+      const tension = style.smoothingTension !== undefined ? style.smoothingTension : 0.4;
+      mbSliderSmoothing.value = Math.round(tension * 100);
+      if (mbValSmoothing) mbValSmoothing.textContent = `${Math.round(tension * 100)}%`;
+    }
+    
+    // Also sync active width/style button active states
+    if (style.strokeWidth) {
+      document.getElementById('mb-stroke-width-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+        btn.classList.toggle('active-group-item', Number(btn.dataset.val) === style.strokeWidth);
+      });
+    }
+    if (style.strokeStyle) {
+      document.getElementById('mb-stroke-style-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+        btn.classList.toggle('active-group-item', btn.dataset.val === style.strokeStyle);
+      });
+    }
+  });
+
   // ── Show props sheet when a shape is selected ─────────────────────────────────
-  import('./core/EventBus.js').then(({ eventBus }) => {
-    eventBus.on('shape:selected', () => {
-      if (isMobile()) openPropsSheet(false);
-    });
-    eventBus.on('shape:deselected', () => {
-      if (isMobile()) closePropsSheet();
-    });
-    eventBus.on('selection:cleared', () => {
-      if (isMobile()) closePropsSheet();
-    });
+  eventBus.on('shape:selected', () => {
+    if (isMobile()) openPropsSheet(false);
+  });
+  eventBus.on('shape:deselected', () => {
+    if (isMobile()) closePropsSheet();
+  });
+  eventBus.on('selection:cleared', () => {
+    if (isMobile()) closePropsSheet();
   });
 
   // ── Drag to dismiss props sheet ───────────────────────────────────────────────

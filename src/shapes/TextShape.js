@@ -7,12 +7,28 @@ export class TextShape extends BaseShape {
 
     this.text = config.text || 'Text';
     this.originalText = config.originalText || this.text;
-    this.fontSize = config.fontSize || 20;
-    this.fontFamily = config.fontFamily || 3; // 3 = Cascadia Code in Excalidraw
-    this.textAlign = config.textAlign || 'left';
+    this.fontSize = config.fontSize || config.style?.fontSize || 20;
+    this.fontFamily = config.fontFamily || config.style?.fontFamily || 3; // 3 = Architects Daughter in Excalidraw
+    this.textAlign = config.textAlign || config.style?.align || 'left';
     this.verticalAlign = config.verticalAlign || 'top';
     this.lineHeight = config.lineHeight || 1.25;
     this.containerId = config.containerId || null;
+
+    let fontName = 'Inter, sans-serif';
+    if (this.fontFamily === 3) {
+      fontName = "'Architects Daughter', cursive";
+    } else if (this.fontFamily === 2) {
+      fontName = 'Georgia, serif';
+    } else if (typeof this.fontFamily === 'string') {
+      fontName = this.fontFamily;
+    }
+
+    this.style = {
+      ...this.style,
+      fontSize: this.fontSize,
+      fontFamily: fontName,
+      align: this.textAlign,
+    };
 
     this.konvaNode = new Konva.Text({
       id: this.id,
@@ -36,6 +52,31 @@ export class TextShape extends BaseShape {
     });
 
     this.applyStyles();
+  }
+
+  updateStyle(styleUpdates) {
+    if (styleUpdates.fontSize !== undefined) this.fontSize = styleUpdates.fontSize;
+    if (styleUpdates.fontFamily !== undefined) {
+      this.fontFamily = styleUpdates.fontFamily;
+      let fontName = styleUpdates.fontFamily;
+      if (styleUpdates.fontFamily === 3) {
+        fontName = "'Architects Daughter', cursive";
+      } else if (styleUpdates.fontFamily === 2) {
+        fontName = 'Georgia, serif';
+      }
+      this.style.fontFamily = fontName;
+    }
+    if (styleUpdates.align !== undefined) {
+      this.textAlign = styleUpdates.align;
+      this.style.align = styleUpdates.align;
+    }
+
+    super.updateStyle(styleUpdates);
+    
+    // Recalculate text height after font size / font family modifications
+    if (this.konvaNode) {
+      this.konvaNode.height(this.konvaNode.getTextHeight());
+    }
   }
 
   applyStyles() {

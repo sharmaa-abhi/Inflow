@@ -78,6 +78,7 @@ class StyleManager {
 
       // Redraw shapes layer
       eventBus.emit('shapes-style-modified', selectedShapes);
+      eventBus.emit('shapes-updated');
 
       // Register undo action
       historyManager.registerChange({
@@ -91,6 +92,7 @@ class StyleManager {
             }
           });
           eventBus.emit('shapes-style-modified', selectedShapes);
+          eventBus.emit('shapes-updated');
         },
         redo: () => {
           historyEntries.forEach(entry => {
@@ -100,6 +102,7 @@ class StyleManager {
             }
           });
           eventBus.emit('shapes-style-modified', selectedShapes);
+          eventBus.emit('shapes-updated');
         }
       });
     }

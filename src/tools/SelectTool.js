@@ -2,6 +2,8 @@ import Konva from 'konva';
 import { BaseTool } from './BaseTool';
 import { eventBus } from '../core/EventBus';
 import { rectIntersect, getRotatedBB } from '../utils/math';
+import { snapManager } from '../managers/SnapManager';
+import { historyManager } from '../managers/HistoryManager';
 
 export class SelectTool extends BaseTool {
   /**
@@ -234,6 +236,28 @@ export class SelectTool extends BaseTool {
     this.transformer.on('transformend', () => {
       if (!oldTransformData) return;
 
+      this.selectedShapes.forEach(shape => {
+        const node = shape.konvaNode;
+        const scaleX = node.scaleX();
+        const scaleY = node.scaleY();
+        const newWidth = Math.round(node.width() * Math.abs(scaleX));
+        const newHeight = Math.round(node.height() * Math.abs(scaleY));
+        
+        // Reset scale on the node
+        node.scale({ x: 1, y: 1 });
+        
+        // Update shape geometry
+        shape.updateGeometry({
+          x: node.x(),
+          y: node.y(),
+          width: newWidth,
+          height: newHeight
+        });
+        
+        // Update angle (rotation) on shape instance
+        shape.angle = node.rotation();
+      });
+
       const newTransformData = this.selectedShapes.map((shape) => ({
         shapeId: shape.id,
         geometry: shape.getGeometry(),
@@ -242,12 +266,45 @@ export class SelectTool extends BaseTool {
         scaleY: shape.konvaNode.scaleY(),
       }));
 
-      eventBus.emit('shapes-transformed-history', {
+      // Register transform in history
+      historyManager.registerChange({
+        type: 'transform',
         oldData: oldTransformData,
         newData: newTransformData,
+        undo: () => {
+          oldTransformData.forEach((data) => {
+            const shape = this.shapeManager.getShapeById(data.shapeId);
+            if (shape) {
+              shape.konvaNode.scale({ x: data.scaleX, y: data.scaleY });
+              shape.konvaNode.rotation(data.rotation);
+              shape.updateGeometry(data.geometry);
+              shape.angle = data.rotation;
+            }
+          });
+          this.canvasEngine.batchDrawAll();
+          this.transformer.forceUpdate();
+          eventBus.emit('shape-transformed');
+          eventBus.emit('shapes-updated');
+        },
+        redo: () => {
+          newTransformData.forEach((data) => {
+            const shape = this.shapeManager.getShapeById(data.shapeId);
+            if (shape) {
+              shape.konvaNode.scale({ x: data.scaleX, y: data.scaleY });
+              shape.konvaNode.rotation(data.rotation);
+              shape.updateGeometry(data.geometry);
+              shape.angle = data.rotation;
+            }
+          });
+          this.canvasEngine.batchDrawAll();
+          this.transformer.forceUpdate();
+          eventBus.emit('shape-transformed');
+          eventBus.emit('shapes-updated');
+        },
       });
 
       eventBus.emit('shape-transformed');
+      eventBus.emit('shapes-updated');
       oldTransformData = null;
     });
 
@@ -280,9 +337,7 @@ export class SelectTool extends BaseTool {
         // Single shape snapping support
         const selectedShapes = this.shapeManager.getSelectedShapes();
         if (selectedShapes.length === 1) {
-          import('../managers/SnapManager').then(({ snapManager }) => {
-            snapManager.snap(this.canvasEngine, draggedNode);
-          });
+          snapManager.snap(this.canvasEngine, draggedNode);
         }
 
         const dx = draggedNode.x() - initial.x;
@@ -303,9 +358,7 @@ export class SelectTool extends BaseTool {
     });
 
     this.canvasEngine.stage.on('dragend', (e) => {
-      import('../managers/SnapManager').then(({ snapManager }) => {
-        snapManager.clearGuides(this.canvasEngine);
-      });
+      snapManager.clearGuides(this.canvasEngine);
 
       if (this.draggedShapeIds.length === 0) return;
 
@@ -327,10 +380,44 @@ export class SelectTool extends BaseTool {
       });
 
       if (hasMoved) {
-        eventBus.emit('shapes-dragged-history', {
+        newDragData.forEach(data => {
+          const shape = this.shapeManager.getShapeById(data.shapeId);
+          if (shape) {
+            shape.updateGeometry({ x: data.x, y: data.y });
+          }
+        });
+
+        historyManager.registerChange({
+          type: 'drag',
           oldData: oldDragData,
           newData: newDragData,
+          undo: () => {
+            oldDragData.forEach((data) => {
+              const shape = this.shapeManager.getShapeById(data.shapeId);
+              if (shape) {
+                shape.updateGeometry({ x: data.x, y: data.y });
+              }
+            });
+            this.canvasEngine.shapeLayer.batchDraw();
+            this.transformer.forceUpdate();
+            eventBus.emit('shape-transformed');
+            eventBus.emit('shapes-updated');
+          },
+          redo: () => {
+            newDragData.forEach((data) => {
+              const shape = this.shapeManager.getShapeById(data.shapeId);
+              if (shape) {
+                shape.updateGeometry({ x: data.x, y: data.y });
+              }
+            });
+            this.canvasEngine.shapeLayer.batchDraw();
+            this.transformer.forceUpdate();
+            eventBus.emit('shape-transformed');
+            eventBus.emit('shapes-updated');
+          },
         });
+
+        eventBus.emit('shapes-updated');
       }
 
       eventBus.emit('shape-transformed'); // Triggers properties panel updates

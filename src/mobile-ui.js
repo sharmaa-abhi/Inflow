@@ -11,6 +11,8 @@
  *  - Adds pinch-to-zoom touch support
  */
 
+import { shapeManager } from './managers/ShapeManager.js';
+
 const BREAKPOINT = 768;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -66,9 +68,7 @@ function createMobileDOM() {
     // Init drag-to-dismiss on props panel
     initDragDismiss(handleRow, propsPanel, () => {
       // On dismiss → deselect shapes so PropertiesPanel.js hides it natively
-      import('./managers/ShapeManager.js').then(({ shapeManager }) => {
-        shapeManager.deselectAll();
-      });
+      shapeManager.deselectAll();
     });
   }
 
@@ -432,9 +432,7 @@ function initBackdropClick() {
     _moreSheet?.classList.remove('mobile-sheet-open');
 
     // Close properties (by deselecting)
-    import('./managers/ShapeManager.js').then(({ shapeManager }) => {
-      shapeManager.deselectAll();
-    });
+    shapeManager.deselectAll();
 
     // Close sidebar
     const sidebar = document.getElementById('sidebar-panel');
