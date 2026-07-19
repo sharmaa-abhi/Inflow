@@ -478,15 +478,22 @@ class ToolManager {
       y: shape.konvaNode.y()
     }));
 
+    // Update Shape instances' properties first
+    finalPositions.forEach(final => {
+      const shape = shapeManager.getShape(final.id);
+      if (shape) {
+        shape.updateGeometry({ x: final.x, y: final.y });
+      }
+    });
+
     // Register movement in history!
     historyManager.registerChange({
       type: 'nudge-shapes',
       undo: () => {
         startPositions.forEach(start => {
           const shape = shapeManager.getShape(start.id);
-          if (shape && shape.konvaNode) {
-            shape.konvaNode.x(start.x);
-            shape.konvaNode.y(start.y);
+          if (shape) {
+            shape.updateGeometry({ x: start.x, y: start.y });
           }
         });
         const selectTool = this.tools.get('select');
@@ -494,13 +501,13 @@ class ToolManager {
           selectTool.transformer.forceUpdate();
         }
         this.canvasEngine.batchDrawAll();
+        eventBus.emit('shapes-updated');
       },
       redo: () => {
         finalPositions.forEach(final => {
           const shape = shapeManager.getShape(final.id);
-          if (shape && shape.konvaNode) {
-            shape.konvaNode.x(final.x);
-            shape.konvaNode.y(final.y);
+          if (shape) {
+            shape.updateGeometry({ x: final.x, y: final.y });
           }
         });
         const selectTool = this.tools.get('select');
@@ -508,8 +515,11 @@ class ToolManager {
           selectTool.transformer.forceUpdate();
         }
         this.canvasEngine.batchDrawAll();
+        eventBus.emit('shapes-updated');
       }
     });
+
+    eventBus.emit('shapes-updated');
   }
 }
 

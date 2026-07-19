@@ -1,6 +1,7 @@
 import { BaseTool } from './BaseTool';
 import { TextShape } from '../shapes/TextShape';
 import { eventBus } from '../core/EventBus';
+import { historyManager } from '../managers/HistoryManager';
 
 export class TextTool extends BaseTool {
   /**
@@ -180,14 +181,48 @@ export class TextTool extends BaseTool {
 
       if (this.isNewShape) {
         // Save to history as a new shape
-        eventBus.emit('shape-created-history', textShape);
+        const shape = textShape;
+        historyManager.registerChange({
+          type: 'add',
+          shapeId: shape.id,
+          shapeData: shape.serialize(),
+          undo: () => {
+            this.shapeManager.removeShape(shape.id);
+            shape.destroy();
+            this.canvasEngine.shapeLayer.batchDraw();
+          },
+          redo: () => {
+            const reCreated = this.shapeManager.recreateShape(shape.serialize());
+            this.canvasEngine.shapeLayer.add(reCreated.konvaNode);
+            this.canvasEngine.shapeLayer.batchDraw();
+          }
+        });
+        eventBus.emit('shapes-updated');
       } else if (oldText !== text) {
         // Save to history as geometry text modification
-        eventBus.emit('geometry-changed-history', {
-          shapeId: textShape.id,
-          oldGeom: { text: oldText },
-          newGeom: { text },
+        const shape = textShape;
+        const oldGeom = { text: oldText };
+        const newGeom = { text };
+        
+        historyManager.registerChange({
+          type: 'geometry-change',
+          shapeId: shape.id,
+          oldGeom,
+          newGeom,
+          undo: () => {
+            shape.updateGeometry(oldGeom);
+            shape.konvaNode.height(shape.konvaNode.getTextHeight());
+            this.canvasEngine.shapeLayer.batchDraw();
+            eventBus.emit('shapes-updated');
+          },
+          redo: () => {
+            shape.updateGeometry(newGeom);
+            shape.konvaNode.height(shape.konvaNode.getTextHeight());
+            this.canvasEngine.shapeLayer.batchDraw();
+            eventBus.emit('shapes-updated');
+          }
         });
+        eventBus.emit('shapes-updated');
       }
     }
 

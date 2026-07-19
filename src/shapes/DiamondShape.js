@@ -5,14 +5,14 @@ export class DiamondShape extends BaseShape {
   constructor(config = {}) {
     super('diamond', config);
 
-    const width = config.width || 0;
-    const height = config.height || 0;
+    this.width = config.width || 0;
+    this.height = config.height || 0;
 
     this.konvaNode = new Konva.Line({
       id: this.id,
-      x: config.x || 0,
-      y: config.y || 0,
-      points: this.calculatePoints(width, height),
+      x: this.x,
+      y: this.y,
+      points: this.calculatePoints(this.width, this.height),
       closed: true,
       rotation: config.rotation || 0,
       scaleX: config.scaleX || 1,
@@ -34,11 +34,24 @@ export class DiamondShape extends BaseShape {
   }
 
   updateGeometry(geom) {
-    if (geom.x !== undefined) this.konvaNode.x(geom.x);
-    if (geom.y !== undefined) this.konvaNode.y(geom.y);
+    if (geom.x !== undefined) {
+      this.x = geom.x;
+      this.konvaNode.x(geom.x);
+    }
+    if (geom.y !== undefined) {
+      this.y = geom.y;
+      this.konvaNode.y(geom.y);
+    }
     
-    const currentWidth = geom.width !== undefined ? geom.width : this.getGeometry().width;
-    const currentHeight = geom.height !== undefined ? geom.height : this.getGeometry().height;
+    const currentWidth = geom.width !== undefined ? geom.width : this.width;
+    const currentHeight = geom.height !== undefined ? geom.height : this.height;
+    
+    if (geom.width !== undefined) {
+      this.width = geom.width;
+    }
+    if (geom.height !== undefined) {
+      this.height = geom.height;
+    }
     
     if (geom.width !== undefined || geom.height !== undefined) {
       this.konvaNode.points(this.calculatePoints(currentWidth, currentHeight));
@@ -46,15 +59,11 @@ export class DiamondShape extends BaseShape {
   }
 
   getGeometry() {
-    // Determine dimensions from the points array bounding box
-    const points = this.konvaNode.points();
-    const w = points[2] || 0; // rightmost x
-    const h = points[5] || 0; // bottom-most y
     return {
-      x: this.konvaNode.x(),
-      y: this.konvaNode.y(),
-      width: w,
-      height: h,
+      x: this.x,
+      y: this.y,
+      width: this.width,
+      height: this.height,
     };
   }
 }

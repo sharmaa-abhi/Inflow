@@ -1,5 +1,4 @@
 /**
-/**
  * Abstract Base Tool class that defines standard lifecycle hooks for user interactions.
  */
 export class BaseTool {

@@ -3,6 +3,8 @@ import { CanvasEngine } from './core/CanvasEngine';
 import { toolManager } from './managers/ToolManager';
 import { persistenceManager } from './managers/PersistenceManager';
 import { themeManager } from './managers/ThemeManager';
+import { snapManager } from './managers/SnapManager';
+import { shapeManager } from './managers/ShapeManager';
 import { Toolbar } from './ui/Toolbar';
 import { PropertiesPanel } from './ui/PropertiesPanel';
 import { Sidebar } from './ui/Sidebar';
@@ -11,6 +13,8 @@ import { ContextMenu } from './ui/ContextMenu';
 import { Tooltip } from './ui/Tooltip';
 import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
 import { initMobileUI } from './mobile-ui';
+import { eventBus } from './core/EventBus';
+import { styleManager } from './managers/StyleManager';
 
 const BREAKPOINT = 768;
 
@@ -25,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Initialize Tool Orchestration
     toolManager.init(canvasEngine);
+    snapManager.init(canvasEngine, shapeManager);
 
     // Save a reference to toolManager on the stage for cross-tool interactions (like double-click editing)
     canvasEngine.stage.setAttr('toolManager', toolManager);
@@ -33,15 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     persistenceManager.init(canvasEngine);
     threeDPreviewManager.init(canvasEngine);
 
-    if (window.innerWidth > BREAKPOINT) {
-      // ── DESKTOP mode: initialize all desktop UI panels ──────────────────────
-      new Toolbar();
-      new PropertiesPanel();
-      new Sidebar(canvasEngine);
-      new Statusbar(canvasEngine);
-      new ContextMenu(canvasEngine);
-      new Tooltip();
-    }
+    // Desktop UI will be initialized in the resize handler below if needed
 
     // 4. Initialize mobile responsive UI — always runs (CSS controls visibility)
     //    On desktop it injects mobile-only DOM for responsive resize support.
@@ -57,6 +54,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. Handle resize across breakpoint — re-initialize correct UI once per crossing
     let _desktopInitialized = window.innerWidth > BREAKPOINT;
     let _resizeTimer = null;
+    let _desktopUIInstances = {
+      toolbar: null,
+      propertiesPanel: null,
+      sidebar: null,
+      statusbar: null,
+      contextMenu: null,
+      tooltip: null
+    };
+    
+    // Initialize desktop UI on startup if needed
+    if (_desktopInitialized) {
+      _desktopUIInstances.toolbar = new Toolbar();
+      _desktopUIInstances.propertiesPanel = new PropertiesPanel();
+      _desktopUIInstances.sidebar = new Sidebar(canvasEngine);
+      _desktopUIInstances.statusbar = new Statusbar(canvasEngine);
+      _desktopUIInstances.contextMenu = new ContextMenu(canvasEngine);
+      _desktopUIInstances.tooltip = new Tooltip();
+    }
+    
     window.addEventListener('resize', () => {
       // Debounce: wait 150ms after last resize event before acting
       clearTimeout(_resizeTimer);
@@ -66,12 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isDesktop && !_desktopInitialized) {
           // ── Crossed to DESKTOP ─────────────────────────────────────────────
           _desktopInitialized = true;
-          new Toolbar();
-          new PropertiesPanel();
-          new Sidebar(canvasEngine);
-          new Statusbar(canvasEngine);
-          new ContextMenu(canvasEngine);
-          new Tooltip();
+          _desktopUIInstances.toolbar = new Toolbar();
+          _desktopUIInstances.propertiesPanel = new PropertiesPanel();
+          _desktopUIInstances.sidebar = new Sidebar(canvasEngine);
+          _desktopUIInstances.statusbar = new Statusbar(canvasEngine);
+          _desktopUIInstances.contextMenu = new ContextMenu(canvasEngine);
+          _desktopUIInstances.tooltip = new Tooltip();
           console.log('InkFlow: switched to Desktop UI (>' + BREAKPOINT + 'px)');
         } else if (!isDesktop && _desktopInitialized) {
           // ── Crossed to MOBILE ──────────────────────────────────────────────
@@ -117,13 +133,21 @@ function _wireMobileElements(canvasEngine) {
   });
 
   // ── Sync active tool state from toolManager events ──────────────────────────
-  import('./core/EventBus.js').then(({ eventBus }) => {
-    eventBus.on('tool:changed', (toolName) => {
-      if (!isMobile()) return;
-      document.querySelectorAll('.tool-btn[id^="mb-tool-"]').forEach(b => b.classList.remove('active-tool'));
-      const activeBtn = document.getElementById(`mb-tool-${toolName}`);
-      if (activeBtn) activeBtn.classList.add('active-tool');
-    });
+  eventBus.on('tool-changed', (toolName) => {
+    if (!isMobile()) return;
+    document.querySelectorAll('.tool-btn[id^="mb-tool-"]').forEach(b => b.classList.remove('active-tool'));
+    const activeBtn = document.getElementById(`mb-tool-${toolName}`);
+    if (activeBtn) activeBtn.classList.add('active-tool');
+
+    // Show/hide Pen Settings button in top bar
+    const penSettingsBtn = document.getElementById('mb-btn-pen-settings');
+    if (penSettingsBtn) {
+      if (toolName === 'pen') {
+        penSettingsBtn.classList.remove('hidden');
+      } else {
+        penSettingsBtn.classList.add('hidden');
+      }
+    }
   });
 
   // ── Zoom buttons ─────────────────────────────────────────────────────────────
@@ -157,17 +181,15 @@ function _wireMobileElements(canvasEngine) {
   });
 
   // Keep icons in sync when theme changes via desktop button
-  import('./managers/ThemeManager.js').then(({ themeManager }) => {
-    const origToggle = themeManager.toggle?.bind(themeManager);
-    if (origToggle) {
-      themeManager.toggle = (...args) => {
-        origToggle(...args);
-        const isDark = document.body.classList.contains('dark');
-        mbSunIcon?.classList.toggle('hidden', isDark);
-        mbMoonIcon?.classList.toggle('hidden', !isDark);
-      };
-    }
-  });
+  const origToggle = themeManager.toggle?.bind(themeManager);
+  if (origToggle) {
+    themeManager.toggle = (...args) => {
+      origToggle(...args);
+      const isDark = document.body.classList.contains('dark');
+      mbSunIcon?.classList.toggle('hidden', isDark);
+      mbMoonIcon?.classList.toggle('hidden', !isDark);
+    };
+  }
 
   // ── Export PNG ────────────────────────────────────────────────────────────────
   document.getElementById('mb-btn-export-png')?.addEventListener('click', () => {
@@ -185,8 +207,43 @@ function _wireMobileElements(canvasEngine) {
   const closeSheetBtn  = document.getElementById('mb-btn-close-sheet');
   const deleteShapeBtn = document.getElementById('mb-btn-delete-shape');
 
-  function openPropsSheet() {
+  let isConfiguringPen = false;
+
+  function openPropsSheet(isPenConfig = false) {
     if (!isMobile() || !propsSheet) return;
+    isConfiguringPen = isPenConfig;
+
+    // Update title
+    const sheetTitle = propsSheet.querySelector('.sheet-title');
+    if (sheetTitle) {
+      sheetTitle.textContent = isPenConfig ? 'Pen Settings' : 'Properties';
+    }
+
+    // Toggle delete shape button
+    if (deleteShapeBtn) {
+      if (isPenConfig) {
+        deleteShapeBtn.classList.add('hidden');
+      } else {
+        deleteShapeBtn.classList.remove('hidden');
+      }
+    }
+
+    // Toggle smoothing section (only show if configuring pen, or if selected shape is a Pen shape)
+    const smoothingSection = document.getElementById('mb-section-smoothing');
+    if (smoothingSection) {
+      if (isPenConfig) {
+        smoothingSection.classList.remove('hidden');
+      } else {
+        const selected = shapeManager.getSelectedShapes();
+        const hasPen = selected.some(s => s.type === 'pen');
+        if (hasPen) {
+          smoothingSection.classList.remove('hidden');
+        } else {
+          smoothingSection.classList.add('hidden');
+        }
+      }
+    }
+
     propsSheet.classList.add('sheet-open');
     propsSheet.setAttribute('aria-hidden', 'false');
     if (propsBackdrop) {
@@ -205,6 +262,10 @@ function _wireMobileElements(canvasEngine) {
 
   closeSheetBtn?.addEventListener('click', closePropsSheet);
   propsBackdrop?.addEventListener('click', closePropsSheet);
+
+  document.getElementById('mb-btn-pen-settings')?.addEventListener('click', () => {
+    openPropsSheet(true);
+  });
 
   deleteShapeBtn?.addEventListener('click', () => {
     document.getElementById('btn-clear')?.click();
@@ -238,47 +299,83 @@ function _wireMobileElements(canvasEngine) {
     });
   }
 
-  import('./managers/StyleManager.js').then(({ styleManager }) => {
-    buildPalette('mb-stroke-palette', STROKE_COLORS, (c) => styleManager.setStrokeColor(c));
-    buildPalette('mb-fill-palette',   FILL_COLORS,   (c) => styleManager.setFillColor(c));
+  buildPalette('mb-stroke-palette', STROKE_COLORS, (c) => styleManager.setStrokeColor(c));
+  buildPalette('mb-fill-palette',   FILL_COLORS,   (c) => styleManager.setFillColor(c));
 
-    document.getElementById('mb-stroke-custom')?.addEventListener('input', (e) => {
-      styleManager.setStrokeColor(e.target.value);
-    });
-    document.getElementById('mb-fill-custom')?.addEventListener('input', (e) => {
-      styleManager.setFillColor(e.target.value);
-    });
+  document.getElementById('mb-stroke-custom')?.addEventListener('input', (e) => {
+    styleManager.setStrokeColor(e.target.value);
+  });
+  document.getElementById('mb-fill-custom')?.addEventListener('input', (e) => {
+    styleManager.setFillColor(e.target.value);
+  });
 
-    // ── Stroke width group ──────────────────────────────────────────────────────
-    document.getElementById('mb-stroke-width-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('mb-stroke-width-group').querySelectorAll('.btn-group-item').forEach(b => b.classList.remove('active-group-item'));
-        btn.classList.add('active-group-item');
-        styleManager.setStrokeWidth(Number(btn.dataset.val));
-      });
-    });
-
-    // ── Stroke style group ──────────────────────────────────────────────────────
-    document.getElementById('mb-stroke-style-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.getElementById('mb-stroke-style-group').querySelectorAll('.btn-group-item').forEach(b => b.classList.remove('active-group-item'));
-        btn.classList.add('active-group-item');
-        styleManager.setStrokeStyle(btn.dataset.val);
-      });
+  // ── Stroke width group ──────────────────────────────────────────────────────
+  document.getElementById('mb-stroke-width-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('mb-stroke-width-group').querySelectorAll('.btn-group-item').forEach(b => b.classList.remove('active-group-item'));
+      btn.classList.add('active-group-item');
+      styleManager.setStrokeWidth(Number(btn.dataset.val));
     });
   });
 
+  // ── Stroke style group ──────────────────────────────────────────────────────
+  document.getElementById('mb-stroke-style-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById('mb-stroke-style-group').querySelectorAll('.btn-group-item').forEach(b => b.classList.remove('active-group-item'));
+      btn.classList.add('active-group-item');
+      styleManager.setStrokeStyle(btn.dataset.val);
+    });
+  });
+
+  // ── Line Smoothing controls ──────────────────────────────────────────────────
+  const mbToggleERDP = document.getElementById('mb-toggle-erdp');
+  const mbSliderSmoothing = document.getElementById('mb-slider-smoothing');
+  const mbValSmoothing = document.getElementById('mb-val-smoothing');
+
+  mbToggleERDP?.addEventListener('change', (e) => {
+    const mode = e.target.checked ? 'erdp' : 'standard';
+    styleManager.setSmoothingMode(mode);
+  });
+
+  mbSliderSmoothing?.addEventListener('input', (e) => {
+    const val = Number(e.target.value);
+    if (mbValSmoothing) mbValSmoothing.textContent = `${val}%`;
+    styleManager.setSmoothingTension(val / 100);
+  });
+
+  // Subscribe to style changes to sync mobile controls back
+  eventBus.on('active-style-changed', (style) => {
+    if (mbToggleERDP) {
+      mbToggleERDP.checked = (style.smoothingMode || 'erdp') === 'erdp';
+    }
+    if (mbSliderSmoothing) {
+      const tension = style.smoothingTension !== undefined ? style.smoothingTension : 0.4;
+      mbSliderSmoothing.value = Math.round(tension * 100);
+      if (mbValSmoothing) mbValSmoothing.textContent = `${Math.round(tension * 100)}%`;
+    }
+    
+    // Also sync active width/style button active states
+    if (style.strokeWidth) {
+      document.getElementById('mb-stroke-width-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+        btn.classList.toggle('active-group-item', Number(btn.dataset.val) === style.strokeWidth);
+      });
+    }
+    if (style.strokeStyle) {
+      document.getElementById('mb-stroke-style-group')?.querySelectorAll('.btn-group-item').forEach(btn => {
+        btn.classList.toggle('active-group-item', btn.dataset.val === style.strokeStyle);
+      });
+    }
+  });
+
   // ── Show props sheet when a shape is selected ─────────────────────────────────
-  import('./core/EventBus.js').then(({ eventBus }) => {
-    eventBus.on('shape:selected', () => {
-      if (isMobile()) openPropsSheet();
-    });
-    eventBus.on('shape:deselected', () => {
-      if (isMobile()) closePropsSheet();
-    });
-    eventBus.on('selection:cleared', () => {
-      if (isMobile()) closePropsSheet();
-    });
+  eventBus.on('shape:selected', () => {
+    if (isMobile()) openPropsSheet(false);
+  });
+  eventBus.on('shape:deselected', () => {
+    if (isMobile()) closePropsSheet();
+  });
+  eventBus.on('selection:cleared', () => {
+    if (isMobile()) closePropsSheet();
   });
 
   // ── Drag to dismiss props sheet ───────────────────────────────────────────────

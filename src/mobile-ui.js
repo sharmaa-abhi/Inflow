@@ -11,6 +11,8 @@
  *  - Adds pinch-to-zoom touch support
  */
 
+import { shapeManager } from './managers/ShapeManager.js';
+
 const BREAKPOINT = 768;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -36,6 +38,15 @@ function showToast(msg, ms = 1800) {
 // DOM CREATION — inject all mobile-only elements once
 // ═════════════════════════════════════════════════════════════════════════════
 function createMobileDOM() {
+  // Check if already initialized to prevent duplicates
+  if (document.getElementById('mobile-backdrop')) {
+    _toastEl = document.getElementById('mobile-toast');
+    return {
+      backdrop: document.getElementById('mobile-backdrop'),
+      moreSheet: document.getElementById('mobile-more-sheet')
+    };
+  }
+
   // ── Backdrop ────────────────────────────────────────────────────────────────
   const backdrop = el('div', { id: 'mobile-backdrop', className: 'mobile-backdrop' });
   document.body.appendChild(backdrop);
@@ -57,9 +68,7 @@ function createMobileDOM() {
     // Init drag-to-dismiss on props panel
     initDragDismiss(handleRow, propsPanel, () => {
       // On dismiss → deselect shapes so PropertiesPanel.js hides it natively
-      import('./managers/ShapeManager.js').then(({ shapeManager }) => {
-        shapeManager.deselectAll();
-      });
+      shapeManager.deselectAll();
     });
   }
 
@@ -423,9 +432,7 @@ function initBackdropClick() {
     _moreSheet?.classList.remove('mobile-sheet-open');
 
     // Close properties (by deselecting)
-    import('./managers/ShapeManager.js').then(({ shapeManager }) => {
-      shapeManager.deselectAll();
-    });
+    shapeManager.deselectAll();
 
     // Close sidebar
     const sidebar = document.getElementById('sidebar-panel');

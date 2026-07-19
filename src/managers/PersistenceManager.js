@@ -123,10 +123,30 @@ class PersistenceManager {
         opacity: opacity
       };
 
+      const baseProperties = {
+        seed: el.seed,
+        version: el.version,
+        versionNonce: el.versionNonce,
+        isDeleted: el.isDeleted,
+        groupIds: el.groupIds,
+        boundElements: el.boundElements,
+        link: el.link,
+        locked: el.locked,
+        fillStyle: el.fillStyle,
+        roughness: el.roughness,
+        opacity: el.opacity,
+        angle: el.angle,
+        strokeColor: el.strokeColor,
+        backgroundColor: el.backgroundColor,
+        strokeWidth: el.strokeWidth,
+        strokeStyle: el.strokeStyle,
+      };
+
       let shapeData = null;
 
       if (el.type === 'rectangle') {
         shapeData = {
+          ...baseProperties,
           id: el.id || `rect-${Date.now()}-${Math.random()}`,
           type: 'rectangle',
           x: el.x,
@@ -139,6 +159,7 @@ class PersistenceManager {
         shapes.push(shapeData);
       } else if (el.type === 'ellipse') {
         shapeData = {
+          ...baseProperties,
           id: el.id || `ellipse-${Date.now()}-${Math.random()}`,
           type: 'circle',
           x: el.x + el.width / 2,
@@ -151,6 +172,7 @@ class PersistenceManager {
         shapes.push(shapeData);
       } else if (el.type === 'diamond') {
         shapeData = {
+          ...baseProperties,
           id: el.id || `diamond-${Date.now()}-${Math.random()}`,
           type: 'diamond',
           x: el.x,
@@ -172,6 +194,7 @@ class PersistenceManager {
         }
 
         shapeData = {
+          ...baseProperties,
           id: el.id || `line-${Date.now()}-${Math.random()}`,
           type: type,
           x: el.x,
@@ -179,7 +202,12 @@ class PersistenceManager {
           width: width,
           height: height,
           rotation: rotation,
-          style: style
+          style: style,
+          points: el.points,
+          startBinding: el.startBinding,
+          endBinding: el.endBinding,
+          startArrowhead: el.startArrowhead,
+          endArrowhead: el.endArrowhead
         };
         shapes.push(shapeData);
       } else if (el.type === 'text') {
@@ -200,6 +228,7 @@ class PersistenceManager {
         };
 
         shapeData = {
+          ...baseProperties,
           id: el.id || `text-${Date.now()}-${Math.random()}`,
           type: 'text',
           x: el.x,
@@ -208,7 +237,13 @@ class PersistenceManager {
           height: el.height,
           rotation: rotation,
           text: el.text || '',
-          style: textStyle
+          style: textStyle,
+          fontSize: el.fontSize,
+          fontFamily: el.fontFamily,
+          textAlign: el.textAlign,
+          verticalAlign: el.verticalAlign,
+          lineHeight: el.lineHeight,
+          containerId: el.containerId
         };
         shapes.push(shapeData);
       }

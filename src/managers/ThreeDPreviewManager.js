@@ -213,10 +213,6 @@ class ThreeDPreviewManager {
       // Export image content of shape
       try {
         const dataURL = shape.konvaNode.toDataURL({
-          x: clientRect.x,
-          y: clientRect.y,
-          width: w,
-          height: h,
           pixelRatio: window.devicePixelRatio || 1
         });
         plate.style.backgroundImage = `url(${dataURL})`;
