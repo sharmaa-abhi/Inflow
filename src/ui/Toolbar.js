@@ -14,6 +14,8 @@ export class Toolbar {
       'tool-pen': 'pen',
       'tool-text': 'text',
       'tool-laser': 'laser',
+      'tool-sticky': 'sticky',
+      'tool-image': 'image',
     };
 
     this.domElements = {};
@@ -31,6 +33,37 @@ export class Toolbar {
         });
       }
     });
+
+    // Extended Shapes Popover Menu Wiring
+    const extShapesBtn = document.getElementById('btn-extended-shapes');
+    const extShapesMenu = document.getElementById('extended-shapes-menu');
+
+    if (extShapesBtn && extShapesMenu) {
+      extShapesBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        extShapesMenu.classList.toggle('hidden');
+        extShapesMenu.classList.toggle('flex');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!extShapesMenu.contains(e.target) && e.target !== extShapesBtn) {
+          extShapesMenu.classList.add('hidden');
+          extShapesMenu.classList.remove('flex');
+        }
+      });
+
+      const extItems = extShapesMenu.querySelectorAll('.ext-shape-item');
+      extItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const shapeType = item.getAttribute('data-shape');
+          if (shapeType) {
+            toolManager.setTool(shapeType);
+          }
+          extShapesMenu.classList.add('hidden');
+          extShapesMenu.classList.remove('flex');
+        });
+      });
+    }
 
     // Listen to changes in the active tool to toggle visual highlights
     eventBus.on('tool-changed', (activeType) => {
@@ -56,3 +89,4 @@ export class Toolbar {
     });
   }
 }
+

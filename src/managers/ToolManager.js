@@ -4,6 +4,8 @@ import { ShapeTool } from '../tools/ShapeTool';
 import { PenTool } from '../tools/PenTool';
 import { TextTool } from '../tools/TextTool';
 import { LaserTool } from '../tools/LaserTool';
+import { ImageTool } from '../tools/ImageTool';
+import { StickyTool } from '../tools/StickyTool';
 import { shapeManager } from './ShapeManager';
 import { styleManager } from './StyleManager';
 import { historyManager } from './HistoryManager';
@@ -39,6 +41,15 @@ class ToolManager {
     this.tools.set('pen', new PenTool(canvasEngine, shapeManager, styleManager));
     this.tools.set('text', new TextTool(canvasEngine, shapeManager, styleManager));
     this.tools.set('laser', new LaserTool(canvasEngine, shapeManager, styleManager));
+    this.tools.set('image', new ImageTool(canvasEngine));
+    this.tools.set('sticky', new StickyTool(canvasEngine));
+    this.tools.set('pill', new ShapeTool(canvasEngine, 'pill'));
+    this.tools.set('parallelogram', new ShapeTool(canvasEngine, 'parallelogram'));
+    this.tools.set('trapezoid', new ShapeTool(canvasEngine, 'trapezoid'));
+    this.tools.set('cylinder', new ShapeTool(canvasEngine, 'cylinder'));
+    this.tools.set('cloud', new ShapeTool(canvasEngine, 'cloud'));
+    this.tools.set('star', new ShapeTool(canvasEngine, 'star'));
+    this.tools.set('speechBubble', new ShapeTool(canvasEngine, 'speechBubble'));
 
     // Default to Select tool
     this.setTool('select');

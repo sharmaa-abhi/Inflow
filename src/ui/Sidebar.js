@@ -28,6 +28,13 @@ export class Sidebar {
     this.fileInput.style.display = 'none';
     document.body.appendChild(this.fileInput);
 
+    this.btnImportSvg = document.getElementById('btn-import-svg');
+    this.svgFileInput = document.createElement('input');
+    this.svgFileInput.type = 'file';
+    this.svgFileInput.accept = '.svg';
+    this.svgFileInput.style.display = 'none';
+    document.body.appendChild(this.svgFileInput);
+
     this.init();
   }
 
@@ -71,6 +78,29 @@ export class Sidebar {
         persistenceManager.importJSON(file, this.canvasEngine);
         // Clear input value so selecting the same file again triggers change event
         this.fileInput.value = '';
+      }
+    });
+
+    // SVG Vector Import action
+    if (this.btnImportSvg) {
+      this.btnImportSvg.addEventListener('click', () => {
+        this.svgFileInput.click();
+      });
+    }
+
+    this.svgFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const svgText = event.target.result;
+          const { createKonvaNodesFromSvg } = await import('../utils/svgParser');
+          const group = createKonvaNodesFromSvg(svgText, { x: 200, y: 150 });
+          this.canvasEngine.shapeLayer.add(group);
+          this.canvasEngine.shapeLayer.batchDraw();
+        };
+        reader.readAsText(file);
+        this.svgFileInput.value = '';
       }
     });
 

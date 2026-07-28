@@ -4,6 +4,13 @@ import { CircleShape } from '../shapes/CircleShape';
 import { DiamondShape } from '../shapes/DiamondShape';
 import { LineShape } from '../shapes/LineShape';
 import { ArrowShape } from '../shapes/ArrowShape';
+import { PillShape } from '../shapes/PillShape';
+import { ParallelogramShape } from '../shapes/ParallelogramShape';
+import { TrapezoidShape } from '../shapes/TrapezoidShape';
+import { CylinderShape } from '../shapes/CylinderShape';
+import { CloudShape } from '../shapes/CloudShape';
+import { StarShape } from '../shapes/StarShape';
+import { SpeechBubbleShape } from '../shapes/SpeechBubbleShape';
 import { shapeManager } from '../managers/ShapeManager';
 import { styleManager } from '../managers/StyleManager';
 import { historyManager } from '../managers/HistoryManager';
@@ -14,7 +21,7 @@ import { computeOrthogonalPath } from '../utils/routing';
 export class ShapeTool extends BaseTool {
   constructor(canvasEngine, shapeType) {
     super(canvasEngine);
-    this.shapeType = shapeType; // 'rectangle', 'circle', 'diamond', 'line', 'arrow'
+    this.shapeType = shapeType; // 'rectangle', 'circle', 'diamond', 'line', 'arrow', etc.
     this.isDrawing = false;
     this.currentShape = null;
     this.startPos = { x: 0, y: 0 };
@@ -94,6 +101,27 @@ export class ShapeTool extends BaseTool {
         break;
       case 'arrow':
         this.currentShape = new ArrowShape(config);
+        break;
+      case 'pill':
+        this.currentShape = new PillShape(config);
+        break;
+      case 'parallelogram':
+        this.currentShape = new ParallelogramShape(config);
+        break;
+      case 'trapezoid':
+        this.currentShape = new TrapezoidShape(config);
+        break;
+      case 'cylinder':
+        this.currentShape = new CylinderShape(config);
+        break;
+      case 'cloud':
+        this.currentShape = new CloudShape(config);
+        break;
+      case 'star':
+        this.currentShape = new StarShape(config);
+        break;
+      case 'speechBubble':
+        this.currentShape = new SpeechBubbleShape(config);
         break;
       default:
         this.isDrawing = false;
