@@ -1,36 +1,29 @@
 import Konva from 'konva';
 import { BaseShape } from './BaseShape';
 
-export class DiamondShape extends BaseShape {
+export class PillShape extends BaseShape {
   constructor(config = {}) {
-    super('diamond', config);
+    super('pill', config);
 
-    this.width = config.width || 0;
-    this.height = config.height || 0;
+    this.x = config.x || 0;
+    this.y = config.y || 0;
+    this.width = config.width || 120;
+    this.height = config.height || 50;
 
-    this.konvaNode = new Konva.Line({
+    this.konvaNode = new Konva.Rect({
       id: this.id,
       x: this.x,
       y: this.y,
-      points: this.calculatePoints(this.width, this.height),
-      closed: true,
+      width: this.width,
+      height: this.height,
+      cornerRadius: Math.min(this.width, this.height) / 2,
       rotation: config.rotation || 0,
       scaleX: config.scaleX || 1,
       scaleY: config.scaleY || 1,
       draggable: true,
-      strokeScaleEnabled: false,
     });
 
     this.applyStyles();
-  }
-
-  calculatePoints(width, height) {
-    return [
-      width / 2, 0,          // Top
-      width, height / 2,     // Right
-      width / 2, height,     // Bottom
-      0, height / 2          // Left
-    ];
   }
 
   updateGeometry(geom) {
@@ -42,20 +35,16 @@ export class DiamondShape extends BaseShape {
       this.y = geom.y;
       this.konvaNode.y(geom.y);
     }
-    
-    const currentWidth = geom.width !== undefined ? geom.width : this.width;
-    const currentHeight = geom.height !== undefined ? geom.height : this.height;
-    
     if (geom.width !== undefined) {
       this.width = geom.width;
+      this.konvaNode.width(geom.width);
     }
     if (geom.height !== undefined) {
       this.height = geom.height;
+      this.konvaNode.height(geom.height);
     }
-    
-    if (geom.width !== undefined || geom.height !== undefined) {
-      this.konvaNode.points(this.calculatePoints(currentWidth, currentHeight));
-    }
+
+    this.konvaNode.cornerRadius(Math.min(Math.abs(this.width), Math.abs(this.height)) / 2);
 
     if (this._roughMode) this._scheduleRoughRender();
   }
@@ -70,6 +59,6 @@ export class DiamondShape extends BaseShape {
   }
 
   renderRough() {
-    this.renderRoughWith({});
+    this.renderRoughWith({ type: 'rectangle' });
   }
 }

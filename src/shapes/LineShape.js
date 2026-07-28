@@ -9,6 +9,14 @@ export class LineShape extends BaseShape {
     this.height = config.height || 0;
     this.points = config.points || [[0, 0], [this.width, this.height]];
 
+    // Connector bindings
+    this.startBinding = config.startBinding || null; // { shapeId, anchorType }
+    this.endBinding   = config.endBinding   || null;
+
+    // Free-endpoint positions (used when not bound to a shape)
+    this._freeStartPos = config._freeStartPos || null;
+    this._freeEndPos   = config._freeEndPos   || null;
+
     this.konvaNode = new Konva.Line({
       id: this.id,
       x: this.x,
@@ -19,7 +27,13 @@ export class LineShape extends BaseShape {
       scaleY: config.scaleY || 1,
       draggable: true,
       strokeScaleEnabled: false,
+      lineJoin: 'round',
+      lineCap: 'round',
     });
+
+    // Midpoint label node (shown on double-click)
+    this.labelText = config.labelText || '';
+    this.labelNode = null; // Konva.Text; created lazily
 
     this.applyStyles();
   }
@@ -48,10 +62,11 @@ export class LineShape extends BaseShape {
       const pointsArray = this.points ? this.points.flat() : [0, 0, this.width, this.height];
       this.konvaNode.points(pointsArray);
     }
+
+    if (this._roughMode) this._scheduleRoughRender();
   }
 
   getGeometry() {
-    const points = this.konvaNode.points();
     return {
       x: this.x,
       y: this.y,
@@ -61,11 +76,48 @@ export class LineShape extends BaseShape {
     };
   }
 
+  renderRough() {
+    const flat = this.points ? this.points.flat() : [0, 0, this.width, this.height];
+    this.renderRoughWith({ flatPoints: flat });
+  }
+
+  /**
+   * Creates or shows the midpoint label node.
+   * @param {Konva.Layer} layer
+   */
+  showLabel(layer) {
+    const flat = this.konvaNode.points();
+    const midX = flat.length >= 4 ? (flat[0] + flat[flat.length - 2]) / 2 : this.x;
+    const midY = flat.length >= 4 ? (flat[1] + flat[flat.length - 1]) / 2 : this.y;
+
+    if (!this.labelNode) {
+      this.labelNode = new Konva.Text({
+        x: this.x + midX - 40,
+        y: this.y + midY - 12,
+        text: this.labelText,
+        fontSize: 13,
+        fontFamily: 'Inter, sans-serif',
+        fill: '#1e293b',
+        width: 80,
+        align: 'center',
+        listening: false,
+        id: this.id + '_label',
+      });
+      layer.add(this.labelNode);
+    } else {
+      this.labelNode.position({ x: this.x + midX - 40, y: this.y + midY - 12 });
+    }
+    layer.batchDraw();
+  }
+
   serialize() {
     const baseData = super.serialize();
     return {
       ...baseData,
-      points: this.points,
+      points:        this.points,
+      startBinding:  this.startBinding,
+      endBinding:    this.endBinding,
+      labelText:     this.labelText,
     };
   }
 }

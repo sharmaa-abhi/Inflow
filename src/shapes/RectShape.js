@@ -44,6 +44,8 @@ export class RectShape extends BaseShape {
       this.height = geom.height;
       this.konvaNode.height(geom.height);
     }
+
+    if (this._roughMode) this._scheduleRoughRender();
   }
 
   getGeometry() {
@@ -53,6 +55,10 @@ export class RectShape extends BaseShape {
       width: this.width,
       height: this.height,
     };
+  }
+
+  renderRough() {
+    this.renderRoughWith({});
   }
 
   serialize() {

@@ -51,6 +51,8 @@ export class CircleShape extends BaseShape {
       this.radiusY = geom.radiusY;
       this.konvaNode.radiusY(geom.radiusY);
     }
+
+    if (this._roughMode) this._scheduleRoughRender();
   }
 
   getGeometry() {
@@ -64,5 +66,16 @@ export class CircleShape extends BaseShape {
       radiusX: rx,
       radiusY: ry,
     };
+  }
+
+  renderRough() {
+    const rx = this.konvaNode.radiusX();
+    const ry = this.konvaNode.radiusY();
+    this.renderRoughWith({
+      radiusX: rx,
+      radiusY: ry,
+      width:   rx * 2,
+      height:  ry * 2,
+    });
   }
 }

@@ -1,12 +1,15 @@
 import Konva from 'konva';
 import { BaseShape } from './BaseShape';
 
-export class DiamondShape extends BaseShape {
+export class TrapezoidShape extends BaseShape {
   constructor(config = {}) {
-    super('diamond', config);
+    super('trapezoid', config);
 
-    this.width = config.width || 0;
-    this.height = config.height || 0;
+    this.x = config.x || 0;
+    this.y = config.y || 0;
+    this.width = config.width || 120;
+    this.height = config.height || 60;
+    this.inset = config.inset || 0.2; // 20% inset on top
 
     this.konvaNode = new Konva.Line({
       id: this.id,
@@ -25,11 +28,12 @@ export class DiamondShape extends BaseShape {
   }
 
   calculatePoints(width, height) {
+    const offset = width * this.inset;
     return [
-      width / 2, 0,          // Top
-      width, height / 2,     // Right
-      width / 2, height,     // Bottom
-      0, height / 2          // Left
+      offset, 0,
+      width - offset, 0,
+      width, height,
+      0, height,
     ];
   }
 
@@ -42,20 +46,10 @@ export class DiamondShape extends BaseShape {
       this.y = geom.y;
       this.konvaNode.y(geom.y);
     }
-    
-    const currentWidth = geom.width !== undefined ? geom.width : this.width;
-    const currentHeight = geom.height !== undefined ? geom.height : this.height;
-    
-    if (geom.width !== undefined) {
-      this.width = geom.width;
-    }
-    if (geom.height !== undefined) {
-      this.height = geom.height;
-    }
-    
-    if (geom.width !== undefined || geom.height !== undefined) {
-      this.konvaNode.points(this.calculatePoints(currentWidth, currentHeight));
-    }
+    if (geom.width !== undefined) this.width = geom.width;
+    if (geom.height !== undefined) this.height = geom.height;
+
+    this.konvaNode.points(this.calculatePoints(this.width, this.height));
 
     if (this._roughMode) this._scheduleRoughRender();
   }
@@ -70,6 +64,6 @@ export class DiamondShape extends BaseShape {
   }
 
   renderRough() {
-    this.renderRoughWith({});
+    this.renderRoughWith({ type: 'diamond' });
   }
 }

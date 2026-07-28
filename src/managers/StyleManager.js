@@ -15,6 +15,9 @@ class StyleManager {
       align: 'left', // 'left', 'center', 'right'
       smoothingMode: 'erdp', // 'standard' or 'erdp'
       smoothingTension: 0.4, // float from 0 to 1
+      // Rough.js / sketchy mode
+      roughMode: false,
+      fillStyle: 'hachure', // 'solid' | 'hachure' | 'cross-hatch' | 'dots'
     };
 
     // Listen to theme changes to swap default styles
@@ -130,6 +133,26 @@ class StyleManager {
 
   setSmoothingTension(tension) {
     this.updateStyles({ smoothingTension: tension });
+  }
+
+  /**
+   * Toggle rough (hand-drawn) mode on/off globally.
+   * Emits 'rough-mode-changed' so ShapeManager can update all shapes.
+   * @param {boolean} isRough
+   */
+  setRoughMode(isRough) {
+    this.activeStyles.roughMode = isRough;
+    eventBus.emit('rough-mode-changed', isRough);
+    eventBus.emit('active-style-changed', this.activeStyles);
+  }
+
+  /**
+   * Set the fill pattern style used in both rough and crisp modes.
+   * @param {'solid'|'hachure'|'cross-hatch'|'dots'} style
+   */
+  setFillStyle(style) {
+    this.activeStyles.fillStyle = style;
+    this.updateStyles({ fillStyle: style });
   }
 }
 

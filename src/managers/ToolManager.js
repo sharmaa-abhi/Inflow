@@ -4,6 +4,8 @@ import { ShapeTool } from '../tools/ShapeTool';
 import { PenTool } from '../tools/PenTool';
 import { TextTool } from '../tools/TextTool';
 import { LaserTool } from '../tools/LaserTool';
+import { ImageTool } from '../tools/ImageTool';
+import { StickyTool } from '../tools/StickyTool';
 import { shapeManager } from './ShapeManager';
 import { styleManager } from './StyleManager';
 import { historyManager } from './HistoryManager';
@@ -39,6 +41,15 @@ class ToolManager {
     this.tools.set('pen', new PenTool(canvasEngine, shapeManager, styleManager));
     this.tools.set('text', new TextTool(canvasEngine, shapeManager, styleManager));
     this.tools.set('laser', new LaserTool(canvasEngine, shapeManager, styleManager));
+    this.tools.set('image', new ImageTool(canvasEngine));
+    this.tools.set('sticky', new StickyTool(canvasEngine));
+    this.tools.set('pill', new ShapeTool(canvasEngine, 'pill'));
+    this.tools.set('parallelogram', new ShapeTool(canvasEngine, 'parallelogram'));
+    this.tools.set('trapezoid', new ShapeTool(canvasEngine, 'trapezoid'));
+    this.tools.set('cylinder', new ShapeTool(canvasEngine, 'cylinder'));
+    this.tools.set('cloud', new ShapeTool(canvasEngine, 'cloud'));
+    this.tools.set('star', new ShapeTool(canvasEngine, 'star'));
+    this.tools.set('speechBubble', new ShapeTool(canvasEngine, 'speechBubble'));
 
     // Default to Select tool
     this.setTool('select');
@@ -154,41 +165,47 @@ class ToolManager {
         }
       }
 
-      // Check tool swaps
-      switch (e.key.toLowerCase()) {
-        case 'v':
-          this.setTool('select');
-          break;
-        case 'r':
-          this.setTool('rectangle');
-          break;
-        case 'c':
-          this.setTool('circle');
-          break;
-        case 'd':
-          this.setTool('diamond');
-          break;
-        case 'l':
-          this.setTool('line');
-          break;
-        case 'a':
-          this.setTool('arrow');
-          break;
-        case 'p':
-          this.setTool('pen');
-          break;
-        case 't':
-          this.setTool('text');
-          break;
-        case 'k':
-          this.setTool('laser');
-          break;
-        
-        // Delete selected shape keys
-        case 'delete':
-        case 'backspace':
-          this.deleteSelectedShapes();
-          break;
+      // Check tool swaps (only when Ctrl/Cmd is NOT held down)
+      if (!e.ctrlKey && !e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case 'v':
+            this.setTool('select');
+            break;
+          case 'r':
+            this.setTool('rectangle');
+            break;
+          case 'c':
+            this.setTool('circle');
+            break;
+          case 'd':
+            this.setTool('diamond');
+            break;
+          case 'l':
+            this.setTool('line');
+            break;
+          case 'a':
+            this.setTool('arrow');
+            break;
+          case 'p':
+            this.setTool('pen');
+            break;
+          case 't':
+            this.setTool('text');
+            break;
+          case 'k':
+            this.setTool('laser');
+            break;
+          case 'h':
+            // Toggle rough / hand-drawn mode
+            this.toggleSketchyMode();
+            break;
+          
+          // Delete selected shape keys
+          case 'delete':
+          case 'backspace':
+            this.deleteSelectedShapes();
+            break;
+        }
       }
 
       // Reorder shapes shortcuts
@@ -229,6 +246,26 @@ class ToolManager {
         }
       }
     });
+  }
+
+  /**
+   * Toggles rough (sketchy) mode on/off.
+   * Also updates the toolbar button active state.
+   */
+  toggleSketchyMode() {
+    const isCurrentlyRough = styleManager.getActiveStyles().roughMode;
+    const newVal = !isCurrentlyRough;
+    styleManager.setRoughMode(newVal);
+
+    // Update toolbar button active visual
+    const btn = document.getElementById('tool-sketchy');
+    if (btn) {
+      if (newVal) {
+        btn.classList.add('bg-indigo-100', 'text-indigo-700');
+      } else {
+        btn.classList.remove('bg-indigo-100', 'text-indigo-700');
+      }
+    }
   }
 
   reorderSelected(actionType) {

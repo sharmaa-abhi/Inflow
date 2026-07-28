@@ -2,6 +2,7 @@ import { eventBus } from '../core/EventBus';
 import { historyManager } from '../managers/HistoryManager';
 import { persistenceManager } from '../managers/PersistenceManager';
 import { shapeManager } from '../managers/ShapeManager';
+import { styleManager } from '../managers/StyleManager';
 
 export class Sidebar {
   /**
@@ -26,6 +27,13 @@ export class Sidebar {
     this.fileInput.accept = '.json,.excalidraw';
     this.fileInput.style.display = 'none';
     document.body.appendChild(this.fileInput);
+
+    this.btnImportSvg = document.getElementById('btn-import-svg');
+    this.svgFileInput = document.createElement('input');
+    this.svgFileInput.type = 'file';
+    this.svgFileInput.accept = '.svg';
+    this.svgFileInput.style.display = 'none';
+    document.body.appendChild(this.svgFileInput);
 
     this.init();
   }
@@ -73,6 +81,29 @@ export class Sidebar {
       }
     });
 
+    // SVG Vector Import action
+    if (this.btnImportSvg) {
+      this.btnImportSvg.addEventListener('click', () => {
+        this.svgFileInput.click();
+      });
+    }
+
+    this.svgFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const svgText = event.target.result;
+          const { createKonvaNodesFromSvg } = await import('../utils/svgParser');
+          const group = createKonvaNodesFromSvg(svgText, { x: 200, y: 150 });
+          this.canvasEngine.shapeLayer.add(group);
+          this.canvasEngine.shapeLayer.batchDraw();
+        };
+        reader.readAsText(file);
+        this.svgFileInput.value = '';
+      }
+    });
+
     // Export Actions
     if (this.btnExportJson) {
       this.btnExportJson.addEventListener('click', () => {
@@ -94,10 +125,16 @@ export class Sidebar {
 
         if (!confirm('Are you sure you want to clear the canvas?')) return;
 
+        // Deselect active shapes to hide properties panel & selection transformer
+        shapeManager.deselectAll();
+
         // Serialize all current shapes for undoing
         const serialized = shapes.map(s => s.serialize());
 
-        // Perform clear
+        // Destroy children and clear manager
+        shapes.forEach(s => {
+          if (typeof s.destroy === 'function') s.destroy();
+        });
         shapeManager.clear();
         this.canvasEngine.shapeLayer.destroyChildren();
         this.canvasEngine.batchDrawAll();
@@ -106,16 +143,32 @@ export class Sidebar {
         historyManager.registerChange({
           type: 'clear-canvas',
           undo: () => {
-            // Restore all shapes
+            shapeManager.deselectAll();
+            const old = shapeManager.getAllShapes();
+            old.forEach(s => {
+              if (typeof s.destroy === 'function') s.destroy();
+            });
+            shapeManager.clear();
+            this.canvasEngine.shapeLayer.destroyChildren();
+
+            const isRough = styleManager.getActiveStyles().roughMode;
             serialized.forEach(json => {
               const restored = shapeManager.recreateShape(json);
               if (restored) {
                 this.canvasEngine.shapeLayer.add(restored.konvaNode);
+                if (isRough && typeof restored.applyRoughMode === 'function') {
+                  restored.applyRoughMode(true);
+                }
               }
             });
             this.canvasEngine.batchDrawAll();
           },
           redo: () => {
+            shapeManager.deselectAll();
+            const currentShapes = shapeManager.getAllShapes();
+            currentShapes.forEach(s => {
+              if (typeof s.destroy === 'function') s.destroy();
+            });
             shapeManager.clear();
             this.canvasEngine.shapeLayer.destroyChildren();
             this.canvasEngine.batchDrawAll();

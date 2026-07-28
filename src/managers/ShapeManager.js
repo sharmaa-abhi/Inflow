@@ -4,10 +4,17 @@ import { CircleShape } from '../shapes/CircleShape';
 import { DiamondShape } from '../shapes/DiamondShape';
 import { LineShape } from '../shapes/LineShape';
 import { ArrowShape } from '../shapes/ArrowShape';
-// Note: PenShape and TextShape will be imported once implemented,
-// but let's import them now since we will create them in Milestone 3.
 import { PenShape } from '../shapes/PenShape';
 import { TextShape } from '../shapes/TextShape';
+import { ImageShape } from '../shapes/ImageShape';
+import { PillShape } from '../shapes/PillShape';
+import { ParallelogramShape } from '../shapes/ParallelogramShape';
+import { TrapezoidShape } from '../shapes/TrapezoidShape';
+import { CylinderShape } from '../shapes/CylinderShape';
+import { CloudShape } from '../shapes/CloudShape';
+import { StarShape } from '../shapes/StarShape';
+import { SpeechBubbleShape } from '../shapes/SpeechBubbleShape';
+import { StickyNoteShape } from '../shapes/StickyNoteShape';
 
 class ShapeManager {
   constructor() {
@@ -18,6 +25,15 @@ class ShapeManager {
     // Listen to theme changes to convert default colors
     eventBus.on('theme-changed', (theme) => {
       this.handleThemeChange(theme);
+    });
+
+    // Listen to rough mode toggle — apply to all existing shapes
+    eventBus.on('rough-mode-changed', (isRough) => {
+      this.getAllShapes().forEach(shape => {
+        if (typeof shape.applyRoughMode === 'function') {
+          shape.applyRoughMode(isRough);
+        }
+      });
     });
   }
 
@@ -242,6 +258,33 @@ class ShapeManager {
       case 'text':
         shape = new TextShape(json);
         break;
+      case 'image':
+        shape = new ImageShape(json);
+        break;
+      case 'pill':
+        shape = new PillShape(json);
+        break;
+      case 'parallelogram':
+        shape = new ParallelogramShape(json);
+        break;
+      case 'trapezoid':
+        shape = new TrapezoidShape(json);
+        break;
+      case 'cylinder':
+        shape = new CylinderShape(json);
+        break;
+      case 'cloud':
+        shape = new CloudShape(json);
+        break;
+      case 'star':
+        shape = new StarShape(json);
+        break;
+      case 'speechBubble':
+        shape = new SpeechBubbleShape(json);
+        break;
+      case 'stickyNote':
+        shape = new StickyNoteShape(json);
+        break;
       default:
         console.warn('Unknown shape type to recreate:', json.type);
         return null;
@@ -252,6 +295,13 @@ class ShapeManager {
       if (json.rotation !== undefined) shape.konvaNode.rotation(json.rotation);
       if (json.scaleX !== undefined) shape.konvaNode.scaleX(json.scaleX);
       if (json.scaleY !== undefined) shape.konvaNode.scaleY(json.scaleY);
+    }
+
+    // Restore connector bindings and label
+    if (shape && (json.type === 'line' || json.type === 'arrow')) {
+      if (json.startBinding) shape.startBinding = json.startBinding;
+      if (json.endBinding)   shape.endBinding   = json.endBinding;
+      if (json.labelText)    shape.labelText    = json.labelText;
     }
 
     this.shapes.set(shape.id, shape);
