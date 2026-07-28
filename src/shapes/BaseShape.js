@@ -1,3 +1,4 @@
+import Konva from 'konva';
 import { generateId } from '../utils/helpers';
 
 /**
@@ -217,14 +218,11 @@ export class BaseShape {
     const bitmap = await renderRoughShape(shapeData);
 
     const parent = this.konvaNode.getLayer();
-    if (!parent) return;
+    if (!parent) return; // shape may have been destroyed
 
     if (this._roughImageNode) {
       this._roughImageNode.destroy();
     }
-
-    const KonvaModule = await import('konva');
-    const Konva = KonvaModule.default || KonvaModule;
 
     const originX = (this.type === 'circle') ? this.x - (this.width / 2)  : this.x;
     const originY = (this.type === 'circle') ? this.y - (this.height / 2) : this.y;
