@@ -3,7 +3,7 @@ import { shapeManager } from '../managers/ShapeManager';
 import { styleManager } from '../managers/StyleManager';
 import { toolManager } from '../managers/ToolManager';
 import { threeDPreviewManager } from '../managers/ThreeDPreviewManager';
-import { COLORS, PALETTE_CATEGORIES, getColorsByCategory, DEFAULT_STROKE_COLORS, DEFAULT_FILL_COLORS } from '../utils/colors';
+import { COLORS, PALETTE_CATEGORIES, getColorsByCategory, DEFAULT_STROKE_COLORS, DEFAULT_FILL_COLORS, parseAnyColor, toHex, convertColor, detectFormat } from '../utils/colors';
 
 export class PropertiesPanel {
   constructor() {
@@ -19,16 +19,24 @@ export class PropertiesPanel {
     // Palettes & Custom Pickers & Category Dropdowns
     this.strokePalette = document.getElementById('prop-stroke-palette');
     this.strokeCustom = document.getElementById('prop-stroke-custom');
+    this.strokeText   = document.getElementById('prop-stroke-text');
+    this.strokeFmt    = document.getElementById('prop-stroke-fmt');
     this.strokeCategory = document.getElementById('prop-stroke-category');
     this.fillPalette = document.getElementById('prop-fill-palette');
     this.fillCustom = document.getElementById('prop-fill-custom');
+    this.fillText   = document.getElementById('prop-fill-text');
+    this.fillFmt    = document.getElementById('prop-fill-fmt');
     this.fillCategory = document.getElementById('prop-fill-category');
 
     // Button Groups
     this.strokeWidthGroup = document.getElementById('prop-stroke-width-group');
     this.strokeStyleGroup = document.getElementById('prop-stroke-style-group');
     this.fillStyleGroup   = document.getElementById('prop-fill-style-group');
-    
+
+    // Active format state per channel: 'hex' | 'rgb' | 'hsl'
+    this.strokeColorFmt = 'hex';
+    this.fillColorFmt   = 'hex';
+
     // Category states
     this.activeStrokeCategory = 'quick';
     this.activeFillCategory = 'quick';
@@ -272,8 +280,25 @@ export class PropertiesPanel {
     this.updatePaletteActiveStyles(this.strokePalette, style.stroke || '');
     this.updatePaletteActiveStyles(this.fillPalette, style.fill || '');
 
-    if (this.strokeCustom) this.strokeCustom.value = style.stroke.startsWith('#') ? style.stroke : '#1e293b';
-    if (this.fillCustom) this.fillCustom.value = style.fill.startsWith('#') ? style.fill : '#ffffff';
+    // Sync native color swatch
+    if (this.strokeCustom) this.strokeCustom.value = style.stroke?.startsWith('#') ? style.stroke : '#1e293b';
+    if (this.fillCustom)   this.fillCustom.value   = style.fill?.startsWith('#')   ? style.fill   : '#ffffff';
+
+    // Sync multi-format text fields
+    if (this.strokeText) {
+      const s = style.stroke || '#1e293b';
+      this.strokeText.value = convertColor(s, this.strokeColorFmt) || s;
+      if (this.strokeFmt) this.strokeFmt.textContent = this.strokeColorFmt.toUpperCase();
+    }
+    if (this.fillText) {
+      const f = style.fill || 'transparent';
+      if (f === 'transparent') {
+        this.fillText.value = 'transparent';
+      } else {
+        this.fillText.value = convertColor(f, this.fillColorFmt) || f;
+      }
+      if (this.fillFmt) this.fillFmt.textContent = this.fillColorFmt.toUpperCase();
+    }
 
     // Button groups active states
     this.syncGroupButtonsActive(this.strokeWidthGroup, style.strokeWidth);
@@ -376,18 +401,100 @@ export class PropertiesPanel {
     }
   }
 
+  // ── Multi-format color helper ─────────────────────────────────────────────
+  _setupColorChannel({
+    customEl, textEl, fmtEl,
+    getFmt, setFmt,
+    styleKey, paletteEl,
+  }) {
+    const CYCLE = ['hex', 'rgb', 'hsl'];
+
+    // Native color swatch → sync text field
+    if (customEl) {
+      customEl.addEventListener('input', (e) => {
+        const hex = e.target.value;          // always #rrggbb from <input type=color>
+        const displayed = convertColor(hex, getFmt());
+        if (textEl) textEl.value = displayed;
+        styleManager.updateStyles({ [styleKey]: hex });
+        this.updatePaletteActiveStyles(paletteEl, hex);
+      });
+    }
+
+    // Text field → parse any format, apply
+    if (textEl) {
+      const applyText = () => {
+        const raw = textEl.value.trim();
+        if (!raw) return;
+        if (raw === 'transparent') {
+          styleManager.updateStyles({ [styleKey]: 'transparent' });
+          if (customEl) customEl.value = '#ffffff';
+          this.updatePaletteActiveStyles(paletteEl, 'transparent');
+          return;
+        }
+        const parsed = parseAnyColor(raw);
+        if (!parsed) {
+          // invalid — shake the input border
+          textEl.closest('div')?.classList.add('border-red-400');
+          setTimeout(() => textEl.closest('div')?.classList.remove('border-red-400'), 800);
+          return;
+        }
+        const hex = toHex(parsed);
+        // Detect the format the user typed and lock to it
+        const fmt = detectFormat(raw);
+        if (fmt !== 'unknown' && fmt !== 'transparent') setFmt(fmt);
+        if (fmtEl) fmtEl.textContent = getFmt().toUpperCase();
+        styleManager.updateStyles({ [styleKey]: hex });
+        if (customEl) customEl.value = hex;
+        this.updatePaletteActiveStyles(paletteEl, hex);
+      };
+
+      textEl.addEventListener('blur', applyText);
+      textEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); applyText(); textEl.blur(); }
+        if (e.key === 'Escape') { textEl.blur(); }
+      });
+    }
+
+    // Format badge button → cycle HEX → RGB → HSL
+    if (fmtEl) {
+      fmtEl.addEventListener('click', () => {
+        const cur = CYCLE.indexOf(getFmt());
+        const next = CYCLE[(cur + 1) % CYCLE.length];
+        setFmt(next);
+        fmtEl.textContent = next.toUpperCase();
+        // Re-display current color in new format
+        if (textEl) {
+          const current = textEl.value.trim() || '';
+          if (current && current !== 'transparent') {
+            textEl.value = convertColor(current, next);
+          }
+        }
+      });
+    }
+  }
+
   setupStyleListeners() {
-    // Custom color pickers
-    if (this.strokeCustom) {
-      this.strokeCustom.addEventListener('input', (e) => {
-        styleManager.updateStyles({ stroke: e.target.value });
-      });
-    }
-    if (this.fillCustom) {
-      this.fillCustom.addEventListener('input', (e) => {
-        styleManager.updateStyles({ fill: e.target.value });
-      });
-    }
+    // Wire up multi-format stroke color channel
+    this._setupColorChannel({
+      customEl: this.strokeCustom,
+      textEl:   this.strokeText,
+      fmtEl:    this.strokeFmt,
+      getFmt:   () => this.strokeColorFmt,
+      setFmt:   (f) => { this.strokeColorFmt = f; },
+      styleKey: 'stroke',
+      paletteEl: this.strokePalette,
+    });
+
+    // Wire up multi-format fill color channel
+    this._setupColorChannel({
+      customEl: this.fillCustom,
+      textEl:   this.fillText,
+      fmtEl:    this.fillFmt,
+      getFmt:   () => this.fillColorFmt,
+      setFmt:   (f) => { this.fillColorFmt = f; },
+      styleKey: 'fill',
+      paletteEl: this.fillPalette,
+    });
 
     // Button click groups
     const bindGroupClick = (group, styleKey) => {

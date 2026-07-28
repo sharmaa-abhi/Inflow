@@ -242,3 +242,139 @@ export function getColorsByCategory(categoryId = 'quick') {
   }
   return COLORS[categoryId] || DEFAULT_STROKE_COLORS;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Multi-Format Color Conversion Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Parse any CSS color string into { r, g, b }.
+ * Supports: #hex (3/6/8 digit), rgb(), rgba(), hsl(), hsla(), 'transparent'.
+ * Returns null if unrecognized.
+ * @param {string} str
+ * @returns {{ r:number, g:number, b:number }|null}
+ */
+export function parseAnyColor(str) {
+  if (!str || typeof str !== 'string') return null;
+  str = str.trim();
+  if (str === 'transparent' || str === 'none') return { r: 0, g: 0, b: 0 };
+
+  // HEX 3-digit shorthand
+  const hex3 = str.match(/^#([0-9a-f]{3})$/i);
+  if (hex3) {
+    const [, h] = hex3;
+    return {
+      r: parseInt(h[0] + h[0], 16),
+      g: parseInt(h[1] + h[1], 16),
+      b: parseInt(h[2] + h[2], 16),
+    };
+  }
+  // HEX 6-digit (optional 8-digit alpha ignored)
+  const hex6 = str.match(/^#([0-9a-f]{6})([0-9a-f]{2})?$/i);
+  if (hex6) {
+    const [, h] = hex6;
+    return {
+      r: parseInt(h.slice(0, 2), 16),
+      g: parseInt(h.slice(2, 4), 16),
+      b: parseInt(h.slice(4, 6), 16),
+    };
+  }
+  // RGB / RGBA (comma-separated legacy syntax)
+  const rgb = str.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if (rgb) return { r: +rgb[1], g: +rgb[2], b: +rgb[3] };
+
+  // HSL / HSLA
+  const hsl = str.match(/^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%/i);
+  if (hsl) return hslToRgb(+hsl[1], +hsl[2], +hsl[3]);
+
+  return null;
+}
+
+/**
+ * Convert hue (0-360), saturation (0-100), lightness (0-100) → { r, g, b }.
+ */
+export function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return {
+    r: Math.round(f(0) * 255),
+    g: Math.round(f(8) * 255),
+    b: Math.round(f(4) * 255),
+  };
+}
+
+/**
+ * Convert { r, g, b } (0-255) → { h (0-360), s (0-100), l (0-100) }.
+ */
+export function rgbToHsl(r, g, b) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+
+/** { r, g, b } → '#rrggbb' */
+export function toHex({ r, g, b }) {
+  return '#' + [r, g, b]
+    .map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0'))
+    .join('');
+}
+
+/** { r, g, b } → 'rgb(r, g, b)' */
+export function toRgbString({ r, g, b }) {
+  return `rgb(${r}, ${g}, ${b})`;
+}
+
+/** { r, g, b } → 'hsl(h, s%, l%)' */
+export function toHslString({ r, g, b }) {
+  const { h, s, l } = rgbToHsl(r, g, b);
+  return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+/**
+ * Detect which format a color string is in.
+ * @param {string} str
+ * @returns {'hex'|'rgb'|'hsl'|'transparent'|'unknown'}
+ */
+export function detectFormat(str) {
+  if (!str) return 'unknown';
+  const s = str.trim().toLowerCase();
+  if (s === 'transparent' || s === 'none') return 'transparent';
+  if (s.startsWith('#')) return 'hex';
+  if (s.startsWith('rgb')) return 'rgb';
+  if (s.startsWith('hsl')) return 'hsl';
+  return 'unknown';
+}
+
+/**
+ * Convert a color string to the specified target format.
+ * @param {string} colorStr - any valid CSS color
+ * @param {'hex'|'rgb'|'hsl'} targetFormat
+ * @returns {string} converted string, or original if conversion fails
+ */
+export function convertColor(colorStr, targetFormat) {
+  if (!colorStr) return colorStr;
+  const s = colorStr.trim().toLowerCase();
+  if (s === 'transparent' || s === 'none') return 'transparent';
+  const rgb = parseAnyColor(colorStr);
+  if (!rgb) return colorStr;
+  switch (targetFormat) {
+    case 'hex': return toHex(rgb);
+    case 'rgb': return toRgbString(rgb);
+    case 'hsl': return toHslString(rgb);
+    default: return colorStr;
+  }
+}
+

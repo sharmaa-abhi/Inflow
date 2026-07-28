@@ -430,10 +430,18 @@
           <div id="prop-stroke-palette" class="flex items-center gap-1.5 flex-wrap max-h-28 overflow-y-auto pr-1">
             <!-- Colors added dynamically -->
           </div>
-          <div class="flex items-center gap-2 mt-0.5">
+          <!-- Multi-format custom stroke color input -->
+          <div class="flex items-center gap-1.5 mt-1">
             <input id="prop-stroke-custom" type="color"
-              class="w-6 h-6 border-0 rounded cursor-pointer p-0 bg-transparent" title="Custom Stroke Color" />
-            <span class="text-[10px] text-slate-400 uppercase font-mono">Custom stroke</span>
+              class="w-6 h-6 flex-shrink-0 border-0 rounded cursor-pointer p-0 bg-transparent" title="Open color picker" />
+            <div class="flex-1 flex items-center gap-1 min-w-0 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-0.5 focus-within:border-indigo-400 transition-colors">
+              <input id="prop-stroke-text" type="text" placeholder="#1e293b"
+                class="flex-1 bg-transparent text-[11px] font-mono text-slate-700 focus:outline-none min-w-0 placeholder-slate-300"
+                title="Type HEX, rgb(), or hsl()" autocomplete="off" spellcheck="false" />
+              <button id="prop-stroke-fmt" type="button"
+                class="text-[9px] font-bold uppercase tracking-wide text-indigo-500 hover:text-indigo-700 transition-colors flex-shrink-0 px-0.5"
+                title="Click to cycle format: HEX → RGB → HSL">HEX</button>
+            </div>
           </div>
         </div>
 
@@ -448,10 +456,18 @@
           <div id="prop-fill-palette" class="flex items-center gap-1.5 flex-wrap max-h-28 overflow-y-auto pr-1">
             <!-- Colors added dynamically -->
           </div>
-          <div class="flex items-center gap-2 mt-0.5">
-            <input id="prop-fill-custom" type="color" class="w-6 h-6 border-0 rounded cursor-pointer p-0 bg-transparent"
-              title="Custom Fill Color" />
-            <span class="text-[10px] text-slate-400 uppercase font-mono">Custom fill</span>
+          <!-- Multi-format custom fill color input -->
+          <div class="flex items-center gap-1.5 mt-1">
+            <input id="prop-fill-custom" type="color"
+              class="w-6 h-6 flex-shrink-0 border-0 rounded cursor-pointer p-0 bg-transparent" title="Open color picker" />
+            <div class="flex-1 flex items-center gap-1 min-w-0 bg-slate-50 border border-slate-200 rounded-lg px-1.5 py-0.5 focus-within:border-indigo-400 transition-colors">
+              <input id="prop-fill-text" type="text" placeholder="transparent"
+                class="flex-1 bg-transparent text-[11px] font-mono text-slate-700 focus:outline-none min-w-0 placeholder-slate-300"
+                title="Type HEX, rgb(), or hsl()" autocomplete="off" spellcheck="false" />
+              <button id="prop-fill-fmt" type="button"
+                class="text-[9px] font-bold uppercase tracking-wide text-indigo-500 hover:text-indigo-700 transition-colors flex-shrink-0 px-0.5"
+                title="Click to cycle format: HEX → RGB → HSL">HEX</button>
+            </div>
           </div>
         </div>
 
