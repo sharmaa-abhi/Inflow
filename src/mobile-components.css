@@ -65,7 +65,7 @@ body.dark {
 }
 
 /* On mobile (≤768px): show mobile elements, hide desktop elements */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
 
   /* ── Show mobile UI ──────────────────────────────────────────── */
   #top-bar      { display: flex !important; }
@@ -86,7 +86,7 @@ body.dark {
     display: none !important;
   }
 
-  /* Also disable the 3D overlay pointer-events from desktop */
+  /* Raise 3D overlay above all mobile sheets */
   #three-d-overlay {
     z-index: 60 !important;
   }
@@ -98,7 +98,7 @@ body.dark {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   :root {
     --top-bar-height: 48px;
     --toolbar-height: 60px;
@@ -317,7 +317,7 @@ body.dark {
 /* 4. TOP BAR                                                       */
 /* ──────────────────────────────────────────────────────────────── */
 #top-bar {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -452,7 +452,7 @@ body.dark {
 /* 6. BOTTOM TOOLBAR                                                */
 /* ──────────────────────────────────────────────────────────────── */
 #bottom-toolbar {
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -587,8 +587,8 @@ body.dark .tool-btn.active-tool {
   right: 0;
   bottom: 0;
   z-index: 40;
-  max-height: 52vh;
-  max-height: 52dvh;
+  /* Support both portrait and landscape heights */
+  max-height: min(65vh, 65dvh);
   background: var(--sheet-bg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -607,6 +607,14 @@ body.dark .tool-btn.active-tool {
 .bottom-sheet.sheet-open {
   transform: translateY(0);
   pointer-events: auto;
+}
+
+/* Landscape phones: allow more room for properties */
+@media (max-height: 500px) and (orientation: landscape) {
+  .bottom-sheet {
+    max-height: 80vh;
+    max-height: 80dvh;
+  }
 }
 
 /* Drag handle area */

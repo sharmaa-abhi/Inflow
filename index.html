@@ -155,7 +155,7 @@
 
     <!-- Top Center Toolbar Panel -->
     <div id="toolbar-panel"
-      class="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 p-1.5 rounded-2xl floating-panel">
+      class="absolute top-4 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 p-1.5 rounded-2xl floating-panel max-w-[calc(100vw-340px)] overflow-x-auto">
       <button id="tool-select" class="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-all duration-200"
         title="Select (V)">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -316,7 +316,7 @@
 
     <!-- Right Properties Panel (Hidden when nothing selected) -->
     <div id="properties-panel"
-      class="absolute top-20 right-4 max-h-[80vh] overflow-y-auto w-72 z-10 rounded-2xl floating-panel flex flex-col p-4 gap-4">
+      class="absolute top-20 right-4 max-h-[calc(100vh-100px)] overflow-y-auto w-72 z-10 rounded-2xl floating-panel flex flex-col p-4 gap-4">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
         <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Properties</span>
         <button id="btn-close-properties" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600"
@@ -611,7 +611,7 @@
 
     <!-- Sidebar Panels (Shapes List, Storage, etc.) -->
     <div id="sidebar-panel"
-      class="absolute top-20 left-4 bottom-16 w-64 z-10 rounded-2xl floating-panel flex flex-col p-4 gap-4 hidden">
+      class="absolute top-20 left-4 bottom-20 w-64 z-10 rounded-2xl floating-panel flex flex-col p-4 gap-4 hidden">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
         <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">Shapes List</span>
         <button id="btn-close-sidebar" class="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600"
@@ -671,7 +671,7 @@
     </div>
 
     <!-- Top Right Theme Toggle -->
-    <div id="theme-panel" class="absolute top-4 right-4 z-10 flex items-center p-1 rounded-xl floating-panel">
+    <div id="theme-panel" class="absolute top-4 right-4 z-20 flex items-center p-1 rounded-xl floating-panel">
       <button id="btn-theme-toggle" class="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition-all duration-200"
         title="Toggle Dark Mode">
         <!-- Sun icon (shown in light mode) -->

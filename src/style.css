@@ -402,7 +402,7 @@ body.dark .three-d-plate.active-plate {
   /* ── Show mobile-only buttons ──────────────────────────────────────────── */
   .mobile-only-btn { display: flex !important; }
 
-  /* ── MENU PANEL (top-left): compact ───────────────────────────────────── */
+  /* ── MENU PANEL (top-left): compact ─────────────────────────────── */
   #menu-panel {
     top: 8px !important;
     left: 8px !important;
@@ -543,10 +543,16 @@ body.dark .three-d-plate.active-plate {
     border-top-color: rgba(38, 38, 48, 0.9) !important;
   }
 
-  /* ── 3D overlay: smaller on mobile ──────────────────────────────────── */
+  /* ── 3D overlay: smaller on mobile ────────────────────────────── */
   #three-d-viewport {
     width: 90vw !important;
     height: 55vh !important;
+  }
+
+  /* ── Canvas: don't hide behind fixed top/bottom bars ────────────── */
+  #canvas-container {
+    top: var(--top-bar-height) !important;
+    bottom: var(--toolbar-height) !important;
   }
 }
 
