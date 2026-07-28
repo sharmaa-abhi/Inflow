@@ -154,45 +154,47 @@ class ToolManager {
         }
       }
 
-      // Check tool swaps
-      switch (e.key.toLowerCase()) {
-        case 'v':
-          this.setTool('select');
-          break;
-        case 'r':
-          this.setTool('rectangle');
-          break;
-        case 'c':
-          this.setTool('circle');
-          break;
-        case 'd':
-          this.setTool('diamond');
-          break;
-        case 'l':
-          this.setTool('line');
-          break;
-        case 'a':
-          this.setTool('arrow');
-          break;
-        case 'p':
-          this.setTool('pen');
-          break;
-        case 't':
-          this.setTool('text');
-          break;
-        case 'k':
-          this.setTool('laser');
-          break;
-        case 'h':
-          // Toggle rough / hand-drawn mode
-          this.toggleSketchyMode();
-          break;
-        
-        // Delete selected shape keys
-        case 'delete':
-        case 'backspace':
-          this.deleteSelectedShapes();
-          break;
+      // Check tool swaps (only when Ctrl/Cmd is NOT held down)
+      if (!e.ctrlKey && !e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case 'v':
+            this.setTool('select');
+            break;
+          case 'r':
+            this.setTool('rectangle');
+            break;
+          case 'c':
+            this.setTool('circle');
+            break;
+          case 'd':
+            this.setTool('diamond');
+            break;
+          case 'l':
+            this.setTool('line');
+            break;
+          case 'a':
+            this.setTool('arrow');
+            break;
+          case 'p':
+            this.setTool('pen');
+            break;
+          case 't':
+            this.setTool('text');
+            break;
+          case 'k':
+            this.setTool('laser');
+            break;
+          case 'h':
+            // Toggle rough / hand-drawn mode
+            this.toggleSketchyMode();
+            break;
+          
+          // Delete selected shape keys
+          case 'delete':
+          case 'backspace':
+            this.deleteSelectedShapes();
+            break;
+        }
       }
 
       // Reorder shapes shortcuts

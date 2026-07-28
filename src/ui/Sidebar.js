@@ -2,6 +2,7 @@ import { eventBus } from '../core/EventBus';
 import { historyManager } from '../managers/HistoryManager';
 import { persistenceManager } from '../managers/PersistenceManager';
 import { shapeManager } from '../managers/ShapeManager';
+import { styleManager } from '../managers/StyleManager';
 
 export class Sidebar {
   /**
@@ -94,10 +95,16 @@ export class Sidebar {
 
         if (!confirm('Are you sure you want to clear the canvas?')) return;
 
+        // Deselect active shapes to hide properties panel & selection transformer
+        shapeManager.deselectAll();
+
         // Serialize all current shapes for undoing
         const serialized = shapes.map(s => s.serialize());
 
-        // Perform clear
+        // Destroy children and clear manager
+        shapes.forEach(s => {
+          if (typeof s.destroy === 'function') s.destroy();
+        });
         shapeManager.clear();
         this.canvasEngine.shapeLayer.destroyChildren();
         this.canvasEngine.batchDrawAll();
@@ -106,16 +113,32 @@ export class Sidebar {
         historyManager.registerChange({
           type: 'clear-canvas',
           undo: () => {
-            // Restore all shapes
+            shapeManager.deselectAll();
+            const old = shapeManager.getAllShapes();
+            old.forEach(s => {
+              if (typeof s.destroy === 'function') s.destroy();
+            });
+            shapeManager.clear();
+            this.canvasEngine.shapeLayer.destroyChildren();
+
+            const isRough = styleManager.getActiveStyles().roughMode;
             serialized.forEach(json => {
               const restored = shapeManager.recreateShape(json);
               if (restored) {
                 this.canvasEngine.shapeLayer.add(restored.konvaNode);
+                if (isRough && typeof restored.applyRoughMode === 'function') {
+                  restored.applyRoughMode(true);
+                }
               }
             });
             this.canvasEngine.batchDrawAll();
           },
           redo: () => {
+            shapeManager.deselectAll();
+            const currentShapes = shapeManager.getAllShapes();
+            currentShapes.forEach(s => {
+              if (typeof s.destroy === 'function') s.destroy();
+            });
             shapeManager.clear();
             this.canvasEngine.shapeLayer.destroyChildren();
             this.canvasEngine.batchDrawAll();
