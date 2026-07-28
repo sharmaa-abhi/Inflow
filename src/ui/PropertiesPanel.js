@@ -3,6 +3,7 @@ import { shapeManager } from '../managers/ShapeManager';
 import { styleManager } from '../managers/StyleManager';
 import { toolManager } from '../managers/ToolManager';
 import { threeDPreviewManager } from '../managers/ThreeDPreviewManager';
+import { COLORS, PALETTE_CATEGORIES, getColorsByCategory, DEFAULT_STROKE_COLORS, DEFAULT_FILL_COLORS } from '../utils/colors';
 
 export class PropertiesPanel {
   constructor() {
@@ -15,52 +16,22 @@ export class PropertiesPanel {
     this.inpRotation = document.getElementById('prop-rotation');
     this.inpOpacity = document.getElementById('prop-opacity');
 
-    // Palettes & Custom Pickers
+    // Palettes & Custom Pickers & Category Dropdowns
     this.strokePalette = document.getElementById('prop-stroke-palette');
     this.strokeCustom = document.getElementById('prop-stroke-custom');
+    this.strokeCategory = document.getElementById('prop-stroke-category');
     this.fillPalette = document.getElementById('prop-fill-palette');
     this.fillCustom = document.getElementById('prop-fill-custom');
+    this.fillCategory = document.getElementById('prop-fill-category');
 
     // Button Groups
     this.strokeWidthGroup = document.getElementById('prop-stroke-width-group');
     this.strokeStyleGroup = document.getElementById('prop-stroke-style-group');
     this.fillStyleGroup   = document.getElementById('prop-fill-style-group');
     
-    // Typography
-    this.sectionText = document.getElementById('prop-section-text');
-    this.inpFontSize = document.getElementById('prop-font-size');
-    this.inpFontFamily = document.getElementById('prop-font-family');
-    this.textAlignGroup = document.getElementById('prop-text-align');
-
-    // Line Smoothing
-    this.sectionSmoothing = document.getElementById('prop-section-smoothing');
-    this.toggleERDP = document.getElementById('prop-toggle-erdp');
-    this.sliderSmoothing = document.getElementById('prop-slider-smoothing');
-    this.valSmoothing = document.getElementById('prop-val-smoothing');
-
-    // Arrange Buttons
-    this.btnSendBack = document.getElementById('btn-send-back');
-    this.btnSendBackward = document.getElementById('btn-send-backward');
-    this.btnBringForward = document.getElementById('btn-bring-forward');
-    this.btnBringFront = document.getElementById('btn-bring-front');
-
-    // Z-Index Numeric Input and 3D Toggle
-    this.inpZIndex = document.getElementById('prop-zindex');
-    this.lblZIndexMax = document.getElementById('prop-zindex-max');
-    this.btnToggle3D = document.getElementById('btn-toggle-3d');
-
-    this.colors = [
-      '#3b82f6', // Primary/Neutral Blue
-      '#60a5fa', // Secondary Light Blue
-      '#93c5fd', // Tertiary Pale Blue
-      '#fed7aa', // Start/Trigger Orange
-      '#a7f3d0', // End/Success Green
-      '#fee2e2', // Warning/Reset Light Red
-      '#fef3c7', // Decision Light Yellow
-      '#ddd6fe', // AI/LLM Pale Purple
-      '#dbeafe', // Inactive/Disabled
-      '#fecaca', // Error Light Pink
-    ];
+    // Category states
+    this.activeStrokeCategory = 'quick';
+    this.activeFillCategory = 'quick';
 
     this.selectedShapes = [];
     this.init();
@@ -69,9 +40,11 @@ export class PropertiesPanel {
   init() {
     if (!this.panel) return;
 
+    this.initCategorySelects();
+
     // Build palettes dynamically
-    this.buildColorPalette(this.strokePalette, 'stroke', false);
-    this.buildColorPalette(this.fillPalette, 'fill', true);
+    this.buildColorPalette(this.strokePalette, 'stroke', false, this.activeStrokeCategory);
+    this.buildColorPalette(this.fillPalette, 'fill', true, this.activeFillCategory);
 
     // Bind basic events
     if (this.btnClose) {
@@ -149,33 +122,54 @@ export class PropertiesPanel {
       this.syncZIndexInput();
     });
 
-    // Rebuild palettes on theme change to swap default colors
+    // Rebuild palettes on theme change
     eventBus.on('theme-changed', () => {
-      this.buildColorPalette(this.strokePalette, 'stroke', false);
-      this.buildColorPalette(this.fillPalette, 'fill', true);
+      this.buildColorPalette(this.strokePalette, 'stroke', false, this.activeStrokeCategory);
+      this.buildColorPalette(this.fillPalette, 'fill', true, this.activeFillCategory);
       this.syncStyleInputs();
     });
   }
 
-  buildColorPalette(container, styleKey, includeTransparent = false) {
+  initCategorySelects() {
+    const setupSelect = (selectEl, styleKey, isFill) => {
+      if (!selectEl) return;
+      selectEl.innerHTML = '';
+      PALETTE_CATEGORIES.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        selectEl.appendChild(opt);
+      });
+      selectEl.value = isFill ? this.activeFillCategory : this.activeStrokeCategory;
+      selectEl.addEventListener('change', (e) => {
+        const catId = e.target.value;
+        if (isFill) {
+          this.activeFillCategory = catId;
+          this.buildColorPalette(this.fillPalette, 'fill', true, catId);
+        } else {
+          this.activeStrokeCategory = catId;
+          this.buildColorPalette(this.strokePalette, 'stroke', false, catId);
+        }
+        this.syncStyleInputs();
+      });
+    };
+
+    setupSelect(this.strokeCategory, 'stroke', false);
+    setupSelect(this.fillCategory, 'fill', true);
+  }
+
+  buildColorPalette(container, styleKey, includeTransparent = false, categoryId = 'quick') {
     if (!container) return;
     container.innerHTML = '';
 
-    const isDark = document.body.classList.contains('dark');
-    // Swap the default dark slate with white in the palette depending on theme
-    const paletteColors = this.colors.map(c => {
-      if (isDark && c === '#1e293b') return '#ffffff';
-      return c;
-    });
-
+    const paletteColors = getColorsByCategory(categoryId);
     const colors = includeTransparent ? ['transparent', ...paletteColors] : paletteColors;
 
     colors.forEach(color => {
       const btn = document.createElement('button');
-      btn.className = 'w-6 h-6 rounded-full border border-slate-300 transition-transform hover:scale-110 focus:outline-none';
+      btn.className = 'w-5 h-5 rounded-full border border-slate-300 transition-transform hover:scale-125 focus:outline-none flex-shrink-0 cursor-pointer';
       
       if (color === 'transparent') {
-        // Transparent checkerboard representation
         btn.style.background = 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)';
         btn.style.backgroundSize = '8px 8px';
         btn.style.backgroundPosition = '0 0, 0 4px, 4px -4px, -4px 0px';

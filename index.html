@@ -316,8 +316,12 @@
       <div id="prop-section-style" class="flex flex-col gap-3">
         <!-- Stroke Color -->
         <div class="flex flex-col gap-1.5">
-          <span class="text-xs font-semibold text-slate-500">Stroke Color</span>
-          <div id="prop-stroke-palette" class="flex items-center gap-1.5 flex-wrap">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500">Stroke Color</span>
+            <select id="prop-stroke-category" class="text-[11px] bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-slate-600 focus:outline-none focus:border-indigo-500 font-medium">
+            </select>
+          </div>
+          <div id="prop-stroke-palette" class="flex items-center gap-1.5 flex-wrap max-h-28 overflow-y-auto pr-1">
             <!-- Colors added dynamically -->
           </div>
           <div class="flex items-center gap-2 mt-0.5">
@@ -329,8 +333,12 @@
 
         <!-- Fill Color -->
         <div class="flex flex-col gap-1.5">
-          <span class="text-xs font-semibold text-slate-500">Fill Color</span>
-          <div id="prop-fill-palette" class="flex items-center gap-1.5 flex-wrap">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500">Fill Color</span>
+            <select id="prop-fill-category" class="text-[11px] bg-slate-50 border border-slate-200 rounded px-1.5 py-0.5 text-slate-600 focus:outline-none focus:border-indigo-500 font-medium">
+            </select>
+          </div>
+          <div id="prop-fill-palette" class="flex items-center gap-1.5 flex-wrap max-h-28 overflow-y-auto pr-1">
             <!-- Colors added dynamically -->
           </div>
           <div class="flex items-center gap-2 mt-0.5">
