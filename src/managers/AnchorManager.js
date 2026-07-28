@@ -10,7 +10,7 @@
  */
 import Konva from 'konva';
 import { eventBus } from '../core/EventBus';
-import { getAllAnchors, computeOrthogonalPath } from '../utils/routing';
+import { getAllAnchors, getAnchorPos, computeOrthogonalPath } from '../utils/routing';
 
 /** Distance in canvas units within which anchors become visible */
 const ANCHOR_VISIBLE_RADIUS = 80;
@@ -178,7 +178,6 @@ class AnchorManager {
           const geom = boundShape.getGeometry();
           const bbox = _shapeBbox(boundShape, geom);
           if (bbox) {
-            const { getAnchorPos } = require('./routing'); // dynamic import fallback
             startPos = _getAnchorPosFromBbox(bbox, shape.startBinding.anchorType);
             startAnchorType = shape.startBinding.anchorType;
           }

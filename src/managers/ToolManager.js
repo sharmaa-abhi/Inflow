@@ -183,6 +183,10 @@ class ToolManager {
         case 'k':
           this.setTool('laser');
           break;
+        case 'h':
+          // Toggle rough / hand-drawn mode
+          this.toggleSketchyMode();
+          break;
         
         // Delete selected shape keys
         case 'delete':
@@ -229,6 +233,26 @@ class ToolManager {
         }
       }
     });
+  }
+
+  /**
+   * Toggles rough (sketchy) mode on/off.
+   * Also updates the toolbar button active state.
+   */
+  toggleSketchyMode() {
+    const isCurrentlyRough = styleManager.getActiveStyles().roughMode;
+    const newVal = !isCurrentlyRough;
+    styleManager.setRoughMode(newVal);
+
+    // Update toolbar button active visual
+    const btn = document.getElementById('tool-sketchy');
+    if (btn) {
+      if (newVal) {
+        btn.classList.add('bg-indigo-100', 'text-indigo-700');
+      } else {
+        btn.classList.remove('bg-indigo-100', 'text-indigo-700');
+      }
+    }
   }
 
   reorderSelected(actionType) {

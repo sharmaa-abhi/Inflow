@@ -24,6 +24,7 @@ export class PropertiesPanel {
     // Button Groups
     this.strokeWidthGroup = document.getElementById('prop-stroke-width-group');
     this.strokeStyleGroup = document.getElementById('prop-stroke-style-group');
+    this.fillStyleGroup   = document.getElementById('prop-fill-style-group');
     
     // Typography
     this.sectionText = document.getElementById('prop-section-text');
@@ -283,6 +284,7 @@ export class PropertiesPanel {
     // Button groups active states
     this.syncGroupButtonsActive(this.strokeWidthGroup, style.strokeWidth);
     this.syncGroupButtonsActive(this.strokeStyleGroup, style.strokeStyle);
+    this.syncGroupButtonsActive(this.fillStyleGroup,   style.fillStyle || 'hachure');
 
     // Text style sync
     if (primary.type === 'text') {
@@ -409,6 +411,7 @@ export class PropertiesPanel {
 
     bindGroupClick(this.strokeWidthGroup, 'strokeWidth');
     bindGroupClick(this.strokeStyleGroup, 'strokeStyle');
+    bindGroupClick(this.fillStyleGroup,   'fillStyle');
 
     // Smoothing controls
     if (this.toggleERDP) {

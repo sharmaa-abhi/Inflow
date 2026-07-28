@@ -100,6 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 150);
     });
 
+    // Sketchy mode button
+    const sketchyBtn = document.getElementById('tool-sketchy');
+    if (sketchyBtn) {
+      sketchyBtn.addEventListener('click', () => {
+        toolManager.toggleSketchyMode();
+      });
+    }
+
     console.log('InkFlow successfully initialized!');
   } catch (error) {
     console.error('Error bootstrapping InkFlow application:', error);
