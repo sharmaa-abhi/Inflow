@@ -19,6 +19,15 @@ class ShapeManager {
     eventBus.on('theme-changed', (theme) => {
       this.handleThemeChange(theme);
     });
+
+    // Listen to rough mode toggle — apply to all existing shapes
+    eventBus.on('rough-mode-changed', (isRough) => {
+      this.getAllShapes().forEach(shape => {
+        if (typeof shape.applyRoughMode === 'function') {
+          shape.applyRoughMode(isRough);
+        }
+      });
+    });
   }
 
   handleThemeChange(theme) {
@@ -252,6 +261,13 @@ class ShapeManager {
       if (json.rotation !== undefined) shape.konvaNode.rotation(json.rotation);
       if (json.scaleX !== undefined) shape.konvaNode.scaleX(json.scaleX);
       if (json.scaleY !== undefined) shape.konvaNode.scaleY(json.scaleY);
+    }
+
+    // Restore connector bindings and label
+    if (shape && (json.type === 'line' || json.type === 'arrow')) {
+      if (json.startBinding) shape.startBinding = json.startBinding;
+      if (json.endBinding)   shape.endBinding   = json.endBinding;
+      if (json.labelText)    shape.labelText    = json.labelText;
     }
 
     this.shapes.set(shape.id, shape);

@@ -56,6 +56,8 @@ export class DiamondShape extends BaseShape {
     if (geom.width !== undefined || geom.height !== undefined) {
       this.konvaNode.points(this.calculatePoints(currentWidth, currentHeight));
     }
+
+    if (this._roughMode) this._scheduleRoughRender();
   }
 
   getGeometry() {
@@ -65,5 +67,9 @@ export class DiamondShape extends BaseShape {
       width: this.width,
       height: this.height,
     };
+  }
+
+  renderRough() {
+    this.renderRoughWith({});
   }
 }

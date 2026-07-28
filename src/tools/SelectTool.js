@@ -148,13 +148,20 @@ export class SelectTool extends BaseTool {
       const isShift = event.evt && event.evt.shiftKey;
       const isAlreadySelected = this.selectedShapes.includes(clickedShape);
 
-      // Handle double click for text editing
+      // Handle double click for text editing or connector label editing
       const isDoubleClick = event.evt && event.evt.detail === 2;
-      if (isDoubleClick && clickedShape.type === 'text') {
-        const textTool = this.canvasEngine.stage.getAttr('toolManager')?.tools.text;
-        if (textTool) {
-          this.clearSelection();
-          textTool.startEditing(clickedShape, false);
+      if (isDoubleClick) {
+        if (clickedShape.type === 'text') {
+          const textTool = this.canvasEngine.stage.getAttr('toolManager')?.tools.get('text');
+          if (textTool) {
+            this.clearSelection();
+            textTool.startEditing(clickedShape, false);
+            return;
+          }
+        }
+        // Double-click on line/arrow → open inline label editor
+        if (clickedShape.type === 'line' || clickedShape.type === 'arrow') {
+          this._openConnectorLabelEditor(clickedShape);
           return;
         }
       }
@@ -439,6 +446,92 @@ export class SelectTool extends BaseTool {
       this.canvasEngine.batchDrawAll();
       this.transformer.forceUpdate(); // Re-align transformer border box
       this.canvasEngine.selectionLayer.batchDraw();
+    });
+  }
+
+  /**
+   * Opens an inline HTML textarea at the midpoint of a line/arrow connector
+   * for editing its label text.
+   * @param {LineShape|ArrowShape} shape
+   */
+  _openConnectorLabelEditor(shape) {
+    const stage = this.canvasEngine.stage;
+    const layer = this.canvasEngine.shapeLayer;
+    const scale = stage.scaleX();
+
+    // Get flat points and compute midpoint in stage coordinates
+    const flat = shape.konvaNode.points();
+    if (flat.length < 4) return;
+
+    const midFlatX = (flat[0] + flat[flat.length - 2]) / 2;
+    const midFlatY = (flat[1] + flat[flat.length - 1]) / 2;
+
+    // Convert canvas coords to screen coords
+    const screenPos = this.canvasEngine.getScreenCoords({
+      x: shape.konvaNode.x() + midFlatX,
+      y: shape.konvaNode.y() + midFlatY,
+    });
+
+    const container = stage.container().getBoundingClientRect();
+    const W = 120;
+    const H = 28;
+
+    const ta = document.createElement('textarea');
+    ta.value = shape.labelText || '';
+    ta.placeholder = 'Label…';
+    ta.style.cssText = `
+      position: fixed;
+      left:   ${container.left + screenPos.x - W / 2}px;
+      top:    ${container.top  + screenPos.y - H / 2}px;
+      width:  ${W}px;
+      height: ${H}px;
+      font-size: ${Math.round(13 * scale)}px;
+      font-family: Inter, sans-serif;
+      text-align: center;
+      border: 1.5px solid #3b82f6;
+      border-radius: 6px;
+      padding: 2px 6px;
+      background: rgba(255,255,255,0.95);
+      color: #1e293b;
+      outline: none;
+      resize: none;
+      z-index: 9999;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    `;
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+
+    const commit = () => {
+      const newText = ta.value.trim();
+      shape.labelText = newText;
+
+      // Show / update the Konva label node
+      if (newText) {
+        shape.showLabel(layer);
+        if (shape.labelNode) {
+          shape.labelNode.text(newText);
+          layer.batchDraw();
+        }
+      } else if (shape.labelNode) {
+        shape.labelNode.destroy();
+        shape.labelNode = null;
+        layer.batchDraw();
+      }
+
+      if (document.body.contains(ta)) document.body.removeChild(ta);
+    };
+
+    ta.addEventListener('blur',    commit, { once: true });
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        ta.blur();
+      }
+      if (e.key === 'Escape') {
+        ta.value = shape.labelText || '';
+        ta.blur();
+      }
     });
   }
 }
