@@ -26,13 +26,51 @@
 
     <!-- Top Left Menu / Title Panel -->
     <div id="menu-panel" class="absolute top-4 left-4 z-10 flex items-center gap-3 p-2 rounded-2xl floating-panel">
-      <div class="flex items-center gap-2 px-2 border-r border-slate-200">
-        <svg class="w-6 h-6 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M9.53 16.122A3 3 0 00.22 17.5l.078.411A9.017 9.017 0 005.158 20.314m0-4.192a8.004 8.004 0 0113.684-6.129M18.842 10.015a9.01 9.01 0 01-4.159 4.159m-4.159-4.159a4.5 4.5 0 00-6.259 6.259" />
-        </svg>
-        <span class="font-bold text-slate-800 tracking-tight text-sm">InkFlow</span>
-      </div>
+      <!-- InkFlow Logo Wordmark -->
+      <a id="inkflow-logo" href="#" class="flex items-center gap-0 px-1 border-r border-slate-200 pr-3 group no-underline" title="InkFlow – Professional Diagram Tool">
+        <!-- Icon Badge -->
+        <div class="inkflow-logo-badge relative flex-shrink-0" style="width:28px;height:28px;margin-right:7px">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" fill="none" width="28" height="28">
+            <defs>
+              <linearGradient id="logo-bg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="55%" stop-color="#8b5cf6"/>
+                <stop offset="100%" stop-color="#a78bfa"/>
+              </linearGradient>
+              <linearGradient id="logo-shine" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="white" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="white" stop-opacity="0"/>
+              </linearGradient>
+              <filter id="logo-glow">
+                <feGaussianBlur stdDeviation="0.8" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <!-- Badge background -->
+            <rect width="28" height="28" rx="7" fill="url(#logo-bg)"/>
+            <!-- Shine overlay -->
+            <rect width="28" height="14" rx="7" fill="url(#logo-shine)"/>
+            <!-- Pen nib body (outer diamond) -->
+            <path d="M14 4 L21.5 13 L14 27 L6.5 13 Z" fill="white" fill-opacity="0.10"/>
+            <!-- Nib left facet -->
+            <path d="M14 4 L6.5 13 L14 19.5 Z" fill="white" fill-opacity="0.28"/>
+            <!-- Nib right facet -->
+            <path d="M14 4 L21.5 13 L14 19.5 Z" fill="white" fill-opacity="0.55"/>
+            <!-- Nib center slit -->
+            <line x1="14" y1="16" x2="14" y2="27" stroke="white" stroke-width="0.8" stroke-opacity="0.4" stroke-linecap="round"/>
+            <!-- Ink drop at nib tip -->
+            <ellipse cx="14" cy="26" rx="1.9" ry="2.4" fill="white" fill-opacity="0.95" filter="url(#logo-glow)"/>
+            <!-- Flow arcs (left) -->
+            <path d="M10 7.5 Q6.5 11 8 16" stroke="white" stroke-width="1" stroke-opacity="0.35" fill="none" stroke-linecap="round"/>
+            <!-- Flow arcs (right) -->
+            <path d="M18 7.5 Q21.5 11 20 16" stroke="white" stroke-width="1" stroke-opacity="0.35" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <!-- Wordmark -->
+        <div class="flex items-baseline gap-0 leading-none select-none">
+          <span class="font-bold text-slate-800 tracking-tight text-[15px] leading-none">Ink</span><span class="font-semibold text-indigo-500 tracking-tight text-[15px] leading-none">Flow</span>
+        </div>
+      </a>
 
       <div class="flex items-center gap-1">
         <!-- File actions -->
