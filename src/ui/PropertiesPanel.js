@@ -3,7 +3,7 @@ import { shapeManager } from '../managers/ShapeManager';
 import { styleManager } from '../managers/StyleManager';
 import { toolManager } from '../managers/ToolManager';
 import { threeDPreviewManager } from '../managers/ThreeDPreviewManager';
-import { COLORS, PALETTE_CATEGORIES, getColorsByCategory, DEFAULT_STROKE_COLORS, DEFAULT_FILL_COLORS } from '../utils/colors';
+import { COLORS, PALETTE_CATEGORIES, getColorsByCategory, DEFAULT_STROKE_COLORS, DEFAULT_FILL_COLORS, parseAnyColor, toHex, convertColor, detectFormat } from '../utils/colors';
 
 export class PropertiesPanel {
   constructor() {
@@ -19,21 +19,54 @@ export class PropertiesPanel {
     // Palettes & Custom Pickers & Category Dropdowns
     this.strokePalette = document.getElementById('prop-stroke-palette');
     this.strokeCustom = document.getElementById('prop-stroke-custom');
+    this.strokeText   = document.getElementById('prop-stroke-text');
+    this.strokeFmt    = document.getElementById('prop-stroke-fmt');
     this.strokeCategory = document.getElementById('prop-stroke-category');
     this.fillPalette = document.getElementById('prop-fill-palette');
     this.fillCustom = document.getElementById('prop-fill-custom');
+    this.fillText   = document.getElementById('prop-fill-text');
+    this.fillFmt    = document.getElementById('prop-fill-fmt');
     this.fillCategory = document.getElementById('prop-fill-category');
 
     // Button Groups
     this.strokeWidthGroup = document.getElementById('prop-stroke-width-group');
     this.strokeStyleGroup = document.getElementById('prop-stroke-style-group');
     this.fillStyleGroup   = document.getElementById('prop-fill-style-group');
-    
+
+    // Arrange buttons
+    this.btnSendBack     = document.getElementById('btn-send-back');
+    this.btnSendBackward = document.getElementById('btn-send-backward');
+    this.btnBringForward = document.getElementById('btn-bring-forward');
+    this.btnBringFront   = document.getElementById('btn-bring-front');
+    this.btnToggle3D     = document.getElementById('btn-toggle-3d');
+    this.inpZIndex       = document.getElementById('prop-zindex');
+    this.lblZIndexMax    = document.getElementById('prop-zindex-max');
+
+    // Typography
+    this.sectionText     = document.getElementById('prop-section-text');
+    this.inpFontSize     = document.getElementById('prop-font-size');
+    this.inpFontFamily   = document.getElementById('prop-font-family');
+    this.textAlignGroup  = document.getElementById('prop-text-align');
+
+    // Smoothing
+    this.sectionSmoothing = document.getElementById('prop-section-smoothing');
+    this.toggleERDP       = document.getElementById('prop-toggle-erdp');
+    this.sliderSmoothing  = document.getElementById('prop-slider-smoothing');
+    this.valSmoothing     = document.getElementById('prop-val-smoothing');
+
+    // Delete button
+    this.btnDeleteSelected = document.getElementById('btn-delete-selected-shape');
+
+    // Active format state per channel: 'hex' | 'rgb' | 'hsl'
+    this.strokeColorFmt = 'hex';
+    this.fillColorFmt   = 'hex';
+
     // Category states
     this.activeStrokeCategory = 'quick';
     this.activeFillCategory = 'quick';
 
     this.selectedShapes = [];
+    this._isOpen = false;
     this.init();
   }
 
@@ -46,9 +79,36 @@ export class PropertiesPanel {
     this.buildColorPalette(this.strokePalette, 'stroke', false, this.activeStrokeCategory);
     this.buildColorPalette(this.fillPalette, 'fill', true, this.activeFillCategory);
 
-    // Bind basic events
+    // Bind basic close events
     if (this.btnClose) {
       this.btnClose.addEventListener('click', () => {
+        shapeManager.deselectAll();
+      });
+    }
+
+    // ESC key closes the panel
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this._isOpen) {
+        shapeManager.deselectAll();
+      }
+    });
+
+    // Click outside on canvas area closes the panel
+    const canvasContainer = document.getElementById('canvas-container');
+    if (canvasContainer) {
+      canvasContainer.addEventListener('pointerdown', (e) => {
+        if (this._isOpen) {
+          // Only close if we're clicking directly on the canvas (not bubbling from shapes)
+          // The PropertiesPanel listens to selection changes — deselect triggers close automatically
+          // so we just let selection events handle it
+        }
+      });
+    }
+
+    // Delete selected shape button
+    if (this.btnDeleteSelected) {
+      this.btnDeleteSelected.addEventListener('click', () => {
+        toolManager.deleteSelected?.();
         shapeManager.deselectAll();
       });
     }
@@ -207,16 +267,18 @@ export class PropertiesPanel {
     this.selectedShapes = selectedShapes;
 
     if (selectedShapes.length === 0) {
-      this.panel.classList.add('hidden');
+      this._closePanel();
     } else {
-      this.panel.classList.remove('hidden');
+      this._openPanel();
 
       // Check if text properties need to be displayed
       const hasText = selectedShapes.some(s => s.type === 'text');
-      if (hasText) {
-        this.sectionText.classList.remove('hidden');
-      } else {
-        this.sectionText.classList.add('hidden');
+      if (this.sectionText) {
+        if (hasText) {
+          this.sectionText.classList.remove('hidden');
+        } else {
+          this.sectionText.classList.add('hidden');
+        }
       }
 
       // Check if line smoothing properties need to be displayed
@@ -233,6 +295,34 @@ export class PropertiesPanel {
       this.syncStyleInputs();
       this.syncZIndexInput();
     }
+  }
+
+  _openPanel() {
+    if (!this.panel) return;
+    this._isOpen = true;
+    this.panel.classList.remove('hidden', 'panel-closed');
+    // Small rAF to ensure transition plays after display change
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.panel.classList.add('panel-open');
+        this.panel.classList.remove('panel-closed');
+      });
+    });
+  }
+
+  _closePanel() {
+    if (!this.panel) return;
+    this._isOpen = false;
+    this.panel.classList.remove('panel-open');
+    this.panel.classList.add('panel-closed');
+    // After animation completes, add hidden
+    const onTransitionEnd = () => {
+      if (!this._isOpen) {
+        this.panel.classList.add('hidden');
+      }
+      this.panel.removeEventListener('transitionend', onTransitionEnd);
+    };
+    this.panel.addEventListener('transitionend', onTransitionEnd);
   }
 
   syncGeometryInputs() {
@@ -272,8 +362,25 @@ export class PropertiesPanel {
     this.updatePaletteActiveStyles(this.strokePalette, style.stroke || '');
     this.updatePaletteActiveStyles(this.fillPalette, style.fill || '');
 
-    if (this.strokeCustom) this.strokeCustom.value = style.stroke.startsWith('#') ? style.stroke : '#1e293b';
-    if (this.fillCustom) this.fillCustom.value = style.fill.startsWith('#') ? style.fill : '#ffffff';
+    // Sync native color swatch
+    if (this.strokeCustom) this.strokeCustom.value = style.stroke?.startsWith('#') ? style.stroke : '#1e293b';
+    if (this.fillCustom)   this.fillCustom.value   = style.fill?.startsWith('#')   ? style.fill   : '#ffffff';
+
+    // Sync multi-format text fields
+    if (this.strokeText) {
+      const s = style.stroke || '#1e293b';
+      this.strokeText.value = convertColor(s, this.strokeColorFmt) || s;
+      if (this.strokeFmt) this.strokeFmt.textContent = this.strokeColorFmt.toUpperCase();
+    }
+    if (this.fillText) {
+      const f = style.fill || 'transparent';
+      if (f === 'transparent') {
+        this.fillText.value = 'transparent';
+      } else {
+        this.fillText.value = convertColor(f, this.fillColorFmt) || f;
+      }
+      if (this.fillFmt) this.fillFmt.textContent = this.fillColorFmt.toUpperCase();
+    }
 
     // Button groups active states
     this.syncGroupButtonsActive(this.strokeWidthGroup, style.strokeWidth);
@@ -376,18 +483,100 @@ export class PropertiesPanel {
     }
   }
 
+  // ── Multi-format color helper ─────────────────────────────────────────────
+  _setupColorChannel({
+    customEl, textEl, fmtEl,
+    getFmt, setFmt,
+    styleKey, paletteEl,
+  }) {
+    const CYCLE = ['hex', 'rgb', 'hsl'];
+
+    // Native color swatch → sync text field
+    if (customEl) {
+      customEl.addEventListener('input', (e) => {
+        const hex = e.target.value;          // always #rrggbb from <input type=color>
+        const displayed = convertColor(hex, getFmt());
+        if (textEl) textEl.value = displayed;
+        styleManager.updateStyles({ [styleKey]: hex });
+        this.updatePaletteActiveStyles(paletteEl, hex);
+      });
+    }
+
+    // Text field → parse any format, apply
+    if (textEl) {
+      const applyText = () => {
+        const raw = textEl.value.trim();
+        if (!raw) return;
+        if (raw === 'transparent') {
+          styleManager.updateStyles({ [styleKey]: 'transparent' });
+          if (customEl) customEl.value = '#ffffff';
+          this.updatePaletteActiveStyles(paletteEl, 'transparent');
+          return;
+        }
+        const parsed = parseAnyColor(raw);
+        if (!parsed) {
+          // invalid — shake the input border
+          textEl.closest('div')?.classList.add('border-red-400');
+          setTimeout(() => textEl.closest('div')?.classList.remove('border-red-400'), 800);
+          return;
+        }
+        const hex = toHex(parsed);
+        // Detect the format the user typed and lock to it
+        const fmt = detectFormat(raw);
+        if (fmt !== 'unknown' && fmt !== 'transparent') setFmt(fmt);
+        if (fmtEl) fmtEl.textContent = getFmt().toUpperCase();
+        styleManager.updateStyles({ [styleKey]: hex });
+        if (customEl) customEl.value = hex;
+        this.updatePaletteActiveStyles(paletteEl, hex);
+      };
+
+      textEl.addEventListener('blur', applyText);
+      textEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); applyText(); textEl.blur(); }
+        if (e.key === 'Escape') { textEl.blur(); }
+      });
+    }
+
+    // Format badge button → cycle HEX → RGB → HSL
+    if (fmtEl) {
+      fmtEl.addEventListener('click', () => {
+        const cur = CYCLE.indexOf(getFmt());
+        const next = CYCLE[(cur + 1) % CYCLE.length];
+        setFmt(next);
+        fmtEl.textContent = next.toUpperCase();
+        // Re-display current color in new format
+        if (textEl) {
+          const current = textEl.value.trim() || '';
+          if (current && current !== 'transparent') {
+            textEl.value = convertColor(current, next);
+          }
+        }
+      });
+    }
+  }
+
   setupStyleListeners() {
-    // Custom color pickers
-    if (this.strokeCustom) {
-      this.strokeCustom.addEventListener('input', (e) => {
-        styleManager.updateStyles({ stroke: e.target.value });
-      });
-    }
-    if (this.fillCustom) {
-      this.fillCustom.addEventListener('input', (e) => {
-        styleManager.updateStyles({ fill: e.target.value });
-      });
-    }
+    // Wire up multi-format stroke color channel
+    this._setupColorChannel({
+      customEl: this.strokeCustom,
+      textEl:   this.strokeText,
+      fmtEl:    this.strokeFmt,
+      getFmt:   () => this.strokeColorFmt,
+      setFmt:   (f) => { this.strokeColorFmt = f; },
+      styleKey: 'stroke',
+      paletteEl: this.strokePalette,
+    });
+
+    // Wire up multi-format fill color channel
+    this._setupColorChannel({
+      customEl: this.fillCustom,
+      textEl:   this.fillText,
+      fmtEl:    this.fillFmt,
+      getFmt:   () => this.fillColorFmt,
+      setFmt:   (f) => { this.fillColorFmt = f; },
+      styleKey: 'fill',
+      paletteEl: this.fillPalette,
+    });
 
     // Button click groups
     const bindGroupClick = (group, styleKey) => {

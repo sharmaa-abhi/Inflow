@@ -12,6 +12,7 @@ import { Sidebar } from './ui/Sidebar';
 import { Statusbar } from './ui/Statusbar';
 import { ContextMenu } from './ui/ContextMenu';
 import { Tooltip } from './ui/Tooltip';
+import { MainMenu } from './ui/MainMenu';
 import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
 import { initMobileUI } from './mobile-ui';
 import { eventBus } from './core/EventBus';
@@ -62,11 +63,13 @@ document.addEventListener('DOMContentLoaded', () => {
       sidebar: null,
       statusbar: null,
       contextMenu: null,
-      tooltip: null
+      tooltip: null,
+      mainMenu: null
     };
     
     // Initialize desktop UI on startup if needed
     if (_desktopInitialized) {
+      _desktopUIInstances.mainMenu = new MainMenu(canvasEngine);
       _desktopUIInstances.toolbar = new Toolbar();
       _desktopUIInstances.propertiesPanel = new PropertiesPanel();
       _desktopUIInstances.sidebar = new Sidebar(canvasEngine);
@@ -84,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isDesktop && !_desktopInitialized) {
           // ── Crossed to DESKTOP ─────────────────────────────────────────────
           _desktopInitialized = true;
+          _desktopUIInstances.mainMenu = new MainMenu(canvasEngine);
           _desktopUIInstances.toolbar = new Toolbar();
           _desktopUIInstances.propertiesPanel = new PropertiesPanel();
           _desktopUIInstances.sidebar = new Sidebar(canvasEngine);

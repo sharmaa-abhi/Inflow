@@ -1,8 +1,6 @@
 import { eventBus } from '../core/EventBus';
 import { historyManager } from '../managers/HistoryManager';
-import { persistenceManager } from '../managers/PersistenceManager';
 import { shapeManager } from '../managers/ShapeManager';
-import { styleManager } from '../managers/StyleManager';
 
 export class Sidebar {
   /**
@@ -11,29 +9,10 @@ export class Sidebar {
   constructor(canvasEngine) {
     this.canvasEngine = canvasEngine;
 
-    // Cache DOM Elements
-    this.btnLoadArchitecture = document.getElementById('btn-load-architecture');
-    this.btnImport = document.getElementById('btn-import');
-    this.btnExportJson = document.getElementById('btn-export-json');
-    this.btnExportPng = document.getElementById('btn-export-png');
-    this.btnClear = document.getElementById('btn-clear');
+    // Cache DOM Elements — Undo/Redo are in the bottom footer
     this.btnUndo = document.getElementById('btn-undo');
     this.btnRedo = document.getElementById('btn-redo');
     this.btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
-
-    // Create a hidden file input for imports
-    this.fileInput = document.createElement('input');
-    this.fileInput.type = 'file';
-    this.fileInput.accept = '.json,.excalidraw';
-    this.fileInput.style.display = 'none';
-    document.body.appendChild(this.fileInput);
-
-    this.btnImportSvg = document.getElementById('btn-import-svg');
-    this.svgFileInput = document.createElement('input');
-    this.svgFileInput.type = 'file';
-    this.svgFileInput.accept = '.svg';
-    this.svgFileInput.style.display = 'none';
-    document.body.appendChild(this.svgFileInput);
 
     this.init();
   }
@@ -58,126 +37,7 @@ export class Sidebar {
       });
     }
 
-    // Load Architecture action
-    if (this.btnLoadArchitecture) {
-      this.btnLoadArchitecture.addEventListener('click', () => {
-        persistenceManager.loadDefaultArchitecture();
-      });
-    }
-
-    // Import action
-    if (this.btnImport) {
-      this.btnImport.addEventListener('click', () => {
-        this.fileInput.click();
-      });
-    }
-
-    this.fileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        persistenceManager.importJSON(file, this.canvasEngine);
-        // Clear input value so selecting the same file again triggers change event
-        this.fileInput.value = '';
-      }
-    });
-
-    // SVG Vector Import action
-    if (this.btnImportSvg) {
-      this.btnImportSvg.addEventListener('click', () => {
-        this.svgFileInput.click();
-      });
-    }
-
-    this.svgFileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const svgText = event.target.result;
-          const { createKonvaNodesFromSvg } = await import('../utils/svgParser');
-          const group = createKonvaNodesFromSvg(svgText, { x: 200, y: 150 });
-          this.canvasEngine.shapeLayer.add(group);
-          this.canvasEngine.shapeLayer.batchDraw();
-        };
-        reader.readAsText(file);
-        this.svgFileInput.value = '';
-      }
-    });
-
-    // Export Actions
-    if (this.btnExportJson) {
-      this.btnExportJson.addEventListener('click', () => {
-        persistenceManager.exportJSON(this.canvasEngine);
-      });
-    }
-
-    if (this.btnExportPng) {
-      this.btnExportPng.addEventListener('click', () => {
-        persistenceManager.exportPNG(this.canvasEngine);
-      });
-    }
-
-    // Clear Canvas
-    if (this.btnClear) {
-      this.btnClear.addEventListener('click', () => {
-        const shapes = shapeManager.getAllShapes();
-        if (shapes.length === 0) return;
-
-        if (!confirm('Are you sure you want to clear the canvas?')) return;
-
-        // Deselect active shapes to hide properties panel & selection transformer
-        shapeManager.deselectAll();
-
-        // Serialize all current shapes for undoing
-        const serialized = shapes.map(s => s.serialize());
-
-        // Destroy children and clear manager
-        shapes.forEach(s => {
-          if (typeof s.destroy === 'function') s.destroy();
-        });
-        shapeManager.clear();
-        this.canvasEngine.shapeLayer.destroyChildren();
-        this.canvasEngine.batchDrawAll();
-
-        // Register action in history
-        historyManager.registerChange({
-          type: 'clear-canvas',
-          undo: () => {
-            shapeManager.deselectAll();
-            const old = shapeManager.getAllShapes();
-            old.forEach(s => {
-              if (typeof s.destroy === 'function') s.destroy();
-            });
-            shapeManager.clear();
-            this.canvasEngine.shapeLayer.destroyChildren();
-
-            const isRough = styleManager.getActiveStyles().roughMode;
-            serialized.forEach(json => {
-              const restored = shapeManager.recreateShape(json);
-              if (restored) {
-                this.canvasEngine.shapeLayer.add(restored.konvaNode);
-                if (isRough && typeof restored.applyRoughMode === 'function') {
-                  restored.applyRoughMode(true);
-                }
-              }
-            });
-            this.canvasEngine.batchDrawAll();
-          },
-          redo: () => {
-            shapeManager.deselectAll();
-            const currentShapes = shapeManager.getAllShapes();
-            currentShapes.forEach(s => {
-              if (typeof s.destroy === 'function') s.destroy();
-            });
-            shapeManager.clear();
-            this.canvasEngine.shapeLayer.destroyChildren();
-            this.canvasEngine.batchDrawAll();
-          }
-        });
-      });
-    }
-
-    // History Actions
+    // History Actions (Undo/Redo live in the bottom-left footer)
     if (this.btnUndo) {
       this.btnUndo.addEventListener('click', () => {
         historyManager.undo();
