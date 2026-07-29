@@ -2,7 +2,8 @@
 
 InkFlow is a modern, minimal, browser-based diagramming and whiteboard application inspired by Excalidraw and tldraw. Built with high-performance vector rendering via Konva.js and modern styling using Tailwind CSS v4, it provides a fluid and aesthetic drawing environment for creating diagrams, freehand illustrations, and presentations.
 
-👉 **Live Local Host**: [http://localhost:5174/]((https://inflow-sigma.vercel.app/))
+👉 **Live Demo:** https://inflow-sigma.vercel.app/
+
 
 ---
 
