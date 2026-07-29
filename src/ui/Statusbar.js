@@ -13,7 +13,7 @@ export class Statusbar {
     this.btnZoomIn = document.getElementById('btn-zoom-in');
     this.btnZoomOut = document.getElementById('btn-zoom-out');
     this.btnZoomReset = document.getElementById('btn-zoom-reset');
-    this.gridSelect = document.getElementById('grid-select');
+    // Note: grid select is now in the hamburger menu (MainMenu) → #menu-grid-select
 
     this.initEventListeners();
     this.subscribeEvents();
@@ -38,13 +38,6 @@ export class Statusbar {
         this.canvasEngine.zoomReset();
       });
     }
-
-    // Grid selector
-    if (this.gridSelect) {
-      this.gridSelect.addEventListener('change', (e) => {
-        this.canvasEngine.setGridType(e.target.value);
-      });
-    }
   }
 
   subscribeEvents() {
@@ -62,13 +55,6 @@ export class Statusbar {
       if (this.zoomDisplay) {
         const percentage = Math.round(zoom * 100);
         this.zoomDisplay.textContent = `${percentage}%`;
-      }
-    });
-
-    // Synchronize initial grid state
-    eventBus.on('grid-changed', (type) => {
-      if (this.gridSelect && this.gridSelect.value !== type) {
-        this.gridSelect.value = type;
       }
     });
   }

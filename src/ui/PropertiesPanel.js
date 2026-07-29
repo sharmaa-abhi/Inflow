@@ -33,6 +33,30 @@ export class PropertiesPanel {
     this.strokeStyleGroup = document.getElementById('prop-stroke-style-group');
     this.fillStyleGroup   = document.getElementById('prop-fill-style-group');
 
+    // Arrange buttons
+    this.btnSendBack     = document.getElementById('btn-send-back');
+    this.btnSendBackward = document.getElementById('btn-send-backward');
+    this.btnBringForward = document.getElementById('btn-bring-forward');
+    this.btnBringFront   = document.getElementById('btn-bring-front');
+    this.btnToggle3D     = document.getElementById('btn-toggle-3d');
+    this.inpZIndex       = document.getElementById('prop-zindex');
+    this.lblZIndexMax    = document.getElementById('prop-zindex-max');
+
+    // Typography
+    this.sectionText     = document.getElementById('prop-section-text');
+    this.inpFontSize     = document.getElementById('prop-font-size');
+    this.inpFontFamily   = document.getElementById('prop-font-family');
+    this.textAlignGroup  = document.getElementById('prop-text-align');
+
+    // Smoothing
+    this.sectionSmoothing = document.getElementById('prop-section-smoothing');
+    this.toggleERDP       = document.getElementById('prop-toggle-erdp');
+    this.sliderSmoothing  = document.getElementById('prop-slider-smoothing');
+    this.valSmoothing     = document.getElementById('prop-val-smoothing');
+
+    // Delete button
+    this.btnDeleteSelected = document.getElementById('btn-delete-selected-shape');
+
     // Active format state per channel: 'hex' | 'rgb' | 'hsl'
     this.strokeColorFmt = 'hex';
     this.fillColorFmt   = 'hex';
@@ -42,6 +66,7 @@ export class PropertiesPanel {
     this.activeFillCategory = 'quick';
 
     this.selectedShapes = [];
+    this._isOpen = false;
     this.init();
   }
 
@@ -54,9 +79,36 @@ export class PropertiesPanel {
     this.buildColorPalette(this.strokePalette, 'stroke', false, this.activeStrokeCategory);
     this.buildColorPalette(this.fillPalette, 'fill', true, this.activeFillCategory);
 
-    // Bind basic events
+    // Bind basic close events
     if (this.btnClose) {
       this.btnClose.addEventListener('click', () => {
+        shapeManager.deselectAll();
+      });
+    }
+
+    // ESC key closes the panel
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && this._isOpen) {
+        shapeManager.deselectAll();
+      }
+    });
+
+    // Click outside on canvas area closes the panel
+    const canvasContainer = document.getElementById('canvas-container');
+    if (canvasContainer) {
+      canvasContainer.addEventListener('pointerdown', (e) => {
+        if (this._isOpen) {
+          // Only close if we're clicking directly on the canvas (not bubbling from shapes)
+          // The PropertiesPanel listens to selection changes — deselect triggers close automatically
+          // so we just let selection events handle it
+        }
+      });
+    }
+
+    // Delete selected shape button
+    if (this.btnDeleteSelected) {
+      this.btnDeleteSelected.addEventListener('click', () => {
+        toolManager.deleteSelected?.();
         shapeManager.deselectAll();
       });
     }
@@ -215,16 +267,18 @@ export class PropertiesPanel {
     this.selectedShapes = selectedShapes;
 
     if (selectedShapes.length === 0) {
-      this.panel.classList.add('hidden');
+      this._closePanel();
     } else {
-      this.panel.classList.remove('hidden');
+      this._openPanel();
 
       // Check if text properties need to be displayed
       const hasText = selectedShapes.some(s => s.type === 'text');
-      if (hasText) {
-        this.sectionText.classList.remove('hidden');
-      } else {
-        this.sectionText.classList.add('hidden');
+      if (this.sectionText) {
+        if (hasText) {
+          this.sectionText.classList.remove('hidden');
+        } else {
+          this.sectionText.classList.add('hidden');
+        }
       }
 
       // Check if line smoothing properties need to be displayed
@@ -241,6 +295,34 @@ export class PropertiesPanel {
       this.syncStyleInputs();
       this.syncZIndexInput();
     }
+  }
+
+  _openPanel() {
+    if (!this.panel) return;
+    this._isOpen = true;
+    this.panel.classList.remove('hidden', 'panel-closed');
+    // Small rAF to ensure transition plays after display change
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.panel.classList.add('panel-open');
+        this.panel.classList.remove('panel-closed');
+      });
+    });
+  }
+
+  _closePanel() {
+    if (!this.panel) return;
+    this._isOpen = false;
+    this.panel.classList.remove('panel-open');
+    this.panel.classList.add('panel-closed');
+    // After animation completes, add hidden
+    const onTransitionEnd = () => {
+      if (!this._isOpen) {
+        this.panel.classList.add('hidden');
+      }
+      this.panel.removeEventListener('transitionend', onTransitionEnd);
+    };
+    this.panel.addEventListener('transitionend', onTransitionEnd);
   }
 
   syncGeometryInputs() {
