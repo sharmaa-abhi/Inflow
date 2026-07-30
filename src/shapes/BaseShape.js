@@ -217,6 +217,12 @@ export class BaseShape {
     const PAD    = getRoughPadding(this.strokeWidth);
     const bitmap = await renderRoughShape(shapeData);
 
+    // If no bitmap was produced (unsupported type), fall back to showing crisp konva node
+    if (!bitmap || (bitmap.width <= 1 && bitmap.height <= 1)) {
+      if (this.konvaNode) this.konvaNode.visible(true);
+      return;
+    }
+
     const parent = this.konvaNode.getLayer();
     if (!parent) return; // shape may have been destroyed
 

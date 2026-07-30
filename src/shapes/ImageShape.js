@@ -76,7 +76,10 @@ export class ImageShape extends BaseShape {
       this.konvaNode.height(geom.height);
     }
 
-    if (this._roughMode) this._scheduleRoughRender();
+    if (this._roughMode) {
+      // Images stay visible in rough mode — no rough rendering needed
+      if (this.konvaNode) this.konvaNode.visible(true);
+    }
   }
 
   getGeometry() {
@@ -86,6 +89,18 @@ export class ImageShape extends BaseShape {
       width: this.width,
       height: this.height,
     };
+  }
+
+  /**
+   * BUG-004 fix: Images always rendered as-is — no rough rendering equivalent for raster images.
+   */
+  applyRoughMode(isRough) {
+    this._roughMode = isRough;
+    if (this._roughImageNode) {
+      this._roughImageNode.destroy();
+      this._roughImageNode = null;
+    }
+    if (this.konvaNode) this.konvaNode.visible(true);
   }
 
   serialize() {

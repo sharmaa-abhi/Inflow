@@ -114,8 +114,57 @@ export async function renderRoughShape(shapeData) {
       break;
     }
 
+    case 'polygon': {
+      // Generic polygon: shapeData.polygonPoints is [[x, y], ...] relative to shape origin (0,0)
+      const polygonPts = shapeData.polygonPoints;
+      if (polygonPts && polygonPts.length >= 3) {
+        rc.polygon(polygonPts.map(([px, py]) => [PAD + px, PAD + py]), opts);
+      }
+      break;
+    }
+
+    case 'cylinder': {
+      // Proper rough cylinder: top ellipse + side walls + bottom ellipse outline
+      const w = Math.abs(width);
+      const h = Math.abs(height);
+      const ry = Math.min(20, h * 0.15);
+      const cx = PAD + w / 2;
+      // Top filled ellipse
+      rc.ellipse(cx, PAD + ry, w, ry * 2, opts);
+      // Left and right side walls
+      rc.line(PAD, PAD + ry, PAD, PAD + h - ry, opts);
+      rc.line(PAD + w, PAD + ry, PAD + w, PAD + h - ry, opts);
+      // Bottom ellipse (outline only — shows base of cylinder)
+      rc.ellipse(cx, PAD + h - ry, w, ry * 2, { ...opts, fill: undefined });
+      break;
+    }
+
+    case 'cloud': {
+      // Approximate cloud with a filled ellipse matching bounding box
+      const w = Math.abs(width);
+      const h = Math.abs(height);
+      rc.ellipse(PAD + w / 2, PAD + h / 2, w * 0.9, h * 0.8, opts);
+      break;
+    }
+
+    case 'speechBubble': {
+      // Rectangle body + triangle tail rough approximation
+      const w = Math.abs(width);
+      const h = Math.abs(height);
+      const bodyH = h * 0.75;
+      const tailX = w * 0.25;
+      const tailW = w * 0.15;
+      rc.rectangle(PAD, PAD, w, bodyH, opts);
+      rc.polygon([
+        [PAD + tailX, PAD + bodyH],
+        [PAD + tailX + tailW, PAD + bodyH],
+        [PAD + tailX, PAD + h],
+      ], { ...opts, fill: undefined });
+      break;
+    }
+
     default:
-      // Fallback: empty transparent canvas
+      // Unsupported shape type: render nothing — caller keeps konva node visible as fallback
       break;
   }
 

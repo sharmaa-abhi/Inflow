@@ -58,6 +58,9 @@ export class SelectTool extends BaseTool {
         this.canvasEngine.selectionLayer.batchDraw();
       }
     });
+
+    // BUG-007 fix: timestamp for manual double-tap detection on mobile touch devices
+    this._lastTapTime = 0;
   }
 
   activate() {
@@ -148,8 +151,15 @@ export class SelectTool extends BaseTool {
       const isShift = event.evt && event.evt.shiftKey;
       const isAlreadySelected = this.selectedShapes.includes(clickedShape);
 
-      // Handle double click for text editing or connector label editing
-      const isDoubleClick = event.evt && event.evt.detail === 2;
+      // Handle double click (mouse) or double tap (touch)
+      // event.evt.detail === 2 works for mouse dblclick events.
+      // Touch events don't set detail, so we track tap timestamps manually (BUG-007).
+      const now = Date.now();
+      const timeSinceLast = now - this._lastTapTime;
+      this._lastTapTime = now;
+      const isDoubleTap = timeSinceLast < 300;
+      const isDoubleClick = (event.evt && event.evt.detail === 2) || isDoubleTap;
+
       if (isDoubleClick) {
         if (clickedShape.type === 'text') {
           const textTool = this.canvasEngine.stage.getAttr('toolManager')?.tools.get('text');
@@ -504,22 +514,34 @@ export class SelectTool extends BaseTool {
 
     const commit = () => {
       const newText = ta.value.trim();
-      shape.labelText = newText;
+      const oldText = shape.labelText || '';
 
-      // Show / update the Konva label node
-      if (newText) {
-        shape.showLabel(layer);
-        if (shape.labelNode) {
-          shape.labelNode.text(newText);
+      // Clean up textarea first
+      if (document.body.contains(ta)) document.body.removeChild(ta);
+
+      // No-op if text didn't change
+      if (newText === oldText) return;
+
+      // BUG-006 fix: register label change in history so it can be undone (Ctrl+Z)
+      const applyLabel = (text) => {
+        shape.labelText = text;
+        if (text) {
+          shape.showLabel(layer);
+          if (shape.labelNode) { shape.labelNode.text(text); layer.batchDraw(); }
+        } else if (shape.labelNode) {
+          shape.labelNode.destroy();
+          shape.labelNode = null;
           layer.batchDraw();
         }
-      } else if (shape.labelNode) {
-        shape.labelNode.destroy();
-        shape.labelNode = null;
-        layer.batchDraw();
-      }
+      };
 
-      if (document.body.contains(ta)) document.body.removeChild(ta);
+      historyManager.registerChange({
+        type: 'label-edit',
+        undo: () => applyLabel(oldText),
+        redo: () => applyLabel(newText),
+      });
+
+      applyLabel(newText);
     };
 
     ta.addEventListener('blur',    commit, { once: true });

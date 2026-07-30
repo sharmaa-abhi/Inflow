@@ -64,6 +64,13 @@ export class ParallelogramShape extends BaseShape {
   }
 
   renderRough() {
-    this.renderRoughWith({ type: 'diamond' });
+    const offset = this.width * this.skew;
+    const pts = [
+      [offset, 0],
+      [this.width, 0],
+      [this.width - offset, this.height],
+      [0, this.height],
+    ];
+    this.renderRoughWith({ type: 'polygon', polygonPoints: pts });
   }
 }

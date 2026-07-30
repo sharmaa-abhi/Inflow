@@ -64,6 +64,13 @@ export class TrapezoidShape extends BaseShape {
   }
 
   renderRough() {
-    this.renderRoughWith({ type: 'diamond' });
+    const offset = this.width * this.inset;
+    const pts = [
+      [offset, 0],
+      [this.width - offset, 0],
+      [this.width, this.height],
+      [0, this.height],
+    ];
+    this.renderRoughWith({ type: 'polygon', polygonPoints: pts });
   }
 }

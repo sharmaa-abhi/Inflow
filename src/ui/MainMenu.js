@@ -101,9 +101,34 @@ export class MainMenu {
         const reader = new FileReader();
         reader.onload = async (event) => {
           const svgText = event.target.result;
-          const { createKonvaNodesFromSvg } = await import('../utils/svgParser');
-          const group = createKonvaNodesFromSvg(svgText, { x: 200, y: 150 });
-          this.canvasEngine.shapeLayer.add(group);
+          const { SvgShape } = await import('../shapes/SvgShape');
+
+          // Center SVG import in the current viewport
+          const stage = this.canvasEngine.stage;
+          const x = (stage.width() / 2 - stage.x()) / stage.scaleX();
+          const y = (stage.height() / 2 - stage.y()) / stage.scaleY();
+
+          const svgShape = new SvgShape({ svgText, x, y });
+
+          // Add to layer and register with shapeManager (BUG-005 fix)
+          this.canvasEngine.shapeLayer.add(svgShape.konvaNode);
+          shapeManager.addShape(svgShape);
+
+          // Register in history for undo/redo support
+          historyManager.registerChange({
+            type: 'add',
+            undo: () => {
+              svgShape.konvaNode?.remove();
+              shapeManager.removeShape(svgShape.id);
+              this.canvasEngine.shapeLayer.batchDraw();
+            },
+            redo: () => {
+              this.canvasEngine.shapeLayer.add(svgShape.konvaNode);
+              shapeManager.addShape(svgShape);
+              this.canvasEngine.shapeLayer.batchDraw();
+            },
+          });
+
           this.canvasEngine.shapeLayer.batchDraw();
         };
         reader.readAsText(file);
@@ -134,7 +159,7 @@ export class MainMenu {
 
     if (this.btnThemeToggle) {
       this.btnThemeToggle.addEventListener('click', () => {
-        themeManager.toggle();
+        themeManager.setDarkTheme(!themeManager.isDark);
         this.syncThemeLabel();
       });
       this.syncThemeLabel();
