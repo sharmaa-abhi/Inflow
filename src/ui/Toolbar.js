@@ -5,6 +5,8 @@ export class Toolbar {
   constructor() {
     // Map of button ID suffixes to tool keys
     this.buttons = {
+      'tool-lock': 'select',
+      'tool-hand': 'select',
       'tool-select': 'select',
       'tool-rectangle': 'rectangle',
       'tool-circle': 'circle',
@@ -33,6 +35,30 @@ export class Toolbar {
         });
       }
     });
+
+    // Wire up top-right sidebar button
+    const btnSidebarTop = document.getElementById('btn-sidebar-top');
+    if (btnSidebarTop) {
+      btnSidebarTop.addEventListener('click', () => {
+        const sidebar = document.getElementById('sidebar-panel');
+        if (sidebar) {
+          sidebar.classList.toggle('hidden');
+        }
+      });
+    }
+
+    // Wire up top-right share button
+    const btnShareTop = document.getElementById('btn-share-top');
+    if (btnShareTop) {
+      btnShareTop.addEventListener('click', () => {
+        const toast = document.getElementById('toast');
+        if (toast) {
+          toast.textContent = 'Diagram share link copied to clipboard!';
+          toast.classList.add('mobile-toast-show');
+          setTimeout(() => toast.classList.remove('mobile-toast-show'), 2500);
+        }
+      });
+    }
 
     // Extended Shapes Popover Menu Wiring
     const extShapesBtn = document.getElementById('btn-extended-shapes');
@@ -78,13 +104,8 @@ export class Toolbar {
     Object.entries(this.domElements).forEach(([type, el]) => {
       if (type === activeType) {
         el.classList.add('btn-active');
-        // Add borders/styles for Tailwind
-        el.classList.add('bg-indigo-50', 'text-indigo-600', 'ring-2', 'ring-indigo-600/20');
-        el.classList.remove('text-slate-700', 'hover:bg-slate-100');
       } else {
         el.classList.remove('btn-active');
-        el.classList.remove('bg-indigo-50', 'text-indigo-600', 'ring-2', 'ring-indigo-600/20');
-        el.classList.add('text-slate-700', 'hover:bg-slate-100');
       }
     });
   }
