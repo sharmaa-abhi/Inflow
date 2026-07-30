@@ -62,6 +62,17 @@ export class StarShape extends BaseShape {
   }
 
   renderRough() {
-    this.renderRoughWith({ type: 'diamond' });
+    const outerR = Math.min(Math.abs(this.width), Math.abs(this.height)) / 2;
+    const innerR = outerR * 0.4;
+    const cx = Math.abs(this.width) / 2;
+    const cy = Math.abs(this.height) / 2;
+    const numPoints = this.numPoints || 5;
+    const pts = [];
+    for (let i = 0; i < numPoints * 2; i++) {
+      const angle = (i * Math.PI) / numPoints - Math.PI / 2;
+      const r = i % 2 === 0 ? outerR : innerR;
+      pts.push([cx + r * Math.cos(angle), cy + r * Math.sin(angle)]);
+    }
+    this.renderRoughWith({ type: 'polygon', polygonPoints: pts });
   }
 }

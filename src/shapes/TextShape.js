@@ -138,6 +138,19 @@ export class TextShape extends BaseShape {
     };
   }
 
+  /**
+   * BUG-004 fix: Text shapes stay visible in sketchy mode — no rough rendering for text.
+   */
+  applyRoughMode(isRough) {
+    this._roughMode = isRough;
+    // Text is always rendered crisp; destroy any existing rough image node
+    if (this._roughImageNode) {
+      this._roughImageNode.destroy();
+      this._roughImageNode = null;
+    }
+    if (this.konvaNode) this.konvaNode.visible(true);
+  }
+
   serialize() {
     const baseData = super.serialize();
     return {

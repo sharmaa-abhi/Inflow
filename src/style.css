@@ -82,33 +82,27 @@ body {
    ═══════════════════════════════════════════════════════════════════════════ */
 .app-header {
   position: fixed;
-  top: 16px;
+  top: 14px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 30;
-  width: calc(100% - 32px);
-  max-width: var(--header-max-width);
-  height: var(--header-height);
-  padding: 6px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border-radius: var(--header-radius);
-  background: var(--glass-bg-light);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border-light);
-  box-shadow: var(--glass-shadow-light);
-  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  width: auto !important;
+  max-width: none !important;
+  height: auto !important;
+  padding: 5px 8px !important;
+  border-radius: 16px !important;
+  background: #232329 !important; /* Dark charcoal pill header in both light & dark mode */
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
   pointer-events: auto;
   user-select: none;
+  transition: all 0.2s ease;
 }
 
 body.dark .app-header {
-  background: var(--glass-bg-dark);
-  border-color: var(--glass-border-dark);
-  box-shadow: var(--glass-shadow-dark);
+  background: #18181c !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6) !important;
 }
 
 .header-left {
@@ -201,34 +195,33 @@ body.dark .header-divider {
    ═══════════════════════════════════════════════════════════════════════════ */
 .ui-btn,
 .ui-tool-btn {
-  width: var(--btn-size);
-  height: var(--btn-size);
-  border-radius: var(--btn-radius);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: none;
   background: transparent;
-  color: #475569;
+  color: #94a3b8;
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   outline: none;
   flex-shrink: 0;
   position: relative;
-  transition: background-color 0.15s var(--ease-smooth), color 0.15s var(--ease-smooth), transform 0.12s var(--ease-smooth), box-shadow 0.15s ease;
+  transition: all 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .ui-btn:hover,
 .ui-tool-btn:hover {
-  background-color: rgba(241, 245, 249, 0.9);
-  color: #1e293b;
-  transform: translateY(-1px);
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
 }
 
 .ui-btn:active,
 .ui-tool-btn:active {
-  transform: translateY(0) scale(0.94);
-  background-color: rgba(226, 232, 240, 0.9);
+  transform: scale(0.94);
 }
 
 body.dark .ui-btn,
@@ -238,30 +231,79 @@ body.dark .ui-tool-btn {
 
 body.dark .ui-btn:hover,
 body.dark .ui-tool-btn:hover {
-  background-color: rgba(30, 41, 59, 0.8);
-  color: #f8fafc;
-}
-
-body.dark .ui-btn:active,
-body.dark .ui-tool-btn:active {
-  background-color: rgba(51, 65, 85, 0.7);
+  background-color: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
 }
 
 /* Active / Selected Tool State */
 .ui-tool-btn.btn-active,
 .ui-btn.btn-active,
 .btn-active {
-  background-color: var(--color-accent-light) !important;
-  color: var(--color-accent) !important;
-  box-shadow: inset 0 0 0 1.5px rgba(79, 70, 229, 0.3) !important;
+  background-color: #3b82f6 !important; /* Bright Excalidraw blue tint */
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4) !important;
 }
 
 body.dark .ui-tool-btn.btn-active,
 body.dark .ui-btn.btn-active,
 body.dark .btn-active {
-  background-color: var(--color-accent-dark-tint) !important;
-  color: #818cf8 !important;
-  box-shadow: inset 0 0 0 1.5px rgba(129, 140, 248, 0.4) !important;
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Number Subscript Badges for Tool Shortcuts (1, 2, 3, 4, 5, 6, 7, 8, 9, 0) */
+.tool-num-badge {
+  font-size: 9px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  opacity: 0.6;
+  margin-left: 1px;
+  margin-top: 6px;
+  line-height: 1;
+}
+
+.ui-tool-btn.btn-active .tool-num-badge {
+  opacity: 0.95;
+  color: #ffffff;
+}
+
+/* Canvas Hint Bar Below Header */
+.canvas-hint-bar {
+  position: fixed;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  pointer-events: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.85;
+}
+
+body.dark .canvas-hint-bar {
+  color: #94a3b8;
+}
+
+.kbd-badge {
+  padding: 1px 5px;
+  font-size: 10px;
+  font-family: ui-monospace, monospace;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: #334155;
+}
+
+body.dark .kbd-badge {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
 }
 
 .ui-btn:focus-visible,
@@ -1519,8 +1561,17 @@ body.dark .menu-shortcut {
   width: auto !important;
   max-width: none !important;
   height: auto !important;
-  padding: 6px 14px !important;
-  border-radius: 18px !important;
+  padding: 4px 8px !important;
+  border-radius: 14px !important;
+  background: #232329 !important; /* Pitch charcoal black footer pill */
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  color: #f1f5f9 !important;
+}
+
+body.dark .app-footer {
+  background: #18181c !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
 /* Floating Right Glassmorphic Properties Popup */

@@ -15,6 +15,7 @@ import { CloudShape } from '../shapes/CloudShape';
 import { StarShape } from '../shapes/StarShape';
 import { SpeechBubbleShape } from '../shapes/SpeechBubbleShape';
 import { StickyNoteShape } from '../shapes/StickyNoteShape';
+import { SvgShape } from '../shapes/SvgShape';
 
 class ShapeManager {
   constructor() {
@@ -284,6 +285,9 @@ class ShapeManager {
         break;
       case 'stickyNote':
         shape = new StickyNoteShape(json);
+        break;
+      case 'svg':
+        shape = new SvgShape(json);
         break;
       default:
         console.warn('Unknown shape type to recreate:', json.type);

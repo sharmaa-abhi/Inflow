@@ -108,7 +108,7 @@ export class PropertiesPanel {
     // Delete selected shape button
     if (this.btnDeleteSelected) {
       this.btnDeleteSelected.addEventListener('click', () => {
-        toolManager.deleteSelected?.();
+        toolManager.deleteSelectedShapes();
         shapeManager.deselectAll();
       });
     }

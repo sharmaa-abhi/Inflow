@@ -91,6 +91,18 @@ export class PenShape extends BaseShape {
     };
   }
 
+  /**
+   * BUG-004 fix: Pen strokes always rendered crisp — no rough equivalent for freehand paths.
+   */
+  applyRoughMode(isRough) {
+    this._roughMode = isRough;
+    if (this._roughImageNode) {
+      this._roughImageNode.destroy();
+      this._roughImageNode = null;
+    }
+    if (this.konvaNode) this.konvaNode.visible(true);
+  }
+
   serialize() {
     const baseData = super.serialize();
     return {

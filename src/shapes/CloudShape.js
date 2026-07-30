@@ -64,6 +64,6 @@ export class CloudShape extends BaseShape {
   }
 
   renderRough() {
-    this.renderRoughWith({ type: 'circle' });
+    this.renderRoughWith({ type: 'cloud' });
   }
 }

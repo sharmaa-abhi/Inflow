@@ -73,6 +73,6 @@ export class CylinderShape extends BaseShape {
   }
 
   renderRough() {
-    this.renderRoughWith({ type: 'rectangle' });
+    this.renderRoughWith({ type: 'cylinder' });
   }
 }

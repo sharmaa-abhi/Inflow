@@ -76,6 +76,6 @@ export class SpeechBubbleShape extends BaseShape {
   }
 
   renderRough() {
-    this.renderRoughWith({ type: 'rectangle' });
+    this.renderRoughWith({ type: 'speechBubble' });
   }
 }

@@ -319,7 +319,12 @@ class PersistenceManager {
       return;
     }
 
-    // 1. Clear current canvas
+    // 1. Clear current canvas — destroy Konva nodes to prevent ghost nodes and memory leaks
+    const existingShapes = shapeManager.getAllShapes();
+    existingShapes.forEach(s => {
+      if (typeof s.destroy === 'function') s.destroy();
+    });
+    this.canvasEngine.shapeLayer.destroyChildren();
     shapeManager.clear();
 
     // 2. Restore background grid selection

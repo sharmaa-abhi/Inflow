@@ -138,59 +138,82 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
-    <!-- TOP CENTER FLOATING TOOLBAR (Fixed Top-Center, Floating Rounded Pill)   -->
+    <!-- TOP CENTER FLOATING TOOLBAR (Fixed Top-Center, Floating Dark Pill)       -->
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
     <header id="app-header" class="app-header">
       <div id="toolbar-panel" class="header-center">
-        <button id="tool-select" class="ui-tool-btn" title="Select (V)">
+        <button id="tool-lock" class="ui-tool-btn" title="Lock Tool Creation State">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </button>
+        <button id="tool-hand" class="ui-tool-btn" title="Hand / Pan Canvas (H)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m3-5.5V11m0-5.5a1.5 1.5 0 013 0V11" />
+          </svg>
+        </button>
+
+        <div class="header-divider"></div>
+
+        <button id="tool-select" class="ui-tool-btn" title="Select (V or 1)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 7.827 5.34-5.886 1.905zm-3.083-7.074c-.947-.947-2.513-.947-3.46 0L2.83 20.267"></path>
           </svg>
+          <span class="tool-num-badge">1</span>
         </button>
-        <button id="tool-rectangle" class="ui-tool-btn" title="Rectangle (R)">
+        <button id="tool-rectangle" class="ui-tool-btn" title="Rectangle (R or 2)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h16v14H4z"></path>
           </svg>
+          <span class="tool-num-badge">2</span>
         </button>
-        <button id="tool-circle" class="ui-tool-btn" title="Circle (C)">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round"></circle>
-          </svg>
-        </button>
-        <button id="tool-diamond" class="ui-tool-btn" title="Diamond (D)">
+        <button id="tool-diamond" class="ui-tool-btn" title="Diamond (D or 3)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 2l9 10-9 10-9-10z"></path>
           </svg>
+          <span class="tool-num-badge">3</span>
         </button>
-        <button id="tool-line" class="ui-tool-btn" title="Line (L)">
+        <button id="tool-circle" class="ui-tool-btn" title="Circle (C or 4)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 19L19 5"></path>
+            <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round"></circle>
           </svg>
+          <span class="tool-num-badge">4</span>
         </button>
-        <button id="tool-arrow" class="ui-tool-btn" title="Arrow (A)">
+        <button id="tool-arrow" class="ui-tool-btn" title="Arrow (A or 5)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
           </svg>
+          <span class="tool-num-badge">5</span>
         </button>
-        <button id="tool-pen" class="ui-tool-btn" title="Pen / Freehand (P)">
+        <button id="tool-line" class="ui-tool-btn" title="Line (L or 6)">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 19L19 5"></path>
+          </svg>
+          <span class="tool-num-badge">6</span>
+        </button>
+        <button id="tool-pen" class="ui-tool-btn" title="Pen / Freehand (P or 7)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
           </svg>
+          <span class="tool-num-badge">7</span>
         </button>
-        <button id="tool-text" class="ui-tool-btn" title="Text (T)">
+        <button id="tool-text" class="ui-tool-btn" title="Text (T or 8)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path>
           </svg>
+          <span class="tool-num-badge">8</span>
         </button>
-        <button id="tool-sticky" class="ui-tool-btn tool-sticky-btn" title="Sticky Note (N)">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h9l6-6V5c0-1.1-.9-2-2-2zm0 13l-4 4H5V5h14v11z" />
-          </svg>
-        </button>
-        <button id="tool-image" class="ui-tool-btn" title="Upload Image (I)">
+        <button id="tool-image" class="ui-tool-btn" title="Upload Image (I or 9)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
+          <span class="tool-num-badge">9</span>
+        </button>
+        <button id="tool-sticky" class="ui-tool-btn tool-sticky-btn" title="Sticky Note (N or 0)">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h9l6-6V5c0-1.1-.9-2-2-2zm0 13l-4 4H5V5h14v11z" />
+          </svg>
+          <span class="tool-num-badge">0</span>
         </button>
 
         <!-- Extended Shapes Library Dropdown -->
@@ -205,43 +228,43 @@
           </button>
 
           <!-- Shapes Popover Menu -->
-          <div id="extended-shapes-menu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-800 rounded-xl shadow-xl p-1.5 hidden flex-col gap-1 z-50">
-            <button data-shape="pill" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg font-medium transition-colors">
+          <div id="extended-shapes-menu" class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-[#232329] border border-white/10 backdrop-blur-md rounded-xl shadow-xl p-1.5 hidden flex-col gap-1 z-50">
+            <button data-shape="pill" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg font-medium transition-colors">
               <div class="w-4 h-2.5 border-2 border-current rounded-full"></div>
               <span>Capsule / Pill</span>
             </button>
-            <button data-shape="parallelogram" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg font-medium transition-colors">
+            <button data-shape="parallelogram" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg font-medium transition-colors">
               <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="2">
                 <polygon points="6 4 22 4 18 20 2 20" />
               </svg>
               <span>Parallelogram</span>
             </button>
-            <button data-shape="trapezoid" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg font-medium transition-colors">
+            <button data-shape="trapezoid" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg font-medium transition-colors">
               <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="2">
                 <polygon points="6 4 18 4 22 20 2 20" />
               </svg>
               <span>Trapezoid</span>
             </button>
-            <button data-shape="cylinder" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg font-medium transition-colors">
+            <button data-shape="cylinder" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg font-medium transition-colors">
               <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="2">
                 <path d="M4 6c0-1.65 3.58-3 8-3s8 1.35 8 3v12c0 1.65-3.58 3-8 3s-8-1.35-8-3V6z" />
                 <path d="M4 6c0 1.65 3.58 3 8 3s8-1.35 8-3" />
               </svg>
               <span>Database Cylinder</span>
             </button>
-            <button data-shape="cloud" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg font-medium transition-colors">
+            <button data-shape="cloud" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg font-medium transition-colors">
               <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="2">
                 <path d="M3 15c0 2.2 1.8 4 4 4h10c2.2 0 4-1.8 4-4 0-1.8-1.2-3.3-2.8-3.8C18 9.4 16.3 8 14.3 8c-1.3 0-2.5.6-3.3 1.5C10.2 8.6 9.1 8 8 8c-2.2 0-4 1.8-4 4 0 .4.1.7.2 1C2.9 13.5 3 14.2 3 15z" />
               </svg>
               <span>Cloud Node</span>
             </button>
-            <button data-shape="star" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg font-medium transition-colors">
+            <button data-shape="star" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg font-medium transition-colors">
               <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
               </svg>
               <span>5-Point Star</span>
             </button>
-            <button data-shape="speechBubble" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg font-medium transition-colors">
+            <button data-shape="speechBubble" class="ext-shape-item w-full flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-slate-200 hover:bg-white/10 rounded-lg font-medium transition-colors">
               <svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
@@ -253,13 +276,11 @@
         <div class="header-divider"></div>
 
         <button id="tool-laser" class="ui-tool-btn" title="Laser Pointer (K)">
-          <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
           </svg>
         </button>
-
-        <div class="header-divider"></div>
 
         <button id="tool-sketchy" class="ui-tool-btn" title="Sketchy / Hand-Drawn Mode (H)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -270,7 +291,7 @@
         <div class="header-divider"></div>
 
         <!-- Theme Toggle -->
-        <button id="btn-theme-toggle" class="ui-btn ui-btn-ghost" title="Toggle Dark Mode">
+        <button id="btn-theme-toggle" class="ui-btn" title="Toggle Dark/Light Mode">
           <svg id="theme-icon-sun" class="w-4 h-4 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
           </svg>
@@ -280,6 +301,28 @@
         </button>
       </div>
     </header>
+
+    <!-- TOP-RIGHT ACTIONS BAR -->
+    <div id="top-right-actions" class="fixed top-3.5 right-4 z-40 flex items-center gap-2">
+      <button class="bg-[#232329] border border-white/10 hover:bg-[#2e2e36] text-slate-200 text-xs font-semibold px-3.5 py-2 rounded-xl shadow-lg transition-all flex items-center gap-1.5 cursor-pointer">
+        <span>Excalidraw+</span>
+      </button>
+      <button id="btn-share-top" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl w-10 h-10 flex items-center justify-center shadow-lg transition-transform hover:scale-105 cursor-pointer" title="Share Diagram">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+        </svg>
+      </button>
+      <button id="btn-sidebar-top" class="bg-[#232329] border border-white/10 hover:bg-[#2e2e36] text-slate-200 rounded-xl w-10 h-10 flex items-center justify-center shadow-lg cursor-pointer" title="Toggle Library / Sidebar">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- CANVAS HINT BAR BELOW HEADER -->
+    <div class="canvas-hint-bar">
+      To move canvas, hold <span class="kbd-badge">Scroll wheel</span> or <span class="kbd-badge">Space</span> while dragging, or use the hand tool
+    </div>
 
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
     <!-- RIGHT FLOATING PROPERTIES PANEL (Opens ONLY when a shape is selected)   -->

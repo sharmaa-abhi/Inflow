@@ -282,7 +282,7 @@ function _wireMobileElements(canvasEngine) {
   });
 
   deleteShapeBtn?.addEventListener('click', () => {
-    document.getElementById('btn-clear')?.click();
+    toolManager.deleteSelectedShapes();
     closePropsSheet();
   });
 
