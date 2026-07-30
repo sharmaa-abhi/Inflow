@@ -1,7 +1,7 @@
 # 17 — Critical Bugs Report
 
-> **Total Bugs Found: 13**
-> 🔴 Critical: 7 | 🟡 Medium: 4 | 🟢 Low: 2
+> **Total Bugs Found: 17**
+> 🔴 Critical: 8 | 🟡 Medium: 6 | 🟢 Low: 3
 
 ---
 
@@ -107,6 +107,21 @@ this._lastTapTime = now;
 
 ---
 
+### BUG-014: Desktop Properties Panel "Delete Selection" Button Silently Fails
+- **File**: [`PropertiesPanel.js:111`](file:///c:/Excelidraw/src/ui/PropertiesPanel.js)
+- **Severity**: 🔴 Critical (Feature broken)
+- **Repro**: Select shape → Click "Delete Selection" button in Properties Panel
+- **Root Cause**: `PropertiesPanel.js:111` attempts to call `toolManager.deleteSelected?.()`, but `ToolManager.js` names the method `deleteSelectedShapes()`.
+- **Impact**: Clicking the "Delete Selection" button in the desktop panel closes the panel via `deselectAll()`, but fails to delete the shape from canvas.
+- **Fix**:
+```diff
+// PropertiesPanel.js:111
+- toolManager.deleteSelected?.();
++ toolManager.deleteSelectedShapes();
+```
+
+---
+
 ## 🟡 MEDIUM BUGS
 
 ### BUG-008: Layout Thrashing in Grid Renderer
@@ -133,6 +148,18 @@ this._lastTapTime = now;
 - **Issue**: No cap on undo stack size. Long sessions accumulate unbounded closured state.
 - **Fix**: Cap at ~150 entries, drop oldest.
 
+### BUG-015: File Import Corrupts State on Uncaught Parse Error
+- **File**: [`PersistenceManager.js:309`](file:///c:/Excelidraw/src/managers/PersistenceManager.js)
+- **Severity**: 🟡 Medium (State corruption)
+- **Issue**: If an imported file contains malformed shape data, `recreateShape()` returns null or throws, leaving the canvas in a partially cleared or broken state.
+- **Fix**: Wrap individual shape recreation in try-catch and validate shape JSON schema before modifying state.
+
+### BUG-016: Mobile Theme Switcher Icon Desynchronization
+- **File**: [`main.js:198`](file:///c:/Excelidraw/src/main.js)
+- **Severity**: 🟡 Medium (UI state desync)
+- **Issue**: `main.js` attempts to monkey-patch `themeManager.toggle`, but `ThemeManager` uses `setDarkTheme(isDark)`. Mobile theme icons (`#mb-theme-icon-sun`, `#mb-theme-icon-moon`) do not stay synchronized when theme changes via main menu or keyboard.
+- **Fix**: Subscribe mobile icon updates directly to `eventBus.on('theme-changed')`.
+
 ---
 
 ## 🟢 LOW BUGS
@@ -147,3 +174,10 @@ this._lastTapTime = now;
 - **Severity**: 🟢 Low (404 warning, missing favicon)
 - **Current**: `href="/public/favicon.svg"`
 - **Fix**: `href="/favicon.svg"` (Vite serves `public/` at root path)
+
+### BUG-017: Z-Index Stepper Input Allows Out-of-Bounds Values
+- **File**: [`PropertiesPanel.js:124`](file:///c:/Excelidraw/src/ui/PropertiesPanel.js)
+- **Severity**: 🟢 Low (UI edge case)
+- **Issue**: Manual entry in Z-Index input field accepts negative numbers or numbers exceeding total shape count.
+- **Fix**: Clamp input value between `0` and `allShapes.length - 1` before invoking `toolManager.changeSelectedZIndex(val)`.
+

@@ -148,3 +148,35 @@ importSceneData(data) {
 - **Trigger Condition**: Drag a shape when canvas has many shapes.
 - **Severity**: 🟡 **Medium**
 - **Recommended Code Fix**: Cache shapes' bounding rects on `dragstart` and update only the dragged shape's rect during move.
+
+---
+
+### FLAW-011: Desktop Properties Panel "Delete Selection" Button Silently Fails
+- **Feature Name**: Floating Properties Panel — Shape Deletion
+- **Flow Step**: User selects shape -> Opens Properties Panel -> Clicks "Delete Selection" button
+- **Expected Behavior**: Selected shape is deleted from canvas and removed from shapeManager.
+- **Actual Behavior (Found in Code)**: `PropertiesPanel.js:111` calls `toolManager.deleteSelected?.()`. `ToolManager` names the method `deleteSelectedShapes()`. The call silently evaluates to `undefined`, leaving the shape on canvas.
+- **Trigger Condition**: Click "Delete Selection" at the bottom of the floating Properties Panel.
+- **Severity**: 🔴 **Critical**
+- **Recommended Code Fix**:
+```javascript
+// PropertiesPanel.js:111
+if (this.btnDeleteSelected) {
+  this.btnDeleteSelected.addEventListener('click', () => {
+    toolManager.deleteSelectedShapes();
+    shapeManager.deselectAll();
+  });
+}
+```
+
+---
+
+### FLAW-012: Uncaught Exception & Partial Canvas Corruption on Invalid File Import
+- **Feature Name**: File Serialization & Import Engine
+- **Flow Step**: Main Menu -> Import JSON -> Select corrupted or non-InkFlow JSON
+- **Expected Behavior**: Import displays user-friendly error toast, leaves existing scene intact.
+- **Actual Behavior (Found in Code)**: `PersistenceManager.js:309` executes `shapeManager.clear()`, wiping the internal Map before validating individual shape schemas. An invalid shape JSON object causes `recreateShape()` to throw an uncaught exception, leaving the canvas cleared/partially corrupted.
+- **Trigger Condition**: Import malformed JSON file.
+- **Severity**: 🟡 **Medium**
+- **Recommended Code Fix**: Validate complete JSON schema and wrap shape reconstruction in transaction blocks before modifying state.
+
