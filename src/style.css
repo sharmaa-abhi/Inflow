@@ -742,17 +742,17 @@ body.dark .context-menu-separator {
 /* Custom Tooltip Styling */
 .custom-tooltip {
   position: absolute;
-  background: rgba(15, 23, 42, 0.85);
-  /* Slate-900 transparent */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: #f8fafc;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 12px;
   font-weight: 500;
+  font-family: 'Inter', system-ui, sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   z-index: 10000;
   pointer-events: none;
   white-space: nowrap;
@@ -766,12 +766,12 @@ body.dark .context-menu-separator {
   transform: scale(1);
 }
 
-/* Dark Mode Tooltip Adjustment */
+/* Dark Mode Tooltip Adjustment (Light floating card on dark canvas) */
 body.dark .custom-tooltip {
-  background: rgba(255, 255, 255, 0.9);
+  background: #e2e8f0;
   color: #0f172a;
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 /* 3D Stacking Preview Styling */

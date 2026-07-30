@@ -6,7 +6,7 @@ export class Toolbar {
     // Map of button ID suffixes to tool keys
     this.buttons = {
       'tool-lock': 'select',
-      'tool-hand': 'select',
+      'tool-hand': 'hand',
       'tool-select': 'select',
       'tool-rectangle': 'rectangle',
       'tool-circle': 'circle',

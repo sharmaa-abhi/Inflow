@@ -6,6 +6,7 @@ import { TextTool } from '../tools/TextTool';
 import { LaserTool } from '../tools/LaserTool';
 import { ImageTool } from '../tools/ImageTool';
 import { StickyTool } from '../tools/StickyTool';
+import { HandTool } from '../tools/HandTool';
 import { shapeManager } from './ShapeManager';
 import { styleManager } from './StyleManager';
 import { historyManager } from './HistoryManager';
@@ -33,6 +34,7 @@ class ToolManager {
 
     // Register all tools
     this.tools.set('select', new SelectTool(canvasEngine, shapeManager, styleManager));
+    this.tools.set('hand', new HandTool(canvasEngine, shapeManager));
     this.tools.set('rectangle', new ShapeTool(canvasEngine, 'rectangle'));
     this.tools.set('circle', new ShapeTool(canvasEngine, 'circle'));
     this.tools.set('diamond', new ShapeTool(canvasEngine, 'diamond'));
@@ -196,8 +198,7 @@ class ToolManager {
             this.setTool('laser');
             break;
           case 'h':
-            // Toggle rough / hand-drawn mode
-            this.toggleSketchyMode();
+            this.setTool('hand');
             break;
           
           // Delete selected shape keys
