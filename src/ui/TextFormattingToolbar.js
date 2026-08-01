@@ -1,7 +1,7 @@
 import { eventBus } from '../core/EventBus';
 import { shapeManager } from '../managers/ShapeManager';
 import { styleManager } from '../managers/StyleManager';
-import { resolveFontFamilyName } from '../utils/fontUtils';
+import { FONT_FAMILIES, resolveFontFamilyName } from '../utils/fontUtils';
 
 export class TextFormattingToolbar {
   constructor(canvasEngine) {
@@ -11,7 +11,7 @@ export class TextFormattingToolbar {
     this.activeTextarea = null;
     this.isVisible = false;
 
-    this.currentFontFamily = 'Architects Daughter';
+    this.currentFontFamily = 'Virgil';
     this.currentFontSize = 24;
     this.currentAlign = 'left';
     this.currentColor = '#1e293b';
@@ -32,14 +32,14 @@ export class TextFormattingToolbar {
     el.innerHTML = `
       <!-- Font Family Group -->
       <div class="flex items-center bg-slate-100 dark:bg-slate-800/80 p-0.5 rounded-lg border border-slate-200/60 dark:border-slate-700/60">
-        <button data-family="Architects Daughter" title="Handwritten (Architects Daughter)" class="btn-tf-font px-2 py-1 rounded-md font-medium transition-colors hover:bg-white dark:hover:bg-slate-700 font-handwritten">
-          Hand
+        <button data-family="Virgil" data-id="1" title="Virgil (Handwritten)" class="btn-tf-font px-2 py-1 rounded-md font-medium transition-colors hover:bg-white dark:hover:bg-slate-700 font-handwritten">
+          Virgil
         </button>
-        <button data-family="Inter" title="Sans-Serif (Inter)" class="btn-tf-font px-2 py-1 rounded-md font-medium transition-colors hover:bg-white dark:hover:bg-slate-700 font-sans">
-          Sans
+        <button data-family="Helvetica" data-id="2" title="Helvetica (Sans-Serif)" class="btn-tf-font px-2 py-1 rounded-md font-medium transition-colors hover:bg-white dark:hover:bg-slate-700 font-sans">
+          Helvetica
         </button>
-        <button data-family="Fira Code" title="Monospace (Fira Code)" class="btn-tf-font px-2 py-1 rounded-md font-medium transition-colors hover:bg-white dark:hover:bg-slate-700 font-mono">
-          Code
+        <button data-family="Cascadia" data-id="3" title="Cascadia (Code / Monospace)" class="btn-tf-font px-2 py-1 rounded-md font-medium transition-colors hover:bg-white dark:hover:bg-slate-700 font-mono">
+          Cascadia
         </button>
       </div>
 
@@ -239,7 +239,16 @@ export class TextFormattingToolbar {
     // Font family highlight
     this.container.querySelectorAll('.btn-tf-font').forEach(btn => {
       const family = btn.getAttribute('data-family');
-      if (family === this.currentFontFamily || (family === 'Architects Daughter' && (this.currentFontFamily === 3 || this.currentFontFamily === 'handwritten'))) {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      const isMatch = (
+        family === this.currentFontFamily ||
+        id === this.currentFontFamily ||
+        (id === 1 && (this.currentFontFamily === 'handwritten' || this.currentFontFamily === 'Architects Daughter')) ||
+        (id === 2 && (this.currentFontFamily === 'sans' || this.currentFontFamily === 'Inter')) ||
+        (id === 3 && (this.currentFontFamily === 'code' || this.currentFontFamily === 'Fira Code'))
+      );
+
+      if (isMatch) {
         btn.classList.add('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'text-indigo-600', 'dark:text-indigo-400');
       } else {
         btn.classList.remove('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'text-indigo-600', 'dark:text-indigo-400');
