@@ -13,12 +13,19 @@ import { Statusbar } from './ui/Statusbar';
 import { ContextMenu } from './ui/ContextMenu';
 import { Tooltip } from './ui/Tooltip';
 import { MainMenu } from './ui/MainMenu';
+import { TextFormattingToolbar } from './ui/TextFormattingToolbar';
 import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
 import { initMobileUI } from './mobile-ui';
 import { eventBus } from './core/EventBus';
 import { styleManager } from './managers/StyleManager';
+import { preloadAllFonts } from './utils/fontUtils';
 
 const BREAKPOINT = 768;
+
+// Preload all registered font families at startup
+preloadAllFonts().then(() => {
+  console.log('InkFlow: All font families preloaded.');
+});
 
 // Bootstrap InkFlow Application
 document.addEventListener('DOMContentLoaded', () => {
@@ -36,6 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Save a reference to toolManager on the stage for cross-tool interactions (like double-click editing)
     canvasEngine.stage.setAttr('toolManager', toolManager);
+    window.toolManager = toolManager;
+
+    // Initialize Floating Text Formatting Toolbar
+    const textFormattingToolbar = new TextFormattingToolbar(canvasEngine);
 
     // 3. Initialize Document Autosave & File Loaders
     persistenceManager.init(canvasEngine);

@@ -162,7 +162,10 @@ export class SelectTool extends BaseTool {
 
       if (isDoubleClick) {
         if (clickedShape.type === 'text') {
-          const textTool = this.canvasEngine.stage.getAttr('toolManager')?.tools.get('text');
+          const textTool = (this.canvasEngine.stage && this.canvasEngine.stage.getAttr('toolManager')) 
+            ? this.canvasEngine.stage.getAttr('toolManager').tools.get('text')
+            : (window.toolManager ? window.toolManager.tools.get('text') : null);
+          
           if (textTool) {
             this.clearSelection();
             textTool.startEditing(clickedShape, false);
