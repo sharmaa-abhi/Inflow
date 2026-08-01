@@ -186,17 +186,20 @@ export class TextTool extends BaseTool {
     });
 
     // Handle blur finalization
-    const onBlur = () => {
-      // Delay finalization slightly in case user clicked formatting toolbar button
+    const onBlur = (e) => {
       setTimeout(() => {
         const active = document.activeElement;
         const formattingToolbar = document.getElementById('text-formatting-toolbar');
-        if (formattingToolbar && formattingToolbar.contains(active)) {
-          textarea.focus();
+        if (formattingToolbar && (formattingToolbar.contains(active) || formattingToolbar.contains(e.relatedTarget))) {
+          if (this.editingTextarea) {
+            this.editingTextarea.focus();
+          }
           return;
         }
-        this.finalizeEditing();
-      }, 100);
+        if (this.editingTextarea === textarea) {
+          this.finalizeEditing();
+        }
+      }, 150);
     };
 
     textarea.addEventListener('blur', onBlur);

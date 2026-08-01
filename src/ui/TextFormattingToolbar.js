@@ -94,40 +94,59 @@ export class TextFormattingToolbar {
   bindDomEvents() {
     if (!this.container) return;
 
+    // Prevent mousedown from taking focus away from active textarea
+    this.container.addEventListener('mousedown', (e) => {
+      if (e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+      }
+    });
+
+    const handleAction = (fn) => (e) => {
+      e.preventDefault();
+      fn();
+      if (this.activeTextarea) {
+        this.activeTextarea.focus();
+      }
+    };
+
     // Font Family buttons
     this.container.querySelectorAll('.btn-tf-font').forEach(btn => {
-      btn.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
+      const handler = handleAction(() => {
         const family = btn.getAttribute('data-family');
         this.setFontFamily(family);
       });
+      btn.addEventListener('mousedown', handler);
+      btn.addEventListener('pointerdown', handler);
     });
 
     // Font Size buttons
     this.container.querySelectorAll('.btn-tf-size').forEach(btn => {
-      btn.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
+      const handler = handleAction(() => {
         const size = parseInt(btn.getAttribute('data-size'), 10);
         this.setFontSize(size);
       });
+      btn.addEventListener('mousedown', handler);
+      btn.addEventListener('pointerdown', handler);
     });
 
     // Alignment buttons
     this.container.querySelectorAll('.btn-tf-align').forEach(btn => {
-      btn.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
+      const handler = handleAction(() => {
         const align = btn.getAttribute('data-align');
         this.setTextAlign(align);
       });
+      btn.addEventListener('mousedown', handler);
+      btn.addEventListener('pointerdown', handler);
     });
 
     // Color Swatches
     this.container.querySelectorAll('.btn-tf-color').forEach(btn => {
-      btn.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
+      const handler = handleAction(() => {
         const color = btn.getAttribute('data-color');
         this.setTextColor(color);
       });
+      btn.addEventListener('mousedown', handler);
+      btn.addEventListener('pointerdown', handler);
     });
 
     // Custom Color Picker
@@ -135,6 +154,9 @@ export class TextFormattingToolbar {
     if (customColorInput) {
       customColorInput.addEventListener('input', (e) => {
         this.setTextColor(e.target.value);
+        if (this.activeTextarea) {
+          this.activeTextarea.focus();
+        }
       });
     }
   }
