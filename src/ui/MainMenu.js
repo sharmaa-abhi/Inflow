@@ -3,6 +3,7 @@ import { persistenceManager } from '../managers/PersistenceManager';
 import { themeManager } from '../managers/ThemeManager';
 import { historyManager } from '../managers/HistoryManager';
 import { shapeManager } from '../managers/ShapeManager';
+import { SvgShape } from '../shapes/SvgShape';
 
 export class MainMenu {
   /**
@@ -99,9 +100,8 @@ export class MainMenu {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = async (event) => {
+        reader.onload = (event) => {
           const svgText = event.target.result;
-          const { SvgShape } = await import('../shapes/SvgShape');
 
           // Center SVG import in the current viewport
           const stage = this.canvasEngine.stage;
