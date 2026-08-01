@@ -11,6 +11,7 @@ import { shapeManager } from './ShapeManager';
 import { styleManager } from './StyleManager';
 import { historyManager } from './HistoryManager';
 import { generateId } from '../utils/helpers';
+import { getNextFontSize, getPrevFontSize } from '../utils/fontUtils';
 
 class ToolManager {
   constructor() {
@@ -246,8 +247,40 @@ class ToolManager {
           this.duplicateSelected();
           e.preventDefault();
         }
+
+        // Ctrl+Shift+> / Ctrl+Shift+< → Increase / Decrease font size
+        if (e.shiftKey && (e.key === '>' || e.key === '.')) {
+          e.preventDefault();
+          this.changeFontSizeSelected(1);
+        } else if (e.shiftKey && (e.key === '<' || e.key === ',')) {
+          e.preventDefault();
+          this.changeFontSizeSelected(-1);
+        }
       }
     });
+  }
+
+  /**
+   * Changes font size of selected text shapes by stepping through FONT_SIZE_PRESETS.
+   * @param {number} direction — 1 for increase, -1 for decrease
+   */
+  changeFontSizeSelected(direction) {
+    const selected = shapeManager.getSelectedShapes().filter(s => s.type === 'text');
+    if (selected.length === 0) return;
+
+    selected.forEach(shape => {
+      const currentSize = shape.fontSize || 20;
+      const newSize = direction > 0 ? getNextFontSize(currentSize) : getPrevFontSize(currentSize);
+      if (newSize !== currentSize) {
+        shape.updateStyle({ fontSize: newSize });
+      }
+    });
+
+    if (this.canvasEngine) {
+      this.canvasEngine.shapeLayer.batchDraw();
+    }
+    eventBus.emit('shapes-updated');
+    eventBus.emit('selection-changed', shapeManager.getSelectedShapes());
   }
 
   /**

@@ -18,15 +18,14 @@ import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
 import { initMobileUI } from './mobile-ui';
 import { eventBus } from './core/EventBus';
 import { styleManager } from './managers/StyleManager';
+import { preloadAllFonts } from './utils/fontUtils';
 
 const BREAKPOINT = 768;
 
-// Preload custom fonts
-if (document.fonts && document.fonts.ready) {
-  document.fonts.ready.then(() => {
-    console.log('InkFlow: Google Fonts ready.');
-  });
-}
+// Preload all registered font families at startup
+preloadAllFonts().then(() => {
+  console.log('InkFlow: All font families preloaded.');
+});
 
 // Bootstrap InkFlow Application
 document.addEventListener('DOMContentLoaded', () => {
