@@ -192,6 +192,7 @@ class ToolManager {
             this.setTool('pen');
             break;
           case 't':
+          case '8':
             this.setTool('text');
             break;
           case 'k':

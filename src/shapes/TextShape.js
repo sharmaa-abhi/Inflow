@@ -1,33 +1,32 @@
 import Konva from 'konva';
 import { BaseShape } from './BaseShape';
+import { resolveFontFamilyName, preloadFont } from '../utils/fontUtils';
+
+export { resolveFontFamilyName, preloadFont } from '../utils/fontUtils';
 
 export class TextShape extends BaseShape {
   constructor(config = {}) {
     super('text', config);
 
-    this.text = config.text || 'Text';
+    this.text = config.text !== undefined ? config.text : 'Text';
     this.originalText = config.originalText || this.text;
-    this.fontSize = config.fontSize || config.style?.fontSize || 20;
-    this.fontFamily = config.fontFamily || config.style?.fontFamily || 3; // 3 = Architects Daughter in Excalidraw
-    this.textAlign = config.textAlign || config.style?.align || 'left';
+    this.fontSize = config.fontSize || config.style?.fontSize || 24;
+    this.fontFamily = config.fontFamily || config.style?.fontFamily || 'Architects Daughter';
+    this.textAlign = config.textAlign || config.align || config.style?.align || 'left';
     this.verticalAlign = config.verticalAlign || 'top';
     this.lineHeight = config.lineHeight || 1.25;
     this.containerId = config.containerId || null;
+    this.color = config.color || config.strokeColor || config.style?.stroke || '#1e293b';
+    this.strokeColor = this.color;
 
-    let fontName = 'Inter, sans-serif';
-    if (this.fontFamily === 3) {
-      fontName = "'Architects Daughter', cursive";
-    } else if (this.fontFamily === 2) {
-      fontName = 'Georgia, serif';
-    } else if (typeof this.fontFamily === 'string') {
-      fontName = this.fontFamily;
-    }
+    const fontName = resolveFontFamilyName(this.fontFamily);
 
     this.style = {
       ...this.style,
       fontSize: this.fontSize,
       fontFamily: fontName,
       align: this.textAlign,
+      stroke: this.color,
     };
 
     this.konvaNode = new Konva.Text({
@@ -36,59 +35,85 @@ export class TextShape extends BaseShape {
       y: this.y,
       text: this.text,
       fontSize: this.fontSize,
-      fontFamily: this.style.fontFamily || 'Inter',
+      fontFamily: fontName,
       align: this.textAlign,
       verticalAlign: this.verticalAlign,
-      fill: this.strokeColor || '#1e293b',
+      fill: this.color,
       opacity: this.opacity / 100,
       rotation: config.rotation || 0,
       scaleX: config.scaleX || 1,
       scaleY: config.scaleY || 1,
       draggable: true,
       wrap: 'word',
-      width: this.width || 200,
-      height: this.height || 25,
+      width: this.width || 180,
+      height: this.height || 30,
       lineHeight: this.lineHeight,
     });
 
     this.applyStyles();
+    this.ensureFontLoaded();
+  }
+
+  ensureFontLoaded() {
+    const fontName = resolveFontFamilyName(this.fontFamily);
+    preloadFont(fontName, this.fontSize).then(() => {
+      if (this.konvaNode) {
+        this.konvaNode.fontFamily(fontName);
+        this.konvaNode.height(this.konvaNode.getTextHeight());
+        this.konvaNode.getLayer()?.batchDraw();
+      }
+    });
   }
 
   updateStyle(styleUpdates) {
-    if (styleUpdates.fontSize !== undefined) this.fontSize = styleUpdates.fontSize;
+    if (styleUpdates.color !== undefined) {
+      this.color = styleUpdates.color;
+      this.strokeColor = styleUpdates.color;
+      this.style.stroke = styleUpdates.color;
+    }
+    if (styleUpdates.stroke !== undefined) {
+      this.color = styleUpdates.stroke;
+      this.strokeColor = styleUpdates.stroke;
+      this.style.stroke = styleUpdates.stroke;
+    }
+    if (styleUpdates.fontSize !== undefined) {
+      this.fontSize = styleUpdates.fontSize;
+      this.style.fontSize = styleUpdates.fontSize;
+    }
     if (styleUpdates.fontFamily !== undefined) {
       this.fontFamily = styleUpdates.fontFamily;
-      let fontName = styleUpdates.fontFamily;
-      if (styleUpdates.fontFamily === 3) {
-        fontName = "'Architects Daughter', cursive";
-      } else if (styleUpdates.fontFamily === 2) {
-        fontName = 'Georgia, serif';
-      }
-      this.style.fontFamily = fontName;
+      this.style.fontFamily = resolveFontFamilyName(styleUpdates.fontFamily);
     }
-    if (styleUpdates.align !== undefined) {
-      this.textAlign = styleUpdates.align;
-      this.style.align = styleUpdates.align;
+    if (styleUpdates.align !== undefined || styleUpdates.textAlign !== undefined) {
+      const alignVal = styleUpdates.textAlign || styleUpdates.align;
+      this.textAlign = alignVal;
+      this.style.align = alignVal;
     }
 
     super.updateStyle(styleUpdates);
     
-    // Recalculate text height after font size / font family modifications
     if (this.konvaNode) {
+      const fontName = resolveFontFamilyName(this.fontFamily);
+      this.konvaNode.setAttrs({
+        fontSize: this.fontSize,
+        fontFamily: fontName,
+        align: this.textAlign,
+        fill: this.color,
+      });
       this.konvaNode.height(this.konvaNode.getTextHeight());
+      this.ensureFontLoaded();
     }
   }
 
   applyStyles() {
     if (!this.konvaNode) return;
-    
-    // Apply text-specific styles
+    const fontName = resolveFontFamilyName(this.fontFamily);
     this.konvaNode.setAttrs({
       fontSize: this.fontSize,
-      fontFamily: this.style.fontFamily || 'Inter',
+      fontFamily: fontName,
       align: this.textAlign,
       verticalAlign: this.verticalAlign,
-      fill: this.strokeColor || '#1e293b',
+      fill: this.color || this.strokeColor || '#1e293b',
       opacity: this.opacity / 100,
       lineHeight: this.lineHeight,
     });
@@ -120,9 +145,21 @@ export class TextShape extends BaseShape {
       this.fontSize = geom.fontSize;
       this.konvaNode.fontSize(geom.fontSize);
     }
+    if (geom.fontFamily !== undefined) {
+      this.fontFamily = geom.fontFamily;
+      this.konvaNode.fontFamily(resolveFontFamilyName(geom.fontFamily));
+    }
+    if (geom.color !== undefined) {
+      this.color = geom.color;
+      this.strokeColor = geom.color;
+      this.konvaNode.fill(geom.color);
+    }
     if (geom.textAlign !== undefined) {
       this.textAlign = geom.textAlign;
       this.konvaNode.align(geom.textAlign);
+    }
+    if (this.konvaNode) {
+      this.konvaNode.height(this.konvaNode.getTextHeight());
     }
   }
 
@@ -134,16 +171,14 @@ export class TextShape extends BaseShape {
       height: this.height,
       text: this.text,
       fontSize: this.fontSize,
+      fontFamily: this.fontFamily,
+      color: this.color,
       textAlign: this.textAlign,
     };
   }
 
-  /**
-   * BUG-004 fix: Text shapes stay visible in sketchy mode — no rough rendering for text.
-   */
   applyRoughMode(isRough) {
     this._roughMode = isRough;
-    // Text is always rendered crisp; destroy any existing rough image node
     if (this._roughImageNode) {
       this._roughImageNode.destroy();
       this._roughImageNode = null;
@@ -155,11 +190,18 @@ export class TextShape extends BaseShape {
     const baseData = super.serialize();
     return {
       ...baseData,
+      id: this.id,
+      type: 'text',
+      x: this.x,
+      y: this.y,
       text: this.text,
-      originalText: this.originalText,
-      fontSize: this.fontSize,
       fontFamily: this.fontFamily,
+      fontSize: this.fontSize,
+      color: this.color || this.strokeColor,
       textAlign: this.textAlign,
+      width: this.width,
+      height: this.height,
+      originalText: this.originalText,
       verticalAlign: this.verticalAlign,
       lineHeight: this.lineHeight,
       containerId: this.containerId,

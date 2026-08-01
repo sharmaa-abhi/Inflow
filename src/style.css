@@ -1638,3 +1638,55 @@ body.dark .floating-props-popup {
     transform: translateY(100%) !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* TEXT TOOL & FLOATING FORMATTING TOOLBAR STYLES                          */
+/* ═══════════════════════════════════════════════════════════════════════ */
+
+/* Font Family Utility Classes */
+.font-handwritten {
+  font-family: 'Architects Daughter', cursive, sans-serif !important;
+}
+
+.font-sans {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.font-mono {
+  font-family: 'Fira Code', monospace !important;
+}
+
+/* Floating Textarea Custom Focus & Smooth Appearance */
+.canvas-textarea {
+  position: fixed;
+  border: none;
+  padding: 2px 4px;
+  margin: 0;
+  background: transparent;
+  outline: 1.5px dashed #6366f1 !important;
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15) !important;
+  resize: none;
+  overflow: hidden;
+  white-space: pre;
+  word-wrap: normal;
+  z-index: 1000;
+  line-height: 1.25;
+}
+
+/* Floating Text Formatting Toolbar */
+.text-formatting-toolbar {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  animation: fadeInTf 0.15s ease-out;
+}
+
+@keyframes fadeInTf {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

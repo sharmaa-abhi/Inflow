@@ -55,6 +55,9 @@ export class HandTool extends BaseTool {
 
     this.lastPos = { x: screenPos.x, y: screenPos.y };
     this.canvasEngine.batchDrawAll();
+    if (this.canvasEngine.emitViewportChanged) {
+      this.canvasEngine.emitViewportChanged();
+    }
   }
 
   onPointerUp() {
