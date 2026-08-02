@@ -3,8 +3,7 @@ import { BaseShape } from './BaseShape';
 import { resolveFontFamily, resolveFontEntry, preloadFont, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY_ID } from '../utils/fontUtils';
 
 // Backward-compat re-exports
-const resolveFontFamilyName = resolveFontFamily;
-export { resolveFontFamilyName, preloadFont };
+export { resolveFontFamily as resolveFontFamilyName, preloadFont } from '../utils/fontUtils';
 
 /**
  * TextShape — Full-featured text element for the InkFlow canvas.

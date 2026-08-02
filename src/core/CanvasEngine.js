@@ -292,36 +292,54 @@ export class CanvasEngine {
 
   handleWheelZoom(e) {
     e.evt.preventDefault();
+    const evt = e.evt;
     const stage = this.stage;
-    const oldScale = stage.scaleX();
-    const pointer = stage.getPointerPosition();
-    if (!pointer) return;
 
-    // Determine zoom scale factor
-    // Supports standard wheel zoom (mostly pans or small zooms) and Ctrl + Wheel zoom
-    let zoomAmount = this.zoomFactor;
-    if (e.evt.deltaY > 0) {
-      zoomAmount = 1 / this.zoomFactor;
+    // Ctrl + Wheel (or Pinch trackpad gesture) -> Zoom
+    if (evt.ctrlKey || evt.metaKey) {
+      const oldScale = stage.scaleX();
+      const pointer = stage.getPointerPosition();
+      if (!pointer) return;
+
+      let zoomAmount = this.zoomFactor;
+      if (evt.deltaY > 0) {
+        zoomAmount = 1 / this.zoomFactor;
+      }
+
+      let newScale = oldScale * zoomAmount;
+      newScale = Math.max(this.minZoom, Math.min(this.maxZoom, newScale));
+
+      const mousePointTo = {
+        x: (pointer.x - stage.x()) / oldScale,
+        y: (pointer.y - stage.y()) / oldScale,
+      };
+
+      stage.scale({ x: newScale, y: newScale });
+
+      const newPos = {
+        x: pointer.x - mousePointTo.x * newScale,
+        y: pointer.y - mousePointTo.y * newScale,
+      };
+      stage.position(newPos);
+      stage.batchDraw();
+
+      this.emitViewportChanged();
+      return;
     }
 
-    let newScale = oldScale * zoomAmount;
-    newScale = Math.max(this.minZoom, Math.min(this.maxZoom, newScale));
+    // Shift + Wheel -> Horizontal Scroll / Pan
+    if (evt.shiftKey) {
+      const dx = evt.deltaY || evt.deltaX;
+      stage.x(stage.x() - dx);
+      stage.batchDraw();
+      this.emitViewportChanged();
+      return;
+    }
 
-    // Scale stage around the pointer position
-    const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
-    };
-
-    stage.scale({ x: newScale, y: newScale });
-
-    const newPos = {
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
-    };
-    stage.position(newPos);
+    // Standard Mouse Wheel -> Vertical Scroll / Pan
+    const dy = evt.deltaY;
+    stage.y(stage.y() - dy);
     stage.batchDraw();
-
     this.emitViewportChanged();
   }
 

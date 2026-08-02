@@ -15,6 +15,7 @@ export class Toolbar {
       'tool-arrow': 'arrow',
       'tool-pen': 'pen',
       'tool-text': 'text',
+      'tool-eraser': 'eraser',
       'tool-laser': 'laser',
       'tool-sticky': 'sticky',
       'tool-image': 'image',
@@ -103,9 +104,9 @@ export class Toolbar {
   updateActiveButton(activeType) {
     Object.entries(this.domElements).forEach(([type, el]) => {
       if (type === activeType) {
-        el.classList.add('btn-active');
+        el.classList.add('active-tool', 'btn-active');
       } else {
-        el.classList.remove('btn-active');
+        el.classList.remove('active-tool', 'btn-active');
       }
     });
   }

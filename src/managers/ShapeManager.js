@@ -234,6 +234,70 @@ class ShapeManager {
       .filter(Boolean);
   }
 
+  selectAll() {
+    const allIds = Array.from(this.shapes.keys());
+    this.select(allIds);
+  }
+
+  cutSelected() {
+    const selected = this.getSelectedShapes();
+    if (selected.length === 0) return;
+    this.clipboard = selected.map(s => s.serialize());
+
+    const list = selected.map(s => ({ id: s.id, data: s.serialize() }));
+    list.forEach(item => {
+      const s = this.getShape(item.id);
+      this.removeShape(item.id);
+      if (s && s.destroy) s.destroy();
+    });
+
+    eventBus.emit('shapes-updated');
+  }
+
+  groupSelected() {
+    const selected = this.getSelectedShapes();
+    if (selected.length <= 1) return null;
+
+    const groupId = 'group-' + Date.now();
+    selected.forEach(s => {
+      s.groupId = groupId;
+    });
+
+    eventBus.emit('shapes-updated');
+    return groupId;
+  }
+
+  ungroupSelected() {
+    const selected = this.getSelectedShapes();
+    if (selected.length === 0) return;
+
+    selected.forEach(s => {
+      s.groupId = null;
+    });
+
+    eventBus.emit('shapes-updated');
+  }
+
+  searchShapes(query) {
+    if (!query || !query.trim()) return [];
+    const q = query.toLowerCase().trim();
+    const results = [];
+
+    this.getAllShapes().forEach(shape => {
+      let textContent = '';
+      if (shape.type === 'text' && shape.text) {
+        textContent = shape.text;
+      } else if (shape.labelText) {
+        textContent = shape.labelText;
+      }
+      if (textContent.toLowerCase().includes(q)) {
+        results.push(shape);
+      }
+    });
+
+    return results;
+  }
+
   // Instantiates a new shape object from its serialized JSON state
   recreateShape(json) {
     let shape;

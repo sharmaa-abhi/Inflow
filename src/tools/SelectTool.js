@@ -333,9 +333,18 @@ export class SelectTool extends BaseTool {
     this.initialDragPositions = new Map();
 
     this.canvasEngine.stage.on('dragstart', (e) => {
+      const evt = e.evt || window.event || {};
+      // Alt + Drag -> Duplicate on drag start
+      if (evt.altKey) {
+        const toolMgr = window.toolManager;
+        if (toolMgr && typeof toolMgr.duplicateSelected === 'function') {
+          toolMgr.duplicateSelected();
+        }
+      }
+
       const draggedNode = e.target;
       const selectedShapes = this.shapeManager.getSelectedShapes();
-      
+
       this.draggedShapeIds = selectedShapes.map(s => s.id);
       this.initialDragPositions.clear();
 
@@ -350,18 +359,30 @@ export class SelectTool extends BaseTool {
     this.canvasEngine.stage.on('dragmove', (e) => {
       const draggedNode = e.target;
       const shapeId = draggedNode.id();
-      
+      const evt = e.evt || window.event || {};
+
       if (this.initialDragPositions.has(shapeId)) {
         const initial = this.initialDragPositions.get(shapeId);
-        
-        // Single shape snapping support
+
+        // Single shape snapping support (disabled when Ctrl key is held down)
         const selectedShapes = this.shapeManager.getSelectedShapes();
-        if (selectedShapes.length === 1) {
+        if (selectedShapes.length === 1 && !evt.ctrlKey && !evt.metaKey) {
           snapManager.snap(this.canvasEngine, draggedNode);
         }
 
-        const dx = draggedNode.x() - initial.x;
-        const dy = draggedNode.y() - initial.y;
+        let dx = draggedNode.x() - initial.x;
+        let dy = draggedNode.y() - initial.y;
+
+        // Shift + Drag -> Constrain movement to single axis (horizontal or vertical)
+        if (evt.shiftKey) {
+          if (Math.abs(dx) > Math.abs(dy)) {
+            dy = 0;
+            draggedNode.y(initial.y);
+          } else {
+            dx = 0;
+            draggedNode.x(initial.x);
+          }
+        }
 
         // Move all other selected nodes by the same delta
         selectedShapes.forEach(shape => {
