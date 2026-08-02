@@ -390,7 +390,7 @@ export class PropertiesPanel {
     // Text style sync
     if (primary.type === 'text') {
       if (this.inpFontSize) this.inpFontSize.value = style.fontSize || 20;
-      if (this.inpFontFamily) this.inpFontFamily.value = style.fontFamily || 'Inter';
+      if (this.inpFontFamily) this.inpFontFamily.value = style.fontFamily || 'Virgil';
       this.syncGroupButtonsActive(this.textAlignGroup, style.align || 'left');
     }
 
