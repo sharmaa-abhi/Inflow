@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { eventBus } from './EventBus';
+import { getWatercolorPaperPattern } from '../utils/watercolorPaper';
 
 export class CanvasEngine {
   constructor(containerId) {
@@ -14,7 +15,7 @@ export class CanvasEngine {
     this.zoomFactor = 1.1;
     this.gridSpacing = 30; // base spacing in px
 
-    this.gridType = 'dot-grid'; // 'plain', 'dot-grid', 'square-grid'
+    this.gridType = 'watercolor-paper'; // 'plain', 'dot-grid', 'square-grid', 'watercolor-paper'
     this.isPanning = false;
     this.lastPointerPos = { x: 0, y: 0 };
     this.isSpacePressed = false;
@@ -82,6 +83,16 @@ export class CanvasEngine {
           return;
         }
 
+        if (type === 'watercolor-paper') {
+          const pattern = getWatercolorPaperPattern(ctx);
+          if (pattern) {
+            ctx.fillStyle = pattern;
+            ctx.fillRect(0, 0, width, height);
+          }
+          ctx.restore();
+          return;
+        }
+
         const isDark = document.body.classList.contains('dark');
         const gridColor = isDark ? '#1a1a1a' : '#e2e8f0'; // very subtle dark line / slate-200
         const dotColor = isDark ? '#333333' : '#cbd5e1';  // subtle dark dot / slate-300
@@ -127,7 +138,7 @@ export class CanvasEngine {
   }
 
   setGridType(type) {
-    if (['plain', 'dot-grid', 'square-grid'].includes(type)) {
+    if (['plain', 'dot-grid', 'square-grid', 'watercolor-paper'].includes(type)) {
       this.gridType = type;
       this.backgroundLayer.batchDraw();
       eventBus.emit('grid-changed', type);

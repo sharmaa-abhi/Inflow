@@ -1,9 +1,10 @@
 import Konva from 'konva';
 import { BaseShape } from './BaseShape';
-import { resolveFontFamily, resolveFontEntry, preloadFont, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY_ID } from '../utils/fontUtils';
+import { resolveFontFamily, resolveFontEntry, preloadFont as fontUtilsPreload, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY_ID } from '../utils/fontUtils';
 
 // Backward-compat re-exports
-export { resolveFontFamily as resolveFontFamilyName, preloadFont } from '../utils/fontUtils';
+export const resolveFontFamilyName = resolveFontFamily;
+export const preloadFont = fontUtilsPreload;
 
 /**
  * TextShape — Full-featured text element for the InkFlow canvas.
