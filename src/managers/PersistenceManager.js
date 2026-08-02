@@ -501,6 +501,130 @@ class PersistenceManager {
     }, 0);
   }
 
+  exportSVG() {
+    if (!this.canvasEngine) return;
+    const shapes = shapeManager.getAllShapes();
+    
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    if (shapes.length === 0) {
+      minX = 0; minY = 0; maxX = 800; maxY = 600;
+    } else {
+      shapes.forEach(s => {
+        const geom = s.getGeometry();
+        minX = Math.min(minX, geom.x);
+        minY = Math.min(minY, geom.y);
+        maxX = Math.max(maxX, geom.x + (geom.width || 100));
+        maxY = Math.max(maxY, geom.y + (geom.height || 100));
+      });
+      minX -= 40; minY -= 40; maxX += 40; maxY += 40;
+    }
+
+    const width = Math.max(400, maxX - minX);
+    const height = Math.max(300, maxY - minY);
+
+    let svgElements = '';
+    shapes.forEach(s => {
+      if (typeof s.toSVGElement === 'function') {
+        svgElements += '  ' + s.toSVGElement() + '\n';
+      } else {
+        const g = s.getGeometry();
+        const fill = s.fillColor || 'transparent';
+        const stroke = s.color || s.strokeColor || '#1e293b';
+        svgElements += `  <rect x="${g.x}" y="${g.y}" width="${g.width || 50}" height="${g.height || 50}" fill="${fill}" stroke="${stroke}" stroke-width="${s.strokeWidth || 2}" />\n`;
+      }
+    });
+
+    const fontStyleImports = `@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Caveat:wght@400;700&family=Fira+Code:wght@400;600&family=Inter:wght@400;600;700&display=swap');`;
+
+    const svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}" width="${width}" height="${height}">
+  <style>
+    ${fontStyleImports}
+    text { font-family: Inter, sans-serif; }
+  </style>
+  <rect x="${minX}" y="${minY}" width="${width}" height="${height}" fill="#ffffff" />
+${svgElements}</svg>`;
+
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `inkflow-vector-${Date.now()}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 0);
+  }
+
+  exportPDF() {
+    if (!this.canvasEngine) return;
+    const shapes = shapeManager.getAllShapes();
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    if (shapes.length === 0) {
+      minX = 0; minY = 0; maxX = 800; maxY = 600;
+    } else {
+      shapes.forEach(s => {
+        const geom = s.getGeometry();
+        minX = Math.min(minX, geom.x);
+        minY = Math.min(minY, geom.y);
+        maxX = Math.max(maxX, geom.x + (geom.width || 100));
+        maxY = Math.max(maxY, geom.y + (geom.height || 100));
+      });
+      minX -= 40; minY -= 40; maxX += 40; maxY += 40;
+    }
+
+    const width = Math.max(400, maxX - minX);
+    const height = Math.max(300, maxY - minY);
+
+    let svgElements = '';
+    shapes.forEach(s => {
+      if (typeof s.toSVGElement === 'function') {
+        svgElements += '  ' + s.toSVGElement() + '\n';
+      } else {
+        const g = s.getGeometry();
+        const fill = s.fillColor || 'transparent';
+        const stroke = s.color || s.strokeColor || '#1e293b';
+        svgElements += `  <rect x="${g.x}" y="${g.y}" width="${g.width || 50}" height="${g.height || 50}" fill="${fill}" stroke="${stroke}" stroke-width="${s.strokeWidth || 2}" />\n`;
+      }
+    });
+
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+      alert('Please allow popups to export PDF.');
+      return;
+    }
+
+    printWin.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <title>InkFlow Searchable Document PDF</title>
+  <link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Caveat:wght@400;700&family=Fira+Code:wght@400;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    @page { size: auto; margin: 0; }
+    body { margin: 0; padding: 20px; display: flex; justify-content: center; background: #fff; }
+    svg { width: 100%; max-width: ${width}px; height: auto; }
+  </style>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="${minX} ${minY} ${width} ${height}">
+    <rect x="${minX}" y="${minY}" width="${width}" height="${height}" fill="#ffffff" />
+    ${svgElements}
+  </svg>
+  <script>
+    window.onload = () => {
+      setTimeout(() => {
+        window.print();
+        window.close();
+      }, 300);
+    };
+  </script>
+</body>
+</html>`);
+    printWin.document.close();
+  }
+
   initEventListeners() {
     // Shortcuts: Ctrl+S to Export JSON, Ctrl+Shift+E to Export PNG
     window.addEventListener('keydown', (e) => {

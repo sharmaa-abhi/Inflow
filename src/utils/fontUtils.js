@@ -28,7 +28,7 @@ export const FONT_FAMILIES = [
   },
   {
     id: 3,
-    name: 'Cascadia',
+    name: 'Cascadia Code',
     family: '"Cascadia Code", "Fira Code", Consolas, monospace',
     category: 'monospace',
     preview: '"Fira Code", Consolas, monospace',
@@ -75,7 +75,7 @@ export function getFontById(id) {
  * @returns {Object|undefined}
  */
 export function getFontByName(name) {
-  const lower = (name || '').toLowerCase();
+  const lower = (name || '').toLowerCase().trim();
   return FONT_FAMILIES.find(f => f.name.toLowerCase() === lower);
 }
 
@@ -85,13 +85,17 @@ const LEGACY_ALIASES = {
   'handwritten': 1,
   'hand': 1,
   'caveat': 1,
+  'virgil': 1,
   'sans': 2,
   'arial': 2,
+  'helvetica': 2,
   'code': 3,
   'mono': 3,
   'monospace': 3,
   'fira code': 3,
   'consolas': 3,
+  'cascadia': 3,
+  'cascadia code': 3,
   'inter': 4,
   'geist': 5,
 };

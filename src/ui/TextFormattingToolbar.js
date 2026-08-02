@@ -90,6 +90,11 @@ export class TextFormattingToolbar {
         <span style="text-decoration:underline">U</span>
       </button>
 
+      <!-- Strikethrough -->
+      <button class="tt-btn tt-toggle" data-action="toggle-strikethrough" title="Strikethrough">
+        <span style="text-decoration:line-through">S</span>
+      </button>
+
       <div class="tt-divider"></div>
 
       <!-- Text Color -->
@@ -397,6 +402,10 @@ export class TextFormattingToolbar {
         this.toggleUnderline();
         this.refocusTextarea();
         break;
+      case 'toggle-strikethrough':
+        this.toggleStrikethrough();
+        this.refocusTextarea();
+        break;
     }
   }
 
@@ -449,6 +458,12 @@ export class TextFormattingToolbar {
   toggleUnderline() {
     const isUnderline = this.currentTextDecoration === 'underline';
     this.currentTextDecoration = isUnderline ? 'none' : 'underline';
+    this.applyUpdates({ textDecoration: this.currentTextDecoration });
+  }
+
+  toggleStrikethrough() {
+    const isStrikethrough = this.currentTextDecoration === 'line-through';
+    this.currentTextDecoration = isStrikethrough ? 'none' : 'line-through';
     this.applyUpdates({ textDecoration: this.currentTextDecoration });
   }
 
@@ -669,6 +684,10 @@ export class TextFormattingToolbar {
     // Underline active state
     const underlineBtn = this.container.querySelector('[data-action="toggle-underline"]');
     if (underlineBtn) underlineBtn.classList.toggle('active', this.currentTextDecoration === 'underline');
+
+    // Strikethrough active state
+    const strikeBtn = this.container.querySelector('[data-action="toggle-strikethrough"]');
+    if (strikeBtn) strikeBtn.classList.toggle('active', this.currentTextDecoration === 'line-through');
 
     // Color swatch
     const colorSwatch = this.container.querySelector('.tt-color-swatch');

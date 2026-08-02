@@ -23,6 +23,8 @@ export class MainMenu {
     this.btnImportSvg = document.getElementById('menu-btn-import-svg');
     this.btnExportJson = document.getElementById('menu-btn-export-json');
     this.btnExportPng = document.getElementById('menu-btn-export-png');
+    this.btnExportSvg = document.getElementById('menu-btn-export-svg');
+    this.btnExportPdf = document.getElementById('menu-btn-export-pdf');
     this.btnClearCanvas = document.getElementById('menu-btn-clear');
     this.btnThemeToggle = document.getElementById('menu-btn-theme');
     this.gridSelect = document.getElementById('menu-grid-select');
@@ -154,6 +156,20 @@ export class MainMenu {
     if (this.btnExportPng) {
       this.btnExportPng.addEventListener('click', () => {
         persistenceManager.exportPNG(this.canvasEngine);
+        this.close();
+      });
+    }
+
+    if (this.btnExportSvg) {
+      this.btnExportSvg.addEventListener('click', () => {
+        persistenceManager.exportSVG(this.canvasEngine);
+        this.close();
+      });
+    }
+
+    if (this.btnExportPdf) {
+      this.btnExportPdf.addEventListener('click', () => {
+        persistenceManager.exportPDF(this.canvasEngine);
         this.close();
       });
     }
