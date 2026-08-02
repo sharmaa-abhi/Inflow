@@ -1,10 +1,10 @@
 import Konva from 'konva';
 import { BaseShape } from './BaseShape';
-import { resolveFontFamily, resolveFontEntry, preloadFont, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY_ID } from '../utils/fontUtils';
+import { resolveFontFamily, resolveFontEntry, preloadFont as fontUtilsPreload, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY_ID } from '../utils/fontUtils';
 
 // Backward-compat re-exports
-const resolveFontFamilyName = resolveFontFamily;
-export { resolveFontFamilyName, preloadFont };
+export const resolveFontFamilyName = resolveFontFamily;
+export const preloadFont = fontUtilsPreload;
 
 /**
  * TextShape — Full-featured text element for the InkFlow canvas.
@@ -410,5 +410,40 @@ export class TextShape extends BaseShape {
       textWrap: this.textWrap,
       containerId: this.containerId,
     };
+  }
+
+  /**
+   * Generates editable SVG representation for vector exports.
+   * @returns {string} SVG text element string
+   */
+  toSVGElement() {
+    const fontFamilyCSS = resolveFontFamily(this.fontFamily).replace(/"/g, '&quot;');
+    const lines = (this.text || '').split('\n');
+    const lineH = this.fontSize * (this.lineHeight || 1.35);
+    const opacity = (this.opacity ?? 100) / 100;
+
+    let textAnchor = 'start';
+    let xOffset = this.x;
+    if (this.textAlign === 'center') {
+      textAnchor = 'middle';
+      xOffset = this.x + (this.width || 0) / 2;
+    } else if (this.textAlign === 'right') {
+      textAnchor = 'end';
+      xOffset = this.x + (this.width || 0);
+    }
+
+    const tspans = lines.map((line, idx) => {
+      const dy = idx === 0 ? this.fontSize * 0.8 : lineH;
+      const escaped = (line || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return `<tspan x="${xOffset}" dy="${dy}">${escaped}</tspan>`;
+    }).join('');
+
+    const transform = this.angle ? ` transform="rotate(${this.angle} ${this.x} ${this.y})"` : '';
+    const styleAttr = `font-family:${fontFamilyCSS};font-size:${this.fontSize}px;font-weight:${this.fontWeight};font-style:${this.fontStyle};text-decoration:${this.textDecoration};fill:${this.color};opacity:${opacity};letter-spacing:${this.letterSpacing}px;word-spacing:${this.wordSpacing}px;`;
+
+    return `<text x="${xOffset}" y="${this.y}" text-anchor="${textAnchor}" style="${styleAttr}"${transform}>${tspans}</text>`;
   }
 }

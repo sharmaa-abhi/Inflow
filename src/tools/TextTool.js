@@ -1,6 +1,6 @@
 import { BaseTool } from './BaseTool';
 import { TextShape } from '../shapes/TextShape';
-import { resolveFontFamily, resolveFontEntry, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY_ID } from '../utils/fontUtils';
+import { resolveFontFamily, resolveFontEntry, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY_ID, getNextFontSize, getPrevFontSize } from '../utils/fontUtils';
 import { eventBus } from '../core/EventBus';
 import { historyManager } from '../managers/HistoryManager';
 
@@ -15,6 +15,7 @@ import { historyManager } from '../managers/HistoryManager';
  *  - Ctrl+Enter / Shift+Enter → inserts newline
  *  - Escape → cancels editing (reverts to original)
  *  - Ctrl+B / Ctrl+I / Ctrl+U → toggle bold/italic/underline
+ *  - Ctrl+Shift+> / Ctrl+Shift+< → increase/decrease font size
  *  - Live preview updates canvas as you type
  *  - Auto-resizing textarea (no scrollbars)
  *  - Pixel-perfect font syncing between textarea and canvas
@@ -134,7 +135,7 @@ export class TextTool extends BaseTool {
     this.editingTextarea = textarea;
     textarea.className = 'text-editor-overlay';
     textarea.value = isNew ? '' : textShape.text;
-    textarea.placeholder = 'Type something...';
+    textarea.placeholder = 'Double-click or press Enter to edit text';
     textarea.spellcheck = false;
     textarea.autocomplete = 'off';
 
@@ -168,7 +169,6 @@ export class TextTool extends BaseTool {
       const text = this.editingTextarea.value;
       this.activeEditingShape.text = text;
       this.activeEditingShape.konvaNode.text(text || ' ');
-      // Don't show the node yet — it's hidden while editing
     };
     textarea.addEventListener('input', this._onInput);
     this.autoResize();
@@ -218,8 +218,6 @@ export class TextTool extends BaseTool {
 
       // Ctrl+Enter or Shift+Enter → insert newline
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey || e.shiftKey)) {
-        // Allow default behavior (textarea newline insertion)
-        // But we need to manually handle since we prevent default above
         e.preventDefault();
         const ta = this.editingTextarea;
         const start = ta.selectionStart;
@@ -241,7 +239,7 @@ export class TextTool extends BaseTool {
       }
 
       // Ctrl+B → toggle bold
-      if (e.key === 'b' && (e.ctrlKey || e.metaKey)) {
+      if (e.key.toLowerCase() === 'b' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         const shape = this.activeEditingShape;
         const newWeight = shape.fontWeight >= 700 ? 400 : 700;
@@ -253,7 +251,7 @@ export class TextTool extends BaseTool {
       }
 
       // Ctrl+I → toggle italic
-      if (e.key === 'i' && (e.ctrlKey || e.metaKey)) {
+      if (e.key.toLowerCase() === 'i' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         const shape = this.activeEditingShape;
         const newStyle = shape.fontStyle === 'italic' ? 'normal' : 'italic';
@@ -265,13 +263,37 @@ export class TextTool extends BaseTool {
       }
 
       // Ctrl+U → toggle underline
-      if (e.key === 'u' && (e.ctrlKey || e.metaKey)) {
+      if (e.key.toLowerCase() === 'u' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         const shape = this.activeEditingShape;
         const newDeco = shape.textDecoration === 'underline' ? 'none' : 'underline';
         shape.updateStyle({ textDecoration: newDeco });
         this.syncOverlayStyles();
         eventBus.emit('text-style-changed', { textDecoration: newDeco });
+        return;
+      }
+
+      // Ctrl+Shift+> -> Increase font size
+      if ((e.key === '>' || e.key === '.') && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+        e.preventDefault();
+        const shape = this.activeEditingShape;
+        const newSize = getNextFontSize(shape.fontSize);
+        shape.updateStyle({ fontSize: newSize });
+        this.syncOverlayStyles();
+        this.autoResize();
+        eventBus.emit('text-style-changed', { fontSize: newSize });
+        return;
+      }
+
+      // Ctrl+Shift+< -> Decrease font size
+      if ((e.key === '<' || e.key === ',') && (e.ctrlKey || e.metaKey) && e.shiftKey) {
+        e.preventDefault();
+        const shape = this.activeEditingShape;
+        const newSize = getPrevFontSize(shape.fontSize);
+        shape.updateStyle({ fontSize: newSize });
+        this.syncOverlayStyles();
+        this.autoResize();
+        eventBus.emit('text-style-changed', { fontSize: newSize });
         return;
       }
     };

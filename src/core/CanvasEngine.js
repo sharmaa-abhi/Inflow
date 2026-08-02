@@ -1,5 +1,6 @@
 import Konva from 'konva';
 import { eventBus } from './EventBus';
+import { getWatercolorPaperPattern } from '../utils/watercolorPaper';
 
 export class CanvasEngine {
   constructor(containerId) {
@@ -14,7 +15,7 @@ export class CanvasEngine {
     this.zoomFactor = 1.1;
     this.gridSpacing = 30; // base spacing in px
 
-    this.gridType = 'dot-grid'; // 'plain', 'dot-grid', 'square-grid'
+    this.gridType = 'watercolor-paper'; // 'plain', 'dot-grid', 'square-grid', 'watercolor-paper'
     this.isPanning = false;
     this.lastPointerPos = { x: 0, y: 0 };
     this.isSpacePressed = false;
@@ -82,6 +83,16 @@ export class CanvasEngine {
           return;
         }
 
+        if (type === 'watercolor-paper') {
+          const pattern = getWatercolorPaperPattern(ctx);
+          if (pattern) {
+            ctx.fillStyle = pattern;
+            ctx.fillRect(0, 0, width, height);
+          }
+          ctx.restore();
+          return;
+        }
+
         const isDark = document.body.classList.contains('dark');
         const gridColor = isDark ? '#1a1a1a' : '#e2e8f0'; // very subtle dark line / slate-200
         const dotColor = isDark ? '#333333' : '#cbd5e1';  // subtle dark dot / slate-300
@@ -127,7 +138,7 @@ export class CanvasEngine {
   }
 
   setGridType(type) {
-    if (['plain', 'dot-grid', 'square-grid'].includes(type)) {
+    if (['plain', 'dot-grid', 'square-grid', 'watercolor-paper'].includes(type)) {
       this.gridType = type;
       this.backgroundLayer.batchDraw();
       eventBus.emit('grid-changed', type);
@@ -292,36 +303,54 @@ export class CanvasEngine {
 
   handleWheelZoom(e) {
     e.evt.preventDefault();
+    const evt = e.evt;
     const stage = this.stage;
-    const oldScale = stage.scaleX();
-    const pointer = stage.getPointerPosition();
-    if (!pointer) return;
 
-    // Determine zoom scale factor
-    // Supports standard wheel zoom (mostly pans or small zooms) and Ctrl + Wheel zoom
-    let zoomAmount = this.zoomFactor;
-    if (e.evt.deltaY > 0) {
-      zoomAmount = 1 / this.zoomFactor;
+    // Ctrl + Wheel (or Pinch trackpad gesture) -> Zoom
+    if (evt.ctrlKey || evt.metaKey) {
+      const oldScale = stage.scaleX();
+      const pointer = stage.getPointerPosition();
+      if (!pointer) return;
+
+      let zoomAmount = this.zoomFactor;
+      if (evt.deltaY > 0) {
+        zoomAmount = 1 / this.zoomFactor;
+      }
+
+      let newScale = oldScale * zoomAmount;
+      newScale = Math.max(this.minZoom, Math.min(this.maxZoom, newScale));
+
+      const mousePointTo = {
+        x: (pointer.x - stage.x()) / oldScale,
+        y: (pointer.y - stage.y()) / oldScale,
+      };
+
+      stage.scale({ x: newScale, y: newScale });
+
+      const newPos = {
+        x: pointer.x - mousePointTo.x * newScale,
+        y: pointer.y - mousePointTo.y * newScale,
+      };
+      stage.position(newPos);
+      stage.batchDraw();
+
+      this.emitViewportChanged();
+      return;
     }
 
-    let newScale = oldScale * zoomAmount;
-    newScale = Math.max(this.minZoom, Math.min(this.maxZoom, newScale));
+    // Shift + Wheel -> Horizontal Scroll / Pan
+    if (evt.shiftKey) {
+      const dx = evt.deltaY || evt.deltaX;
+      stage.x(stage.x() - dx);
+      stage.batchDraw();
+      this.emitViewportChanged();
+      return;
+    }
 
-    // Scale stage around the pointer position
-    const mousePointTo = {
-      x: (pointer.x - stage.x()) / oldScale,
-      y: (pointer.y - stage.y()) / oldScale,
-    };
-
-    stage.scale({ x: newScale, y: newScale });
-
-    const newPos = {
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
-    };
-    stage.position(newPos);
+    // Standard Mouse Wheel -> Vertical Scroll / Pan
+    const dy = evt.deltaY;
+    stage.y(stage.y() - dy);
     stage.batchDraw();
-
     this.emitViewportChanged();
   }
 

@@ -18,10 +18,14 @@ export class MainMenu {
 
     // Menu Actions
     this.btnLoadArchitecture = document.getElementById('menu-btn-architecture');
+    this.btnLoadPhysics = document.getElementById('menu-btn-physics');
     this.btnImportJson = document.getElementById('menu-btn-import-json');
     this.btnImportSvg = document.getElementById('menu-btn-import-svg');
     this.btnExportJson = document.getElementById('menu-btn-export-json');
     this.btnExportPng = document.getElementById('menu-btn-export-png');
+    this.btnExportSvg = document.getElementById('menu-btn-export-svg');
+    this.btnExportPdf = document.getElementById('menu-btn-export-pdf');
+    this.btnShortcuts = document.getElementById('menu-btn-shortcuts');
     this.btnClearCanvas = document.getElementById('menu-btn-clear');
     this.btnThemeToggle = document.getElementById('menu-btn-theme');
     this.gridSelect = document.getElementById('menu-grid-select');
@@ -70,6 +74,13 @@ export class MainMenu {
     if (this.btnLoadArchitecture) {
       this.btnLoadArchitecture.addEventListener('click', () => {
         persistenceManager.loadDefaultArchitecture();
+        this.close();
+      });
+    }
+
+    if (this.btnLoadPhysics) {
+      this.btnLoadPhysics.addEventListener('click', () => {
+        persistenceManager.loadPhysicsDiagram();
         this.close();
       });
     }
@@ -146,6 +157,27 @@ export class MainMenu {
     if (this.btnExportPng) {
       this.btnExportPng.addEventListener('click', () => {
         persistenceManager.exportPNG(this.canvasEngine);
+        this.close();
+      });
+    }
+
+    if (this.btnExportSvg) {
+      this.btnExportSvg.addEventListener('click', () => {
+        persistenceManager.exportSVG(this.canvasEngine);
+        this.close();
+      });
+    }
+
+    if (this.btnExportPdf) {
+      this.btnExportPdf.addEventListener('click', () => {
+        persistenceManager.exportPDF(this.canvasEngine);
+        this.close();
+      });
+    }
+
+    if (this.btnShortcuts) {
+      this.btnShortcuts.addEventListener('click', () => {
+        eventBus.emit('open-shortcuts-modal');
         this.close();
       });
     }

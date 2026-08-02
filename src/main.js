@@ -14,6 +14,7 @@ import { ContextMenu } from './ui/ContextMenu';
 import { Tooltip } from './ui/Tooltip';
 import { MainMenu } from './ui/MainMenu';
 import { TextFormattingToolbar } from './ui/TextFormattingToolbar';
+import { KeyboardShortcutsModal } from './ui/KeyboardShortcutsModal';
 import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
 import { initMobileUI } from './mobile-ui';
 import { eventBus } from './core/EventBus';
@@ -47,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize Floating Text Formatting Toolbar
     const textFormattingToolbar = new TextFormattingToolbar(canvasEngine);
+    const shortcutsModal = new KeyboardShortcutsModal(canvasEngine);
 
     // 3. Initialize Document Autosave & File Loaders
     persistenceManager.init(canvasEngine);

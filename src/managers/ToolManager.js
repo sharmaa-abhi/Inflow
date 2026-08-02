@@ -7,9 +7,11 @@ import { LaserTool } from '../tools/LaserTool';
 import { ImageTool } from '../tools/ImageTool';
 import { StickyTool } from '../tools/StickyTool';
 import { HandTool } from '../tools/HandTool';
+import { EraserTool } from '../tools/EraserTool';
 import { shapeManager } from './ShapeManager';
 import { styleManager } from './StyleManager';
 import { historyManager } from './HistoryManager';
+import { persistenceManager } from './PersistenceManager';
 import { generateId } from '../utils/helpers';
 import { getNextFontSize, getPrevFontSize } from '../utils/fontUtils';
 
@@ -19,7 +21,11 @@ class ToolManager {
     this.tools = new Map();
     this.activeTool = null;
     this.activeToolType = 'select';
-    
+
+    // Spacebar temporary hand pan state
+    this.isSpacePanActive = false;
+    this.previousToolBeforeSpace = null;
+
     // Keyboard arrow nudging states
     this.isNudging = false;
     this.nudgeStartPositions = null;
@@ -43,6 +49,7 @@ class ToolManager {
     this.tools.set('arrow', new ShapeTool(canvasEngine, 'arrow'));
     this.tools.set('pen', new PenTool(canvasEngine, shapeManager, styleManager));
     this.tools.set('text', new TextTool(canvasEngine, shapeManager, styleManager));
+    this.tools.set('eraser', new EraserTool(canvasEngine, shapeManager));
     this.tools.set('laser', new LaserTool(canvasEngine, shapeManager, styleManager));
     this.tools.set('image', new ImageTool(canvasEngine));
     this.tools.set('sticky', new StickyTool(canvasEngine));
@@ -79,6 +86,14 @@ class ToolManager {
     eventBus.emit('tool-changed', type);
   }
 
+  isEditingText() {
+    return document.activeElement && (
+      document.activeElement.tagName === 'INPUT' ||
+      document.activeElement.tagName === 'TEXTAREA' ||
+      document.activeElement.isContentEditable
+    );
+  }
+
   subscribeEvents() {
     // Relay canvas stage pointer events directly to active tool
     eventBus.on('pointer-down', (data) => {
@@ -100,13 +115,30 @@ class ToolManager {
   }
 
   setupKeyboardShortcuts() {
+    // Spacebar hold -> Temporary Hand Tool
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !this.isEditingText()) {
+        if (!this.isSpacePanActive && this.activeToolType !== 'hand') {
+          this.isSpacePanActive = true;
+          this.previousToolBeforeSpace = this.activeToolType;
+          this.setTool('hand');
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space' && this.isSpacePanActive) {
+        this.isSpacePanActive = false;
+        if (this.previousToolBeforeSpace) {
+          this.setTool(this.previousToolBeforeSpace);
+          this.previousToolBeforeSpace = null;
+        }
+      }
+    });
+
     window.addEventListener('keydown', (e) => {
       // Ignore key events if typing in text input
-      if (document.activeElement && (
-        document.activeElement.tagName === 'INPUT' || 
-        document.activeElement.tagName === 'TEXTAREA' ||
-        document.activeElement.isContentEditable
-      )) {
+      if (this.isEditingText()) {
         return;
       }
 
@@ -117,7 +149,7 @@ class ToolManager {
           e.preventDefault();
           const step = e.shiftKey ? 10 : 1;
           let dx = 0, dy = 0;
-          
+
           switch (e.key.toLowerCase()) {
             case 'arrowup':
               dy = -step;
@@ -168,50 +200,111 @@ class ToolManager {
         }
       }
 
-      // Check tool swaps (only when Ctrl/Cmd is NOT held down)
+      // ─── NUMBER KEYS & ALPHANUMERIC SHORTCUTS (No Ctrl/Cmd) ─────────
       if (!e.ctrlKey && !e.metaKey) {
-        switch (e.key.toLowerCase()) {
-          case 'v':
-            this.setTool('select');
-            break;
-          case 'r':
-            this.setTool('rectangle');
-            break;
-          case 'c':
-            this.setTool('circle');
-            break;
-          case 'd':
-            this.setTool('diamond');
-            break;
-          case 'l':
-            this.setTool('line');
-            break;
-          case 'a':
-            this.setTool('arrow');
-            break;
-          case 'p':
-            this.setTool('pen');
-            break;
-          case 't':
-          case '8':
-            this.setTool('text');
-            break;
-          case 'k':
-            this.setTool('laser');
-            break;
-          case 'h':
-            this.setTool('hand');
-            break;
-          
-          // Delete selected shape keys
-          case 'delete':
-          case 'backspace':
-            this.deleteSelectedShapes();
-            break;
+        if (e.shiftKey) {
+          // Shift + Number Key Combinations
+          switch (e.key) {
+            case '!':
+            case '1':
+              this.setTool('select');
+              break;
+            case '@':
+            case '2':
+              this.setTool('laser');
+              break;
+            case '#':
+            case '3':
+              this.setTool('pill');
+              break;
+            case '$':
+            case '4':
+              this.setTool('circle');
+              break;
+            case '%':
+            case '5':
+              this.setTool('star');
+              break;
+            case '^':
+            case '6':
+              this.setTool('line');
+              break;
+            case '&':
+            case '7':
+              this.setTool('arrow');
+              break;
+            case '*':
+            case '8':
+              this.setTool('pen');
+              break;
+            case '(':
+            case '9':
+              this.setTool('sticky');
+              break;
+            case ')':
+              shapeManager.deselectAll();
+              break;
+          }
+        } else {
+          // Pure Number Keys 1–0 & Essential Keys
+          switch (e.key) {
+            case '1':
+              this.setTool('select');
+              break;
+            case '2':
+              this.setTool('hand');
+              break;
+            case '3':
+              this.setTool('rectangle');
+              break;
+            case '4':
+              this.setTool('circle');
+              break;
+            case '5':
+              this.setTool('diamond');
+              break;
+            case '6':
+              this.setTool('line');
+              break;
+            case '7':
+              this.setTool('arrow');
+              break;
+            case '8':
+              this.setTool('pen');
+              break;
+            case '9':
+              this.setTool('text');
+              break;
+            case '0':
+              this.setTool('eraser');
+              break;
+            case '+':
+            case '=':
+              if (this.canvasEngine) this.canvasEngine.zoomIn();
+              break;
+            case '-':
+            case '_':
+              if (this.canvasEngine) this.canvasEngine.zoomOut();
+              break;
+            case '?':
+              eventBus.emit('open-shortcuts-modal');
+              break;
+            case 'Escape':
+              if (this.activeToolType !== 'select') {
+                this.setTool('select');
+              } else {
+                shapeManager.deselectAll();
+              }
+              break;
+            case 'Delete':
+            case 'Backspace':
+              this.deleteSelectedShapes();
+              break;
+          }
         }
       }
 
-      // Reorder shapes shortcuts
+      // Reorder shapes shortcuts: [ and ]
       if (e.key === '[') {
         e.preventDefault();
         if (e.ctrlKey || e.metaKey) {
@@ -228,23 +321,55 @@ class ToolManager {
         }
       }
 
-      // Multi-key commands: Ctrl+Z, Ctrl+Shift+Z, Ctrl+C, Ctrl+V, Ctrl+D
+      // ─── CTRL / CMD SHORTCUTS ───────────────────────────────────────
       if (e.ctrlKey || e.metaKey) {
-        if (e.key.toLowerCase() === 'z') {
+        const key = e.key.toLowerCase();
+        if (key === 'z') {
           if (e.shiftKey) {
             historyManager.redo();
           } else {
             historyManager.undo();
           }
           e.preventDefault();
-        } else if (e.key.toLowerCase() === 'c') {
+        } else if (key === 'y') {
+          historyManager.redo();
+          e.preventDefault();
+        } else if (key === 'c') {
           this.copySelected();
           e.preventDefault();
-        } else if (e.key.toLowerCase() === 'v') {
+        } else if (key === 'x') {
+          shapeManager.cutSelected();
+          e.preventDefault();
+        } else if (key === 'v') {
           this.pasteCopied();
           e.preventDefault();
-        } else if (e.key.toLowerCase() === 'd') {
+        } else if (key === 'd') {
           this.duplicateSelected();
+          e.preventDefault();
+        } else if (key === 'g') {
+          if (e.shiftKey) {
+            shapeManager.ungroupSelected();
+          } else {
+            shapeManager.groupSelected();
+          }
+          e.preventDefault();
+        } else if (key === 'a') {
+          shapeManager.selectAll();
+          e.preventDefault();
+        } else if (key === 's') {
+          persistenceManager.exportJSON();
+          e.preventDefault();
+        } else if (key === 'o') {
+          document.getElementById('menu-btn-import-json')?.click();
+          e.preventDefault();
+        } else if (key === 'e') {
+          persistenceManager.exportPNG();
+          e.preventDefault();
+        } else if (key === 'f') {
+          eventBus.emit('open-search');
+          e.preventDefault();
+        } else if (key === '0') {
+          if (this.canvasEngine) this.canvasEngine.zoomReset();
           e.preventDefault();
         }
 
