@@ -11,7 +11,7 @@ class StyleManager {
       strokeStyle: 'solid', // 'solid', 'dashed', 'dotted'
       opacity: 1,
       fontSize: 20,
-      fontFamily: 'Inter', // 'Inter', 'Georgia', 'Architects Daughter'
+      fontFamily: 'Virgil', // Virgil (handwriting) is default
       align: 'left', // 'left', 'center', 'right'
       smoothingMode: 'erdp', // 'standard' or 'erdp'
       smoothingTension: 0.4, // float from 0 to 1
