@@ -123,6 +123,7 @@ export class TextTool extends BaseTool {
     this.isNewShape = isNew;
     this.originalText = textShape.text;
     this.originalGeometry = textShape.getGeometry();
+    this._creationTime = Date.now();
 
     const node = textShape.konvaNode;
 
@@ -145,6 +146,10 @@ export class TextTool extends BaseTool {
     textarea.style.resize = 'none';
     textarea.style.overflow = 'hidden';
     textarea.style.boxSizing = 'border-box';
+
+    textarea.addEventListener('mousedown', (e) => e.stopPropagation());
+    textarea.addEventListener('pointerdown', (e) => e.stopPropagation());
+    textarea.addEventListener('touchstart', (e) => e.stopPropagation());
 
     document.body.appendChild(textarea);
 
@@ -190,6 +195,14 @@ export class TextTool extends BaseTool {
     this._onBlur = (e) => {
       // Delay to allow toolbar click detection
       setTimeout(() => {
+        if (!this.editingTextarea) return;
+
+        // Prevent premature blur right after creation
+        if (this.isNewShape && Date.now() - this._creationTime < 350) {
+          if (this.editingTextarea) this.editingTextarea.focus();
+          return;
+        }
+
         const active = document.activeElement;
         const toolbar = document.getElementById('text-formatting-toolbar');
         if (toolbar && (toolbar.contains(active) || toolbar.contains(e.relatedTarget))) {
