@@ -5,6 +5,7 @@ import { styleManager } from './StyleManager';
 import { historyManager } from './HistoryManager';
 import { PenShape } from '../shapes/PenShape';
 import { TextShape } from '../shapes/TextShape';
+import { ImageShape } from '../shapes/ImageShape';
 
 class PersistenceManager {
   constructor() {
@@ -93,6 +94,73 @@ class PersistenceManager {
       .catch(err => {
         console.error('Error loading default architecture diagram:', err);
       });
+  }
+
+  /**
+   * Loads the Physics Textbook illustration & diagram onto the canvas.
+   */
+  loadPhysicsDiagram() {
+    shapeManager.clearAll();
+
+    const stage = this.canvasEngine.stage;
+    const centerX = (stage.width() / 2 - stage.x()) / stage.scaleX();
+    const centerY = (stage.height() / 2 - stage.y()) / stage.scaleY();
+
+    const bookShape = new ImageShape({
+      id: `physics-book-${Date.now()}`,
+      src: '/physics_book.png',
+      x: centerX - 320,
+      y: centerY - 210,
+      width: 340,
+      height: 420,
+      borderRadius: 12,
+      borderWidth: 2,
+      borderColor: '#4f46e5'
+    });
+
+    const titleShape = new TextShape({
+      id: `physics-title-${Date.now()}`,
+      x: centerX + 50,
+      y: centerY - 180,
+      text: 'CONCEPTS OF PHYSICS',
+      fontSize: 30,
+      fontFamily: 'Inter',
+      stroke: '#6366f1'
+    });
+
+    const formulaShape = new TextShape({
+      id: `physics-formula-${Date.now()}`,
+      x: centerX + 50,
+      y: centerY - 120,
+      text: 'E = m c²',
+      fontSize: 38,
+      fontFamily: 'Architects Daughter',
+      stroke: '#f59e0b'
+    });
+
+    const notesShape = new TextShape({
+      id: `physics-notes-${Date.now()}`,
+      x: centerX + 50,
+      y: centerY - 50,
+      text: 'Quantum Mechanics & Modern Physics\n\n• Wave-Particle Duality (λ = h/p)\n• Schrödinger Equation: iℏ(∂Ψ/∂t) = ĤΨ\n• Mass-Energy Equivalence\n• Gravitational Lensing & Spacetime Curvature',
+      fontSize: 16,
+      fontFamily: 'Inter',
+      stroke: '#334155'
+    });
+
+    this.canvasEngine.shapeLayer.add(bookShape.konvaNode);
+    this.canvasEngine.shapeLayer.add(titleShape.konvaNode);
+    this.canvasEngine.shapeLayer.add(formulaShape.konvaNode);
+    this.canvasEngine.shapeLayer.add(notesShape.konvaNode);
+
+    shapeManager.addShape(bookShape);
+    shapeManager.addShape(titleShape);
+    shapeManager.addShape(formulaShape);
+    shapeManager.addShape(notesShape);
+
+    this.canvasEngine.shapeLayer.draw();
+    historyManager.clear();
+    this.saveScene();
   }
 
   /**

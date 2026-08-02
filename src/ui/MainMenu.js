@@ -18,6 +18,7 @@ export class MainMenu {
 
     // Menu Actions
     this.btnLoadArchitecture = document.getElementById('menu-btn-architecture');
+    this.btnLoadPhysics = document.getElementById('menu-btn-physics');
     this.btnImportJson = document.getElementById('menu-btn-import-json');
     this.btnImportSvg = document.getElementById('menu-btn-import-svg');
     this.btnExportJson = document.getElementById('menu-btn-export-json');
@@ -70,6 +71,13 @@ export class MainMenu {
     if (this.btnLoadArchitecture) {
       this.btnLoadArchitecture.addEventListener('click', () => {
         persistenceManager.loadDefaultArchitecture();
+        this.close();
+      });
+    }
+
+    if (this.btnLoadPhysics) {
+      this.btnLoadPhysics.addEventListener('click', () => {
+        persistenceManager.loadPhysicsDiagram();
         this.close();
       });
     }
