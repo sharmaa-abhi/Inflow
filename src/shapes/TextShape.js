@@ -3,7 +3,7 @@ import { BaseShape } from './BaseShape';
 import { resolveFontFamily, resolveFontEntry, preloadFont as fontUtilsPreload, DEFAULT_FONT_SIZE, DEFAULT_FONT_FAMILY_ID } from '../utils/fontUtils';
 
 // Backward-compat re-exports
-export const resolveFontFamilyName = resolveFontFamily;
+export function resolveFontFamilyName(fontFamily) { return resolveFontFamily(fontFamily); }
 export const preloadFont = fontUtilsPreload;
 
 /**

@@ -147,7 +147,7 @@ export function resolveFontFamily(fontFamily) {
  * Backward-compat alias for resolveFontFamily.
  * @deprecated Use resolveFontFamily instead.
  */
-export const resolveFontFamilyName = resolveFontFamily;
+export function resolveFontFamilyName(fontFamily) { return resolveFontFamily(fontFamily); }
 
 /**
  * Given a font family input, returns the canonical font entry object (or default).

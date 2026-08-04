@@ -100,81 +100,88 @@ body.dark {
 
 @media (max-width: 768px) {
   :root {
-    --top-bar-height: 48px;
-    --toolbar-height: 60px;
+    --top-bar-height: 52px;
+    --toolbar-height: 64px;
+    --sheet-radius: 24px;
   }
 
   /* TOP BAR — shorter, tighter padding */
   #top-bar {
     height: var(--top-bar-height);
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   .brand-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
 
   .brand-name {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .top-bar-actions {
-    gap: 2px;
+    gap: 4px;
   }
 
   .top-action-btn {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
   }
 
   .top-action-btn svg {
-    width: 17px;
-    height: 17px;
+    width: 18px;
+    height: 18px;
   }
 
   /* ZOOM PILL — compact */
   #zoom-pill {
     top: calc(var(--top-bar-height) + 8px + env(safe-area-inset-top, 0px));
-    padding: 4px 6px;
-    gap: 1px;
+    padding: 4px 8px;
+    gap: 2px;
   }
 
   .zoom-btn {
-    width: 24px;
-    height: 24px;
+    min-width: 32px;
+    min-height: 32px;
+    width: 32px;
+    height: 32px;
   }
 
   .zoom-btn svg {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
   }
 
   #mb-zoom-display {
-    min-width: 36px;
+    min-width: 40px;
     font-size: 11px;
   }
 
   /* BOTTOM TOOLBAR — tighter */
   #bottom-toolbar {
     padding-top: 6px;
-    padding-bottom: env(safe-area-inset-bottom, 6px);
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 6px));
     padding-left: 8px;
     padding-right: 8px;
   }
 
   #toolbar-scroll {
-    gap: 1px;
+    gap: 2px;
     padding: 2px 0;
   }
 
-  /* TOOL BUTTONS — smaller for compact mobile */
+  /* TOOL BUTTONS — 48px minimum touch target */
   .tool-btn {
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
+    min-width: 48px;
+    min-height: 48px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
     gap: 2px;
   }
 
@@ -184,30 +191,31 @@ body.dark {
   }
 
   .tool-label {
-    font-size: 8px;
+    font-size: 8.5px;
     letter-spacing: 0.2px;
   }
 
   .tool-divider {
-    height: 26px;
-    margin: 0 2px;
+    height: 28px;
+    margin: 0 3px;
   }
 
-  /* BOTTOM SHEET — more compact */
+  /* BOTTOM SHEET — 24px top radius */
   .bottom-sheet {
-    max-height: 48vh;
-    max-height: 48dvh;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    max-height: 60vh;
+    max-height: 60dvh;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
   }
 
   .sheet-handle-area {
-    padding: 6px 0 2px;
+    padding: 8px 0 4px;
   }
 
   .sheet-handle {
-    width: 32px;
-    height: 3px;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
   }
 
   .sheet-header {

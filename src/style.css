@@ -876,7 +876,7 @@ body.dark .three-d-plate.active-plate {
   }
 }
 
-/* 1024px: Desktop / Laptop */
+/* 1024px: Desktop / Laptop / Tablet Landscape */
 @media (max-width: 1024px) {
   :root {
     --header-max-width: 980px;
@@ -898,6 +898,31 @@ body.dark .three-d-plate.active-plate {
 
   .coord-text {
     font-size: 10px;
+  }
+
+  .floating-props-popup {
+    width: clamp(260px, 30vw, 290px);
+    right: 16px;
+  }
+}
+
+/* Tablet Portrait scaling (769px - 900px) */
+@media (min-width: 769px) and (max-width: 900px) {
+  .app-header {
+    padding: 4px 6px !important;
+  }
+
+  .header-center {
+    gap: 2px !important;
+  }
+
+  .ui-tool-btn {
+    width: 33px !important;
+    height: 33px !important;
+  }
+
+  .tool-num-badge {
+    display: none !important;
   }
 }
 

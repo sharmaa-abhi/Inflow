@@ -188,6 +188,20 @@ export class TextTool extends BaseTool {
     };
     eventBus.on('viewport-changed', this.viewportListener);
 
+    // ─── Mobile soft keyboard visualViewport handling ─────────────────
+    if (window.visualViewport) {
+      this._visualViewportListener = () => {
+        if (this.editingTextarea) {
+          this.syncOverlayPosition();
+          try {
+            this.editingTextarea.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+          } catch (err) {}
+        }
+      };
+      window.visualViewport.addEventListener('resize', this._visualViewportListener);
+      window.visualViewport.addEventListener('scroll', this._visualViewportListener);
+    }
+
     // ─── Notify toolbar ──────────────────────────────────────────────
     eventBus.emit('text-editing-started', { textShape, textarea });
 
@@ -549,6 +563,12 @@ export class TextTool extends BaseTool {
     if (this.viewportListener) {
       eventBus.off('viewport-changed', this.viewportListener);
       this.viewportListener = null;
+    }
+
+    if (window.visualViewport && this._visualViewportListener) {
+      window.visualViewport.removeEventListener('resize', this._visualViewportListener);
+      window.visualViewport.removeEventListener('scroll', this._visualViewportListener);
+      this._visualViewportListener = null;
     }
 
     // Remove textarea
