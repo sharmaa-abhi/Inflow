@@ -68,18 +68,20 @@ body.dark {
 @media (max-width: 768px) {
 
   /* ── Show mobile UI ──────────────────────────────────────────── */
-  #top-bar      { display: flex !important; }
-  #zoom-pill    { display: flex !important; }
+  #top-bar        { display: flex !important; }
+  #zoom-pill      { display: flex !important; }
   #bottom-toolbar { display: block !important; }
-  #toast        { display: block !important; }
-  /* props-sheet and backdrop are shown/hidden via JS classes */
-  #props-sheet-backdrop { display: block !important; }
-  #props-sheet          { display: flex !important; }
+  #toast          { display: block !important; }
+  /* props-sheet and backdrop display only when active */
+  #props-sheet-backdrop.visible { display: block !important; }
+  #props-sheet.sheet-open       { display: flex !important; }
 
   /* ── Hide desktop UI ─────────────────────────────────────────── */
   #app-header,
   #app-footer,
   .canvas-hint-bar,
+  #desktop-menu-wrapper,
+  #top-right-actions,
   #menu-panel,
   #toolbar-panel,
   #properties-panel,

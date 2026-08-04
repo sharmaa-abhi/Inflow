@@ -1,5 +1,4 @@
 import './style.css';
-import './mobile-components.css';
 import { CanvasEngine } from './core/CanvasEngine';
 import { toolManager } from './managers/ToolManager';
 import { persistenceManager } from './managers/PersistenceManager';
