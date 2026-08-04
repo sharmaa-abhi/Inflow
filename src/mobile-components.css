@@ -77,6 +77,9 @@ body.dark {
   #props-sheet          { display: flex !important; }
 
   /* ── Hide desktop UI ─────────────────────────────────────────── */
+  #app-header,
+  #app-footer,
+  .canvas-hint-bar,
   #menu-panel,
   #toolbar-panel,
   #properties-panel,
@@ -97,6 +100,58 @@ body.dark {
     touch-action: none;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────── */
+/* Tablet Viewport Optimizations (769px – 1024px)                 */
+/* ──────────────────────────────────────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* Ensure mobile elements are hidden on tablet */
+  #top-bar,
+  #zoom-pill,
+  #bottom-toolbar,
+  #props-sheet-backdrop,
+  #props-sheet {
+    display: none !important;
+  }
+
+  /* Compact header pill to prevent collision with top-left menu & top-right actions */
+  .app-header {
+    top: 10px !important;
+    padding: 3px 6px !important;
+    gap: 2px !important;
+  }
+
+  .app-header .ui-tool-btn,
+  .app-header .ui-btn {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .app-header .tool-num-badge {
+    display: none !important;
+  }
+
+  /* Hide canvas hint bar on tablet to prevent visual clutter */
+  .canvas-hint-bar {
+    display: none !important;
+  }
+
+  /* Compact floating properties panel for tablet */
+  .floating-props-popup {
+    top: 60px;
+    right: 12px;
+    width: clamp(250px, 28vw, 290px);
+    max-height: calc(100vh - 120px);
+  }
+
+  /* Footer scaling on tablet */
+  .app-footer {
+    bottom: 10px;
+    padding: 3px 10px;
+    height: 40px;
+  }
+}
+
 
 @media (max-width: 768px) {
   :root {
