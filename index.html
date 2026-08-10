@@ -71,16 +71,22 @@
         <!-- App Brand Header -->
         <div class="menu-brand-header">
           <div class="inkflow-logo-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" fill="none" width="24" height="24">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" width="28" height="28">
               <defs>
-                <linearGradient id="logo-bg" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#6366f1" />
-                  <stop offset="55%" stop-color="#8b5cf6" />
-                  <stop offset="100%" stop-color="#a78bfa" />
+                <linearGradient id="menuLogoGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#6366f1"/>
+                  <stop offset="50%" stop-color="#8b5cf6"/>
+                  <stop offset="100%" stop-color="#a78bfa"/>
                 </linearGradient>
               </defs>
-              <rect width="28" height="28" rx="7" fill="url(#logo-bg)" />
-              <path d="M14 4 L21.5 13 L14 27 L6.5 13 Z" fill="white" fill-opacity="0.25" />
+              <rect width="48" height="48" rx="12" fill="url(#menuLogoGrad)"/>
+              <path d="M24 8 L34 20 L24 40 L14 20 Z" fill="white" fill-opacity="0.15"/>
+              <path d="M24 8 L14 20 L24 28 Z" fill="white" fill-opacity="0.35"/>
+              <path d="M24 8 L34 20 L24 28 Z" fill="white" fill-opacity="0.55"/>
+              <line x1="24" y1="20" x2="24" y2="40" stroke="white" stroke-width="1.2" stroke-opacity="0.5" stroke-linecap="round"/>
+              <ellipse cx="24" cy="39" rx="2.5" ry="3.5" fill="white" fill-opacity="0.9"/>
+              <path d="M18 14 Q12 18 14 24" stroke="white" stroke-width="1.2" stroke-opacity="0.5" fill="none" stroke-linecap="round"/>
+              <path d="M30 14 Q36 18 34 24" stroke="white" stroke-width="1.2" stroke-opacity="0.5" fill="none" stroke-linecap="round"/>
             </svg>
           </div>
           <span class="menu-brand-title">InkFlow</span>
@@ -620,9 +626,20 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <header id="top-bar">
     <div class="top-bar-brand">
-      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M9.53 16.122A3 3 0 00.22 17.5l.078.411A9.017 9.017 0 005.158 20.314m0-4.192a8.004 8.004 0 0113.684-6.129M18.842 10.015a9.01 9.01 0 01-4.159 4.159m-4.159-4.159a4.5 4.5 0 00-6.259 6.259" />
+      <svg class="brand-icon" viewBox="0 0 48 48" fill="none">
+        <defs>
+          <linearGradient id="mbLogoGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6366f1"/>
+            <stop offset="50%" stop-color="#8b5cf6"/>
+            <stop offset="100%" stop-color="#a78bfa"/>
+          </linearGradient>
+        </defs>
+        <rect width="48" height="48" rx="12" fill="url(#mbLogoGrad)"/>
+        <path d="M24 8 L34 20 L24 40 L14 20 Z" fill="white" fill-opacity="0.15"/>
+        <path d="M24 8 L14 20 L24 28 Z" fill="white" fill-opacity="0.35"/>
+        <path d="M24 8 L34 20 L24 28 Z" fill="white" fill-opacity="0.55"/>
+        <line x1="24" y1="20" x2="24" y2="40" stroke="white" stroke-width="1.2" stroke-opacity="0.5" stroke-linecap="round"/>
+        <ellipse cx="24" cy="39" rx="2.5" ry="3.5" fill="white" fill-opacity="0.9"/>
       </svg>
       <span class="brand-name">InkFlow</span>
     </div>
