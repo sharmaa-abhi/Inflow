@@ -220,27 +220,42 @@ export const PALETTE_CATEGORIES = [
   { id: 'all', name: 'All Colors' }
 ];
 
-/** Quick pick default colors for stroke */
-export const DEFAULT_STROKE_COLORS = [
-  "#1E293B", "#3B82F6", "#22C55E", "#EF4444", "#F97316",
-  "#A855F7", "#06B6D4", "#EAB308", "#6B7280", "#00F5FF"
+/** Quick pick default colors for stroke in Light Mode */
+export const LIGHT_STROKE_COLORS = [
+  "#1E293B", "#DC2626", "#16A34A", "#2563EB", "#D97706",
+  "#9333EA", "#0891B2", "#CA8A04", "#4B5563", "#00F5FF"
 ];
 
-/** Quick pick default colors for fill */
-export const DEFAULT_FILL_COLORS = [
+/** Quick pick default colors for stroke in Dark Mode (High contrast, vibrant neon) */
+export const DARK_STROKE_COLORS = [
+  "#F8FAFC", "#F87171", "#4ADE80", "#60A5FA", "#FACC15",
+  "#C084FC", "#22D3EE", "#FB923C", "#9CA3AF", "#00F5FF"
+];
+
+/** Quick pick default colors for fill in Light Mode */
+export const LIGHT_FILL_COLORS = [
   "transparent", "#EAF4FF", "#DCFCE7", "#FEE2E2", "#FFEDD5",
   "#F3E8FF", "#CFFAFE", "#FEF9C3", "#E5E7EB", "#FFD6E8"
 ];
 
-/** Get color list by category ID */
-export function getColorsByCategory(categoryId = 'quick') {
+/** Quick pick default colors for fill in Dark Mode */
+export const DARK_FILL_COLORS = [
+  "transparent", "rgba(30,41,59,0.8)", "rgba(59,130,246,0.25)", "rgba(34,197,94,0.25)", "rgba(239,68,68,0.25)",
+  "rgba(245,158,11,0.25)", "rgba(168,85,247,0.25)", "rgba(6,182,212,0.25)", "rgba(39,39,42,0.8)"
+];
+
+export const DEFAULT_STROKE_COLORS = LIGHT_STROKE_COLORS;
+export const DEFAULT_FILL_COLORS = LIGHT_FILL_COLORS;
+
+/** Get color list by category ID and current theme */
+export function getColorsByCategory(categoryId = 'quick', isDark = false) {
   if (categoryId === 'quick') {
-    return DEFAULT_STROKE_COLORS;
+    return isDark ? DARK_STROKE_COLORS : LIGHT_STROKE_COLORS;
   }
   if (categoryId === 'all') {
     return Object.values(COLORS).flat();
   }
-  return COLORS[categoryId] || DEFAULT_STROKE_COLORS;
+  return COLORS[categoryId] || (isDark ? DARK_STROKE_COLORS : LIGHT_STROKE_COLORS);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

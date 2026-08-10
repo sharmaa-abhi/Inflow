@@ -42,20 +42,24 @@ export class PropertiesPanel {
     this.inpZIndex       = document.getElementById('prop-zindex');
     this.lblZIndexMax    = document.getElementById('prop-zindex-max');
 
-    // Typography
-    this.sectionText     = document.getElementById('prop-section-text');
-    this.inpFontSize     = document.getElementById('prop-font-size');
-    this.inpFontFamily   = document.getElementById('prop-font-family');
-    this.textAlignGroup  = document.getElementById('prop-text-align');
+    // Typography & Button Groups
+    this.sectionText        = document.getElementById('prop-section-text');
+    this.inpFontSize        = document.getElementById('prop-font-size');
+    this.inpFontFamily      = document.getElementById('prop-font-family');
+    this.textAlignGroup     = document.getElementById('prop-text-align-group') || document.getElementById('prop-text-align');
+    this.fontFamilyGroup    = document.getElementById('prop-font-family-group');
+    this.fontSizeGroup      = document.getElementById('prop-font-size-group');
 
     // Smoothing
-    this.sectionSmoothing = document.getElementById('prop-section-smoothing');
-    this.toggleERDP       = document.getElementById('prop-toggle-erdp');
-    this.sliderSmoothing  = document.getElementById('prop-slider-smoothing');
-    this.valSmoothing     = document.getElementById('prop-val-smoothing');
+    this.sectionSmoothing   = document.getElementById('prop-section-smoothing');
+    this.toggleERDP         = document.getElementById('prop-toggle-erdp');
+    this.sliderSmoothing    = document.getElementById('prop-slider-smoothing');
+    this.valSmoothing       = document.getElementById('prop-val-smoothing');
 
-    // Delete button
-    this.btnDeleteSelected = document.getElementById('btn-delete-selected-shape');
+    // Actions
+    this.btnDeleteSelected    = document.getElementById('btn-delete-selected-shape');
+    this.btnDuplicateSelected = document.getElementById('btn-duplicate-selected-shape');
+    this.btnLinkSelected      = document.getElementById('btn-link-selected-shape');
 
     // Active format state per channel: 'hex' | 'rgb' | 'hsl'
     this.strokeColorFmt = 'hex';
@@ -110,6 +114,25 @@ export class PropertiesPanel {
       this.btnDeleteSelected.addEventListener('click', () => {
         toolManager.deleteSelectedShapes();
         shapeManager.deselectAll();
+      });
+    }
+
+    // Duplicate selected shape button
+    if (this.btnDuplicateSelected) {
+      this.btnDuplicateSelected.addEventListener('click', () => {
+        toolManager.duplicateSelected();
+      });
+    }
+
+    // Link anchor button
+    if (this.btnLinkSelected) {
+      this.btnLinkSelected.addEventListener('click', () => {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+          eventBus.emit('show-toast', 'Link copied to clipboard!');
+        }).catch(() => {
+          prompt('Copy link:', url);
+        });
       });
     }
 
@@ -222,12 +245,13 @@ export class PropertiesPanel {
     if (!container) return;
     container.innerHTML = '';
 
-    const paletteColors = getColorsByCategory(categoryId);
+    const isDark = document.body.classList.contains('dark');
+    const paletteColors = getColorsByCategory(categoryId, isDark).slice(0, 5);
     const colors = includeTransparent ? ['transparent', ...paletteColors] : paletteColors;
 
     colors.forEach(color => {
       const btn = document.createElement('button');
-      btn.className = 'w-5 h-5 rounded-full border border-slate-300 transition-transform hover:scale-125 focus:outline-none flex-shrink-0 cursor-pointer';
+      btn.className = 'w-7 h-7 rounded-lg border border-slate-300 dark:border-zinc-700/80 transition-transform hover:scale-110 focus:outline-none flex-shrink-0 cursor-pointer shadow-xs';
       
       if (color === 'transparent') {
         btn.style.background = 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)';
@@ -255,10 +279,10 @@ export class PropertiesPanel {
       const isTransparent = btn.title === 'Transparent';
       const colorVal = isTransparent ? 'transparent' : btn.title;
 
-      if (colorVal.toLowerCase() === activeColor.toLowerCase()) {
-        btn.classList.add('ring-2', 'ring-indigo-500', 'ring-offset-2');
+      if (colorVal && activeColor && colorVal.toLowerCase() === activeColor.toLowerCase()) {
+        btn.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-zinc-900');
       } else {
-        btn.classList.remove('ring-2', 'ring-indigo-500', 'ring-offset-2');
+        btn.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-zinc-900');
       }
     });
   }
@@ -386,12 +410,14 @@ export class PropertiesPanel {
     this.syncGroupButtonsActive(this.strokeWidthGroup, style.strokeWidth);
     this.syncGroupButtonsActive(this.strokeStyleGroup, style.strokeStyle);
     this.syncGroupButtonsActive(this.fillStyleGroup,   style.fillStyle || 'hachure');
+    // Text style & button groups sync
+    this.syncGroupButtonsActive(this.fontFamilyGroup, style.fontFamily || 'Virgil');
+    this.syncGroupButtonsActive(this.fontSizeGroup,   style.fontSize || 20);
+    this.syncGroupButtonsActive(this.textAlignGroup,  style.align || 'left');
 
-    // Text style sync
     if (primary.type === 'text') {
       if (this.inpFontSize) this.inpFontSize.value = style.fontSize || 20;
       if (this.inpFontFamily) this.inpFontFamily.value = style.fontFamily || 'Virgil';
-      this.syncGroupButtonsActive(this.textAlignGroup, style.align || 'left');
     }
 
     // Sync line smoothing styles
@@ -437,15 +463,14 @@ export class PropertiesPanel {
     if (!group) return;
     Array.from(group.querySelectorAll('button')).forEach(btn => {
       const valAttr = btn.getAttribute('data-val');
-      // Convert to number if it matches a numeric value
       const match = valAttr === String(value) || (Number(valAttr) === value);
       
       if (match) {
-        btn.classList.add('bg-white', 'shadow-sm', 'text-indigo-600');
-        btn.classList.remove('text-slate-600');
+        btn.classList.add('active-prop-btn');
+        btn.classList.remove('inactive-prop-btn');
       } else {
-        btn.classList.remove('bg-white', 'shadow-sm', 'text-indigo-600');
-        btn.classList.add('text-slate-600');
+        btn.classList.remove('active-prop-btn');
+        btn.classList.add('inactive-prop-btn');
       }
     });
   }
@@ -595,6 +620,9 @@ export class PropertiesPanel {
     bindGroupClick(this.strokeWidthGroup, 'strokeWidth');
     bindGroupClick(this.strokeStyleGroup, 'strokeStyle');
     bindGroupClick(this.fillStyleGroup,   'fillStyle');
+    bindGroupClick(this.fontFamilyGroup,  'fontFamily');
+    bindGroupClick(this.fontSizeGroup,    'fontSize');
+    bindGroupClick(this.textAlignGroup,   'align');
 
     // Smoothing controls
     if (this.toggleERDP) {
