@@ -1427,10 +1427,15 @@ body.dark .main-menu-btn.active {
   position: absolute;
   top: 52px;
   left: 0;
-  width: 280px;
+  width: 290px;
+  max-height: calc(100vh - 80px);
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 12px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(226, 232, 240, 0.9);
@@ -1441,12 +1446,43 @@ body.dark .main-menu-btn.active {
   transform-origin: top left;
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
   user-select: none;
+  z-index: 50;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.4) transparent;
+}
+
+/* Custom sleek scrollbar for main menu dropdown */
+.main-menu-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.main-menu-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 6px 0;
+}
+
+.main-menu-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 9999px;
+}
+
+.main-menu-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.6);
 }
 
 body.dark .main-menu-dropdown {
-  background: rgba(15, 23, 42, 0.94);
+  background: rgba(15, 23, 42, 0.95);
   border-color: rgba(255, 255, 255, 0.1);
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.3);
+  scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+body.dark .main-menu-dropdown::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+body.dark .main-menu-dropdown::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
 }
 
 .menu-open {
