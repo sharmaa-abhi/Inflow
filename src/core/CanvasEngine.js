@@ -94,8 +94,8 @@ export class CanvasEngine {
         }
 
         const isDark = document.body.classList.contains('dark');
-        const gridColor = isDark ? '#1a1a1a' : '#e2e8f0'; // very subtle dark line / slate-200
-        const dotColor = isDark ? '#333333' : '#cbd5e1';  // subtle dark dot / slate-300
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0';
+        const dotColor = isDark ? 'rgba(255, 255, 255, 0.22)' : '#cbd5e1';
 
         const spacing = engine.gridSpacing * scale;
         const offsetX = x % spacing;

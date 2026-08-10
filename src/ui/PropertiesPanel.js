@@ -245,7 +245,8 @@ export class PropertiesPanel {
     if (!container) return;
     container.innerHTML = '';
 
-    const paletteColors = getColorsByCategory(categoryId).slice(0, 5);
+    const isDark = document.body.classList.contains('dark');
+    const paletteColors = getColorsByCategory(categoryId, isDark).slice(0, 5);
     const colors = includeTransparent ? ['transparent', ...paletteColors] : paletteColors;
 
     colors.forEach(color => {
