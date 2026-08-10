@@ -1659,27 +1659,42 @@ body.dark .app-footer {
   border-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-/* Floating Right Glassmorphic Properties Popup */
+/* Floating Left Glassmorphic Properties Popup (Excalidraw UI/UX) */
 .floating-props-popup {
   position: fixed;
-  top: 76px;
-  right: 20px;
+  top: 68px;
+  left: 16px;
   z-index: 40;
-  width: 320px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.04);
+  width: 236px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.05);
   transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.2s ease;
   user-select: none;
+  max-height: calc(100vh - 140px);
+  max-height: calc(100dvh - 140px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.floating-props-popup::-webkit-scrollbar {
+  width: 4px;
+}
+
+.floating-props-popup::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
 }
 
 body.dark .floating-props-popup {
-  background: rgba(15, 23, 42, 0.92);
+  background: #18181b;
   border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .panel-open {
@@ -1691,17 +1706,42 @@ body.dark .floating-props-popup {
 
 .panel-closed {
   opacity: 0 !important;
-  transform: translateX(16px) scale(0.96) !important;
+  transform: translateX(-16px) scale(0.96) !important;
   visibility: hidden !important;
   pointer-events: none !important;
 }
 
-/* Tablet & Mobile Responsive Floating Adjustments */
-@media (max-width: 1024px) {
-  .floating-props-popup {
-    width: 290px;
-    right: 16px;
-  }
+/* Active / Inactive option button states */
+.active-prop-btn {
+  border: 2px solid #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.12) !important;
+  color: #2563eb !important;
+  font-weight: 700 !important;
+}
+
+body.dark .active-prop-btn {
+  border-color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.25) !important;
+  color: #60a5fa !important;
+}
+
+.inactive-prop-btn {
+  border: 1px solid transparent !important;
+  background-color: rgba(241, 245, 249, 0.9) !important;
+  color: #475569 !important;
+}
+
+body.dark .inactive-prop-btn {
+  background-color: rgba(39, 39, 42, 0.9) !important;
+  color: #d4d4d8 !important;
+}
+
+.inactive-prop-btn:hover {
+  background-color: rgba(226, 232, 240, 1) !important;
+}
+
+body.dark .inactive-prop-btn:hover {
+  background-color: rgba(63, 63, 70, 0.9) !important;
 }
 
 @media (max-width: 768px) {
