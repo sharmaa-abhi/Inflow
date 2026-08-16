@@ -19,6 +19,7 @@ export class CanvasEngine {
     this.isPanning = false;
     this.lastPointerPos = { x: 0, y: 0 };
     this.isSpacePressed = false;
+    this.isDark = document.body.classList.contains('dark');
 
     this.initStage();
     this.initLayers();
@@ -93,7 +94,7 @@ export class CanvasEngine {
           return;
         }
 
-        const isDark = document.body.classList.contains('dark');
+        const isDark = engine.isDark;
         const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0';
         const dotColor = isDark ? 'rgba(255, 255, 255, 0.22)' : '#cbd5e1';
 
@@ -147,6 +148,11 @@ export class CanvasEngine {
 
   setupEventListeners() {
     window.addEventListener('resize', () => this.handleResize());
+
+    eventBus.on('theme-changed', (theme) => {
+      this.isDark = (theme === 'dark');
+      this.backgroundLayer.batchDraw();
+    });
 
     // Mouse wheel zoom
     this.stage.on('wheel', (e) => this.handleWheelZoom(e));

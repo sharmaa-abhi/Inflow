@@ -184,6 +184,9 @@ function _wireMobileElements(canvasEngine) {
   document.getElementById('mb-btn-zoom-out')?.addEventListener('click', () => {
     document.getElementById('btn-zoom-out')?.click();
   });
+  document.getElementById('mb-zoom-display')?.addEventListener('click', () => {
+    document.getElementById('btn-zoom-reset')?.click();
+  });
 
   // ── Sync zoom display ─────────────────────────────────────────────────────────
   const desktopZoom = document.getElementById('zoom-display');

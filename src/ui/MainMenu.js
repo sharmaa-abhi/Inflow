@@ -52,7 +52,11 @@ export class MainMenu {
     if (this.btnMenu && this.menuDropdown) {
       this.btnMenu.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.toggle();
+        if (window.innerWidth <= 768 && window.openMobileMenuSheet) {
+          window.openMobileMenuSheet();
+        } else {
+          this.toggle();
+        }
       });
 
       // Close dropdown when clicking outside
