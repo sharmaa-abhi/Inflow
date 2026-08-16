@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     // 1. Initialize Canvas Rendering Engine
     const canvasEngine = new CanvasEngine('canvas-container');
+    canvasEngine.setShapeManager(shapeManager);
 
     // Initialize Theme Manager (must be before loading grid state so correct grid contrast draws!)
     themeManager.init(canvasEngine);

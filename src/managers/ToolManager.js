@@ -206,12 +206,10 @@ class ToolManager {
           // Shift + Number Key Combinations
           switch (e.key) {
             case '!':
-            case '1':
-              this.setTool('select');
+              this.canvasEngine?.zoomToFit();
               break;
             case '@':
-            case '2':
-              this.setTool('laser');
+              this.canvasEngine?.zoomToSelection();
               break;
             case '#':
             case '3':

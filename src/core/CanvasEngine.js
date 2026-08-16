@@ -14,6 +14,9 @@ export class CanvasEngine {
     this.maxZoom = 20;
     this.zoomFactor = 1.1;
     this.gridSpacing = 30; // base spacing in px
+    this.ZOOM_PRESETS = [0.1, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0];
+    this.animFrameId = null;
+    this.shapeManager = null;
 
     this.gridType = 'watercolor-paper'; // 'plain', 'dot-grid', 'square-grid', 'watercolor-paper'
     this.isPanning = false;
@@ -26,6 +29,10 @@ export class CanvasEngine {
     this.initGrid();
     this.setupEventListeners();
     this.handleResize();
+  }
+
+  setShapeManager(shapeManager) {
+    this.shapeManager = shapeManager;
   }
 
   initStage() {
@@ -312,18 +319,16 @@ export class CanvasEngine {
     const evt = e.evt;
     const stage = this.stage;
 
-    // Ctrl + Wheel (or Pinch trackpad gesture) -> Zoom
+    // Ctrl + Wheel (or Pinch trackpad gesture) -> Exponential continuous Zoom
     if (evt.ctrlKey || evt.metaKey) {
       const oldScale = stage.scaleX();
-      const pointer = stage.getPointerPosition();
-      if (!pointer) return;
+      const pointer = stage.getPointerPosition() || { x: stage.width() / 2, y: stage.height() / 2 };
 
-      let zoomAmount = this.zoomFactor;
-      if (evt.deltaY > 0) {
-        zoomAmount = 1 / this.zoomFactor;
-      }
+      // Continuous exponential factor: Math.exp(-deltaY * SENSITIVITY)
+      const SENSITIVITY = 0.0015;
+      const zoomFactor = Math.exp(-evt.deltaY * SENSITIVITY);
 
-      let newScale = oldScale * zoomAmount;
+      let newScale = oldScale * zoomFactor;
       newScale = Math.max(this.minZoom, Math.min(this.maxZoom, newScale));
 
       const mousePointTo = {
@@ -360,47 +365,172 @@ export class CanvasEngine {
     this.emitViewportChanged();
   }
 
+  getNextZoomIn(currentScale) {
+    const next = this.ZOOM_PRESETS.find(p => p > currentScale + 0.005);
+    return next ? next : Math.min(this.maxZoom, currentScale * 1.25);
+  }
+
+  getNextZoomOut(currentScale) {
+    const prev = [...this.ZOOM_PRESETS].reverse().find(p => p < currentScale - 0.005);
+    return prev ? prev : Math.max(this.minZoom, currentScale / 1.25);
+  }
+
+  getSmartZoomAnchor() {
+    // 1. If active selection exists, anchor to selection centroid
+    const selectedShapes = this.shapeManager?.getSelectedShapes?.() || [];
+    if (selectedShapes.length > 0) {
+      const bbox = this.getShapesBoundingBox(selectedShapes);
+      if (bbox) {
+        return this.getScreenCoords({ x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 });
+      }
+    }
+
+    // 2. If pointer inside stage boundaries, anchor to pointer
+    const pointer = this.stage.getPointerPosition();
+    if (pointer && pointer.x >= 0 && pointer.x <= this.stage.width() && pointer.y >= 0 && pointer.y <= this.stage.height()) {
+      return pointer;
+    }
+
+    // 3. Fallback to stage center
+    return { x: this.stage.width() / 2, y: this.stage.height() / 2 };
+  }
+
   zoomIn() {
-    this.zoomToCenter(this.zoomFactor);
+    const targetScale = this.getNextZoomIn(this.stage.scaleX());
+    const anchor = this.getSmartZoomAnchor();
+    this.zoomToPointAnimated(targetScale, anchor);
   }
 
   zoomOut() {
-    this.zoomToCenter(1 / this.zoomFactor);
+    const targetScale = this.getNextZoomOut(this.stage.scaleX());
+    const anchor = this.getSmartZoomAnchor();
+    this.zoomToPointAnimated(targetScale, anchor);
   }
 
   zoomReset() {
-    this.stage.scale({ x: 1, y: 1 });
-    this.stage.position({ x: 0, y: 0 });
-    this.stage.batchDraw();
-    this.emitViewportChanged();
+    this.animateViewportTo(1.0, 0, 0);
   }
 
   zoomToCenter(factor) {
-    const stage = this.stage;
-    const oldScale = stage.scaleX();
-    const center = {
-      x: stage.width() / 2,
-      y: stage.height() / 2,
-    };
+    const targetScale = Math.max(this.minZoom, Math.min(this.maxZoom, this.stage.scaleX() * factor));
+    const center = { x: this.stage.width() / 2, y: this.stage.height() / 2 };
+    this.zoomToPointAnimated(targetScale, center);
+  }
 
-    let newScale = oldScale * factor;
-    newScale = Math.max(this.minZoom, Math.min(this.maxZoom, newScale));
+  zoomToPointAnimated(targetScale, screenAnchor, durationMs = 180) {
+    const stage = this.stage;
+    const startScale = stage.scaleX();
+    const startPos = stage.position();
+    const clampedScale = Math.max(this.minZoom, Math.min(this.maxZoom, targetScale));
 
     const mousePointTo = {
-      x: (center.x - stage.x()) / oldScale,
-      y: (center.y - stage.y()) / oldScale,
+      x: (screenAnchor.x - startPos.x) / startScale,
+      y: (screenAnchor.y - startPos.y) / startScale,
     };
 
-    stage.scale({ x: newScale, y: newScale });
-    
-    const newPos = {
-      x: center.x - mousePointTo.x * newScale,
-      y: center.y - mousePointTo.y * newScale,
+    const targetPos = {
+      x: screenAnchor.x - mousePointTo.x * clampedScale,
+      y: screenAnchor.y - mousePointTo.y * clampedScale,
     };
-    stage.position(newPos);
-    stage.batchDraw();
 
-    this.emitViewportChanged();
+    this.animateViewportTo(clampedScale, targetPos.x, targetPos.y, durationMs);
+  }
+
+  animateViewportTo(targetScale, targetX, targetY, durationMs = 180) {
+    if (this.animFrameId) {
+      cancelAnimationFrame(this.animFrameId);
+      this.animFrameId = null;
+    }
+
+    const stage = this.stage;
+    const startScale = stage.scaleX();
+    const startX = stage.x();
+    const startY = stage.y();
+    const startTime = performance.now();
+
+    const animate = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / durationMs);
+      // Cubic ease-out curve for natural inertia: 1 - (1 - t)^3
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      const curScale = startScale + (targetScale - startScale) * ease;
+      const curX = startX + (targetX - startX) * ease;
+      const curY = startY + (targetY - startY) * ease;
+
+      stage.scale({ x: curScale, y: curScale });
+      stage.position({ x: curX, y: curY });
+      stage.batchDraw();
+      this.emitViewportChanged();
+
+      if (progress < 1) {
+        this.animFrameId = requestAnimationFrame(animate);
+      } else {
+        this.animFrameId = null;
+      }
+    };
+
+    this.animFrameId = requestAnimationFrame(animate);
+  }
+
+  getShapesBoundingBox(shapes) {
+    if (!shapes || shapes.length === 0) return null;
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+    shapes.forEach(shape => {
+      if (typeof shape.x === 'number' && typeof shape.y === 'number' && typeof shape.width === 'number' && typeof shape.height === 'number') {
+        minX = Math.min(minX, shape.x);
+        minY = Math.min(minY, shape.y);
+        maxX = Math.max(maxX, shape.x + shape.width);
+        maxY = Math.max(maxY, shape.y + shape.height);
+      } else if (shape.konvaNode) {
+        const rect = shape.konvaNode.getClientRect();
+        const canvasMin = this.getCanvasCoords({ x: rect.x, y: rect.y });
+        const canvasMax = this.getCanvasCoords({ x: rect.x + rect.width, y: rect.y + rect.height });
+        minX = Math.min(minX, canvasMin.x);
+        minY = Math.min(minY, canvasMin.y);
+        maxX = Math.max(maxX, canvasMax.x);
+        maxY = Math.max(maxY, canvasMax.y);
+      }
+    });
+
+    if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) return null;
+    return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+  }
+
+  zoomToFit(shapes = null, padding = 60) {
+    const targetShapes = shapes || this.shapeManager?.getAllShapes?.() || [];
+    if (!targetShapes || targetShapes.length === 0) {
+      this.zoomReset();
+      return;
+    }
+
+    const bbox = this.getShapesBoundingBox(targetShapes);
+    if (!bbox || bbox.width <= 0 || bbox.height <= 0) {
+      this.zoomReset();
+      return;
+    }
+
+    const stageWidth = this.stage.width();
+    const stageHeight = this.stage.height();
+
+    const scaleX = (stageWidth - padding * 2) / bbox.width;
+    const scaleY = (stageHeight - padding * 2) / bbox.height;
+    let targetScale = Math.min(scaleX, scaleY);
+    targetScale = Math.max(this.minZoom, Math.min(this.maxZoom, targetScale));
+
+    const bboxCenter = { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 };
+    const targetX = stageWidth / 2 - bboxCenter.x * targetScale;
+    const targetY = stageHeight / 2 - bboxCenter.y * targetScale;
+
+    this.animateViewportTo(targetScale, targetX, targetY);
+  }
+
+  zoomToSelection(padding = 60) {
+    const selectedShapes = this.shapeManager?.getSelectedShapes?.() || [];
+    if (selectedShapes.length > 0) {
+      this.zoomToFit(selectedShapes, padding);
+    }
   }
 
   emitViewportChanged() {
