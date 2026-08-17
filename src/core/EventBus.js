@@ -39,8 +39,7 @@ class EventBus {
    */
   emit(event, data) {
     if (!this.listeners.has(event)) return;
-    const callbacks = this.listeners.get(event);
-    for (const callback of callbacks) {
+    for (const callback of [...this.listeners.get(event)]) {
       try {
         callback(data);
       } catch (error) {
