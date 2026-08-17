@@ -16,6 +16,7 @@ class PersistenceManager {
     // Sandbox / Demo Mode state (changes are NOT auto-saved to localStorage)
     this.isDemoMode = false;
     this.userSceneBackup = null;
+    this.currentDemoView = 'tutorial'; // 'tutorial' | 'blank'
     
     // Debounce save operation to avoid lag during fast drawing/updates
     this.autosave = debounce(() => this.saveScene(), 500);
@@ -97,11 +98,44 @@ class PersistenceManager {
       this.userSceneBackup = this.serializeScene();
     }
     this.isDemoMode = true;
+    this.currentDemoView = 'tutorial';
     const demoData = getDemoSheetData();
     this.importSceneData(demoData);
     historyManager.clear();
     this._updateDemoBannerVisibility(true);
+    this._updateDemoBannerContent();
     eventBus.emit('demo-mode-changed', true);
+  }
+
+  /**
+   * Switches to clean Blank Practice Sheet in Sandbox mode.
+   */
+  switchToBlankDemoSheet() {
+    if (!this.isDemoMode) return;
+    this.currentDemoView = 'blank';
+
+    // Clear shapes cleanly
+    const existingShapes = shapeManager.getAllShapes();
+    existingShapes.forEach(s => {
+      if (typeof s.destroy === 'function') s.destroy();
+    });
+    this.canvasEngine.shapeLayer.destroyChildren();
+    shapeManager.clear();
+    this.canvasEngine.batchDrawAll();
+    historyManager.clear();
+    this._updateDemoBannerContent();
+  }
+
+  /**
+   * Switches back to Tutorial Guide Sheet in Sandbox mode.
+   */
+  switchToTutorialDemoSheet() {
+    if (!this.isDemoMode) return;
+    this.currentDemoView = 'tutorial';
+    const demoData = getDemoSheetData();
+    this.importSceneData(demoData);
+    historyManager.clear();
+    this._updateDemoBannerContent();
   }
 
   /**
@@ -110,6 +144,7 @@ class PersistenceManager {
   exitDemoSheet() {
     if (!this.isDemoMode) return;
     this.isDemoMode = false;
+    this.currentDemoView = 'tutorial';
     this._updateDemoBannerVisibility(false);
 
     if (this.userSceneBackup) {
@@ -126,9 +161,11 @@ class PersistenceManager {
    * Resets demo sheet to clean initial state.
    */
   resetDemoSheet() {
-    const demoData = getDemoSheetData();
-    this.importSceneData(demoData);
-    historyManager.clear();
+    if (this.currentDemoView === 'blank') {
+      this.switchToBlankDemoSheet();
+    } else {
+      this.switchToTutorialDemoSheet();
+    }
   }
 
   /**
@@ -136,6 +173,7 @@ class PersistenceManager {
    */
   adoptDemoSheetToMain() {
     this.isDemoMode = false;
+    this.currentDemoView = 'tutorial';
     this._updateDemoBannerVisibility(false);
     this.userSceneBackup = null;
     this.saveScene();
@@ -159,6 +197,35 @@ class PersistenceManager {
     }
   }
 
+  _updateDemoBannerContent() {
+    const banner = document.getElementById('demo-mode-banner');
+    if (!banner) return;
+
+    const badgeText = banner.querySelector('.demo-badge-text');
+    const descText = banner.querySelector('.demo-banner-desc');
+    const toggleBtn = banner.querySelector('#btn-demo-toggle-view');
+
+    if (this.currentDemoView === 'blank') {
+      if (badgeText) badgeText.textContent = '📄 Blank Practice Sheet';
+      if (descText) descText.textContent = 'Draw freely with any tool • Changes are not auto-saved';
+      if (toggleBtn) {
+        toggleBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          <span>Tutorial Sheet</span>
+        `;
+      }
+    } else {
+      if (badgeText) badgeText.textContent = '🎯 Tutorial Sheet (Sandbox)';
+      if (descText) descText.textContent = 'Pick any drawing tool to auto-open Blank Sheet';
+      if (toggleBtn) {
+        toggleBtn.innerHTML = `
+          <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>Blank Sheet</span>
+        `;
+      }
+    }
+  }
+
   _createDemoBanner() {
     const banner = document.createElement('div');
     banner.id = 'demo-mode-banner';
@@ -167,11 +234,15 @@ class PersistenceManager {
       <div class="demo-banner-content">
         <div class="demo-banner-badge">
           <span class="demo-pulse-dot"></span>
-          <span class="demo-badge-text">🧪 Demo Sheet (Sandbox Mode)</span>
+          <span class="demo-badge-text">🎯 Tutorial Sheet (Sandbox)</span>
         </div>
-        <span class="demo-banner-desc">Temporary playground • Changes are NOT auto-saved</span>
+        <span class="demo-banner-desc">Pick any drawing tool to auto-open Blank Sheet</span>
         <div class="demo-banner-actions">
-          <button id="btn-demo-reset" class="demo-btn secondary" title="Reset Demo Sheet to initial state">
+          <button id="btn-demo-toggle-view" class="demo-btn secondary" title="Toggle between Tutorial Guide and Blank Practice Sheet">
+            <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Blank Sheet</span>
+          </button>
+          <button id="btn-demo-reset" class="demo-btn secondary" title="Reset current sheet">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             <span>Reset</span>
           </button>
@@ -188,6 +259,13 @@ class PersistenceManager {
     `;
     document.body.appendChild(banner);
 
+    banner.querySelector('#btn-demo-toggle-view')?.addEventListener('click', () => {
+      if (this.currentDemoView === 'tutorial') {
+        this.switchToBlankDemoSheet();
+      } else {
+        this.switchToTutorialDemoSheet();
+      }
+    });
     banner.querySelector('#btn-demo-reset')?.addEventListener('click', () => this.resetDemoSheet());
     banner.querySelector('#btn-demo-adopt')?.addEventListener('click', () => this.adoptDemoSheetToMain());
     banner.querySelector('#btn-demo-exit')?.addEventListener('click', () => this.exitDemoSheet());
@@ -750,6 +828,18 @@ ${svgElements}</svg>`;
     eventBus.on('shapes-updated', triggerSave);
     eventBus.on('viewport-changed', triggerSave);
     eventBus.on('grid-changed', triggerSave);
+
+    // Auto-open Blank Practice Sheet when user selects any drawing tool in tutorial mode
+    eventBus.on('tool-changed', (toolType) => {
+      const drawingTools = [
+        'rectangle', 'circle', 'diamond', 'line', 'arrow',
+        'pen', 'text', 'sticky', 'pill', 'parallelogram',
+        'trapezoid', 'cylinder', 'cloud', 'star', 'speechBubble'
+      ];
+      if (this.isDemoMode && this.currentDemoView === 'tutorial' && drawingTools.includes(toolType)) {
+        this.switchToBlankDemoSheet();
+      }
+    });
   }
 }
 
