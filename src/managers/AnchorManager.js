@@ -102,16 +102,16 @@ class AnchorManager {
     const visRadius = ANCHOR_VISIBLE_RADIUS / scale;
     const snapRadius= ANCHOR_SNAP_RADIUS    / scale;
 
+    // Pass 1: Collect all visible anchors and find the closest snap candidate
     let closestDist   = Infinity;
     let closestAnchor = null;
+    const visibleAnchors = []; // { shapeId, type, pos }
 
     this.shapeManager.getAllShapes().forEach(shape => {
       const geom = shape.getGeometry();
-      // Approximate bbox for line-type shapes
       const bbox = _shapeBbox(shape, geom);
       if (!bbox) return;
 
-      // Only show anchors if cursor is near the shape
       const shapeCenterX = bbox.x + bbox.width  / 2;
       const shapeCenterY = bbox.y + bbox.height / 2;
       const distToCenter = Math.hypot(cursorPos.x - shapeCenterX, cursorPos.y - shapeCenterY);
@@ -122,28 +122,31 @@ class AnchorManager {
       anchors.forEach(({ type, pos }) => {
         const dist = Math.hypot(cursorPos.x - pos.x, cursorPos.y - pos.y);
 
-        // Track closest snap anchor
+        visibleAnchors.push({ shapeId: shape.id, type, pos });
+
         if (dist < snapRadius && dist < closestDist) {
           closestDist   = dist;
           closestAnchor = { shapeId: shape.id, anchorType: type, pos };
         }
-
-        // Render dot
-        const isHovered = closestAnchor && closestAnchor.shapeId === shape.id && closestAnchor.anchorType === type;
-        const dotStyle  = isHovered ? ANCHOR_HOVER_STYLE : ANCHOR_STYLE;
-
-        const dot = new Konva.Circle({
-          x:           pos.x,
-          y:           pos.y,
-          radius:      dotStyle.radius / scale,
-          fill:        dotStyle.fill,
-          stroke:      dotStyle.stroke,
-          strokeWidth: dotStyle.strokeWidth / scale,
-          listening:   false,
-        });
-        this.canvasEngine.overlayLayer.add(dot);
-        this.anchorDots.push(dot);
       });
+    });
+
+    // Pass 2: Render all collected anchor dots with correct hover states
+    visibleAnchors.forEach(({ shapeId, type, pos }) => {
+      const isHovered = closestAnchor && closestAnchor.shapeId === shapeId && closestAnchor.anchorType === type;
+      const dotStyle  = isHovered ? ANCHOR_HOVER_STYLE : ANCHOR_STYLE;
+
+      const dot = new Konva.Circle({
+        x:           pos.x,
+        y:           pos.y,
+        radius:      dotStyle.radius / scale,
+        fill:        dotStyle.fill,
+        stroke:      dotStyle.stroke,
+        strokeWidth: dotStyle.strokeWidth / scale,
+        listening:   false,
+      });
+      this.canvasEngine.overlayLayer.add(dot);
+      this.anchorDots.push(dot);
     });
 
     this.hoveredAnchor = closestAnchor;

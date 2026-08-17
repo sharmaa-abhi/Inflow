@@ -187,8 +187,10 @@ export class CanvasEngine {
   }
 
   isEditingText() {
-    // Check if user is typing in a textarea
-    return document.activeElement && document.activeElement.tagName === 'TEXTAREA';
+    // Check if user is typing in a text input, textarea, or contentEditable element
+    if (!document.activeElement) return false;
+    const tag = document.activeElement.tagName;
+    return tag === 'TEXTAREA' || tag === 'INPUT' || document.activeElement.isContentEditable;
   }
 
   handleResize() {

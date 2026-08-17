@@ -100,7 +100,7 @@ class PersistenceManager {
    * Loads the Physics Textbook illustration & diagram onto the canvas.
    */
   loadPhysicsDiagram() {
-    shapeManager.clearAll();
+    shapeManager.clear();
 
     const stage = this.canvasEngine.stage;
     const centerX = (stage.width() / 2 - stage.x()) / stage.scaleX();
@@ -315,44 +315,6 @@ class PersistenceManager {
         };
         shapes.push(shapeData);
       }
-
-      // If the shape has text inside it (for container shapes in Excalidraw)
-      if (el.type !== 'text' && el.text && el.text.trim()) {
-        let fontFamily = 'Inter, sans-serif';
-        if (el.fontFamily === 3) {
-          fontFamily = "'Architects Daughter', cursive";
-        } else if (el.fontFamily === 2) {
-          fontFamily = 'Georgia, serif';
-        }
-
-        const lines = el.text.split('\n');
-        const fontSize = el.fontSize || 14;
-        const textHeight = lines.length * fontSize * 1.25;
-        const textY = el.y + (el.height - textHeight) / 2;
-
-        const containerTextStyle = {
-          stroke: strokeColor,
-          fill: 'transparent',
-          strokeWidth: 1,
-          strokeStyle: 'solid',
-          opacity: opacity,
-          fontSize: fontSize,
-          fontFamily: fontFamily,
-          textAlign: el.textAlign || 'center'
-        };
-
-        shapes.push({
-          id: `${el.id || Date.now()}-text`,
-          type: 'text',
-          x: el.x + 5,
-          y: textY,
-          width: el.width - 10,
-          height: textHeight,
-          rotation: rotation,
-          text: el.text,
-          style: containerTextStyle
-        });
-      }
     });
 
     return {
@@ -446,7 +408,7 @@ class PersistenceManager {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const data = JSON.parse(event.target.value || event.target.result);
+        const data = JSON.parse(event.target.result);
         this.importSceneData(data);
         historyManager.clear();
       } catch (err) {
@@ -476,11 +438,25 @@ class PersistenceManager {
 
     this.canvasEngine.batchDrawAll();
 
-    // 3. Export stage canvas at 2x retina density
-    const dataURL = this.canvasEngine.stage.toDataURL({
-      pixelRatio: 2,
-      mimeType: 'image/png',
-    });
+    // 3. Compute bounding box of all shapes for cropped export
+    const allShapes = shapeManager.getAllShapes();
+    let exportOpts = { pixelRatio: 2, mimeType: 'image/png' };
+
+    if (allShapes.length > 0) {
+      const bbox = this.canvasEngine.getShapesBoundingBox(allShapes);
+      if (bbox && bbox.width > 0 && bbox.height > 0) {
+        const padding = 40;
+        const stage = this.canvasEngine.stage;
+        const scale = stage.scaleX();
+        // Convert canvas-space bbox to stage pixel-space for toDataURL
+        exportOpts.x = bbox.x * scale + stage.x() - padding;
+        exportOpts.y = bbox.y * scale + stage.y() - padding;
+        exportOpts.width = bbox.width * scale + padding * 2;
+        exportOpts.height = bbox.height * scale + padding * 2;
+      }
+    }
+
+    const dataURL = this.canvasEngine.stage.toDataURL(exportOpts);
 
     // 4. Restore visibility states
     overlayLayer.visible(wasOverlayVisible);
