@@ -132,7 +132,19 @@ function createMobileDOM() {
 
         <!-- Diagram Templates Section -->
         <div class="mobile-menu-section mb-4">
-          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Diagram Templates</div>
+          <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">Interactive Sheets & Templates</div>
+          <button class="w-full mb-2 mobile-menu-card-btn flex items-center gap-2.5 p-2.5 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800/80 text-left transition-all active:scale-95" id="m-load-demo-sheet">
+            <span class="p-2 rounded-lg bg-indigo-600 text-white flex-shrink-0 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+            </span>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-indigo-950 dark:text-indigo-200">✨ Try Demo Sheet</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-200 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-300 font-bold uppercase">No-Save</span>
+              </div>
+              <div class="text-[10px] text-indigo-600/80 dark:text-indigo-400">Interactive sandbox to test all features</div>
+            </div>
+          </button>
           <div class="grid grid-cols-2 gap-2">
             <button class="mobile-menu-card-btn flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 text-left transition-all active:scale-95" id="m-load-architecture">
               <span class="p-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex-shrink-0">
@@ -338,6 +350,7 @@ function injectMenuButtons() {
 // ═════════════════════════════════════════════════════════════════════════════
 function wireMoreSheetButtons() {
   const map = {
+    'm-load-demo-sheet': 'menu-btn-demo-sheet',
     'm-load-architecture': 'menu-btn-architecture',
     'm-load-physics': 'menu-btn-physics',
     'm-import': 'menu-btn-import-json',

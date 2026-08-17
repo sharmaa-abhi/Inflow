@@ -55,6 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
     persistenceManager.init(canvasEngine);
     threeDPreviewManager.init(canvasEngine);
 
+    // Direct Playground / Tutorial Sheet Buttons
+    document.getElementById('btn-header-tool-playground')?.addEventListener('click', () => {
+      persistenceManager.loadDemoSheet();
+    });
+    document.getElementById('welcome-btn-playground')?.addEventListener('click', () => {
+      persistenceManager.loadDemoSheet();
+    });
+
     // Desktop UI will be initialized in the resize handler below if needed
 
     // 4. Initialize mobile responsive UI — always runs (CSS controls visibility)

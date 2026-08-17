@@ -6,11 +6,16 @@ import { historyManager } from './HistoryManager';
 import { PenShape } from '../shapes/PenShape';
 import { TextShape } from '../shapes/TextShape';
 import { ImageShape } from '../shapes/ImageShape';
+import { getDemoSheetData } from '../utils/demoSheetData';
 
 class PersistenceManager {
   constructor() {
     this.canvasEngine = null;
     this.storageKey = 'inkflow_scene_state';
+    
+    // Sandbox / Demo Mode state (changes are NOT auto-saved to localStorage)
+    this.isDemoMode = false;
+    this.userSceneBackup = null;
     
     // Debounce save operation to avoid lag during fast drawing/updates
     this.autosave = debounce(() => this.saveScene(), 500);
@@ -52,6 +57,11 @@ class PersistenceManager {
   }
 
   saveScene() {
+    // When in Demo Mode (Sandbox), prevent saving over real user canvas in localStorage!
+    if (this.isDemoMode) {
+      return;
+    }
+
     try {
       const data = this.serializeScene();
       if (data) {
@@ -66,7 +76,7 @@ class PersistenceManager {
     try {
       const raw = localStorage.getItem(this.storageKey);
       if (!raw) {
-        // No saved state! Load the default architecture diagram
+        // No saved state! Load the interactive demo showcase
         this.loadDefaultArchitecture();
         return;
       }
@@ -76,6 +86,113 @@ class PersistenceManager {
     } catch (err) {
       console.error('Error loading saved session:', err);
     }
+  }
+
+  /**
+   * Loads interactive demo playground sheet without saving to localStorage.
+   */
+  loadDemoSheet() {
+    if (!this.isDemoMode) {
+      // Backup user's actual canvas before entering demo mode
+      this.userSceneBackup = this.serializeScene();
+    }
+    this.isDemoMode = true;
+    const demoData = getDemoSheetData();
+    this.importSceneData(demoData);
+    historyManager.clear();
+    this._updateDemoBannerVisibility(true);
+    eventBus.emit('demo-mode-changed', true);
+  }
+
+  /**
+   * Exits demo sheet and restores user's previous work.
+   */
+  exitDemoSheet() {
+    if (!this.isDemoMode) return;
+    this.isDemoMode = false;
+    this._updateDemoBannerVisibility(false);
+
+    if (this.userSceneBackup) {
+      this.importSceneData(this.userSceneBackup);
+      this.userSceneBackup = null;
+    } else {
+      this.loadScene();
+    }
+    historyManager.clear();
+    eventBus.emit('demo-mode-changed', false);
+  }
+
+  /**
+   * Resets demo sheet to clean initial state.
+   */
+  resetDemoSheet() {
+    const demoData = getDemoSheetData();
+    this.importSceneData(demoData);
+    historyManager.clear();
+  }
+
+  /**
+   * Saves current demo sheet state permanently as user's main canvas.
+   */
+  adoptDemoSheetToMain() {
+    this.isDemoMode = false;
+    this._updateDemoBannerVisibility(false);
+    this.userSceneBackup = null;
+    this.saveScene();
+    historyManager.clear();
+    eventBus.emit('demo-mode-changed', false);
+  }
+
+  _updateDemoBannerVisibility(visible) {
+    let banner = document.getElementById('demo-mode-banner');
+    if (!banner && visible) {
+      banner = this._createDemoBanner();
+    }
+    if (banner) {
+      if (visible) {
+        banner.classList.remove('hidden');
+        banner.style.display = 'flex';
+      } else {
+        banner.classList.add('hidden');
+        banner.style.display = 'none';
+      }
+    }
+  }
+
+  _createDemoBanner() {
+    const banner = document.createElement('div');
+    banner.id = 'demo-mode-banner';
+    banner.className = 'demo-mode-banner';
+    banner.innerHTML = `
+      <div class="demo-banner-content">
+        <div class="demo-banner-badge">
+          <span class="demo-pulse-dot"></span>
+          <span class="demo-badge-text">🧪 Demo Sheet (Sandbox Mode)</span>
+        </div>
+        <span class="demo-banner-desc">Temporary playground • Changes are NOT auto-saved</span>
+        <div class="demo-banner-actions">
+          <button id="btn-demo-reset" class="demo-btn secondary" title="Reset Demo Sheet to initial state">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>Reset</span>
+          </button>
+          <button id="btn-demo-adopt" class="demo-btn secondary" title="Keep and save current canvas as your main working document">
+            <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <span>Keep to Main</span>
+          </button>
+          <button id="btn-demo-exit" class="demo-btn primary" title="Exit Demo Sheet and restore your previous work">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span>Exit Demo</span>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(banner);
+
+    banner.querySelector('#btn-demo-reset')?.addEventListener('click', () => this.resetDemoSheet());
+    banner.querySelector('#btn-demo-adopt')?.addEventListener('click', () => this.adoptDemoSheetToMain());
+    banner.querySelector('#btn-demo-exit')?.addEventListener('click', () => this.exitDemoSheet());
+
+    return banner;
   }
 
   /**
@@ -91,8 +208,11 @@ class PersistenceManager {
         this.importSceneData(data);
         historyManager.clear();
       })
-      .catch(err => {
-        console.error('Error loading default architecture diagram:', err);
+      .catch(() => {
+        // Fallback to built-in Demo Showcase
+        const demoData = getDemoSheetData();
+        this.importSceneData(demoData);
+        historyManager.clear();
       });
   }
 
