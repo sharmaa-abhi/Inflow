@@ -47,56 +47,76 @@ export function snapPointToAngle(x, y, ox, oy) {
 }
 
 /**
- * Computes bounding box for rotated coordinates.
- * @param {number} x - Top-left x
- * @param {number} y - Top-left y
- * @param {number} width 
- * @param {number} height 
- * @param {number} rotationDegrees 
- * @returns {{minX: number, minY: number, maxX: number, maxY: number}} Bounding box
+ * Get the axis-aligned bounding box (AABB) of a rectangle after rotation.
+ * Rotates around the center of the rectangle (matching Konva's default rotation origin).
+ * @param {number} x - Top-left X
+ * @param {number} y - Top-left Y
+ * @param {number} width - Width of the rectangle
+ * @param {number} height - Height of the rectangle
+ * @param {number} angleDeg - Rotation angle in degrees (clockwise)
+ * @returns {{ minX: number, minY: number, maxX: number, maxY: number }}
  */
-export function getRotatedBB(x, y, width, height, rotationDegrees) {
-  const rad = (rotationDegrees * Math.PI) / 180;
+export function getRotatedBB(x, y, width, height, angleDeg) {
+  if (!angleDeg || angleDeg === 0) {
+    return { minX: x, minY: y, maxX: x + width, maxY: y + height };
+  }
+
+  const rad = (angleDeg * Math.PI) / 180;
   const cos = Math.cos(rad);
   const sin = Math.sin(rad);
 
-  const points = [
-    { x: 0, y: 0 },
-    { x: width, y: 0 },
-    { x: width, y: height },
-    { x: 0, y: height },
+  // Rotate around the center of the rectangle, not top-left
+  const cx = x + width / 2;
+  const cy = y + height / 2;
+
+  const corners = [
+    { px: x, py: y },
+    { px: x + width, py: y },
+    { px: x + width, py: y + height },
+    { px: x, py: y + height },
   ];
 
-  let minX = Infinity;
-  let minY = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
-
-  for (const p of points) {
-    const rx = x + (p.x * cos - p.y * sin);
-    const ry = y + (p.x * sin + p.y * cos);
-    minX = Math.min(minX, rx);
-    minY = Math.min(minY, ry);
-    maxX = Math.max(maxX, rx);
-    maxY = Math.max(maxY, ry);
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const { px, py } of corners) {
+    const dx = px - cx;
+    const dy = py - cy;
+    const rx = cx + dx * cos - dy * sin;
+    const ry = cy + dx * sin + dy * cos;
+    if (rx < minX) minX = rx;
+    if (rx > maxX) maxX = rx;
+    if (ry < minY) minY = ry;
+    if (ry > maxY) maxY = ry;
   }
 
   return { minX, minY, maxX, maxY };
 }
 
 /**
- * Checks if box A intersects or is fully contained within box B.
- * Box format: { x, y, width, height }
- * @param {Object} rectA 
- * @param {Object} rectB 
- * @returns {boolean} True if they intersect
+ * Tests if two axis-aligned rectangles intersect.
+ * Normalizes both rects to handle negative width/height from reverse-drag creation.
+ * @param {{ x: number, y: number, width: number, height: number }} r1
+ * @param {{ x: number, y: number, width: number, height: number }} r2
+ * @returns {boolean}
  */
-export function rectIntersect(rectA, rectB) {
-  return (
-    rectA.x < rectB.x + rectB.width &&
-    rectA.x + rectA.width > rectB.x &&
-    rectA.y < rectB.y + rectB.height &&
-    rectA.y + rectA.height > rectB.y
+export function rectIntersect(r1, r2) {
+  // Normalize both rects to ensure positive width/height
+  const a = {
+    x: r1.width < 0 ? r1.x + r1.width : r1.x,
+    y: r1.height < 0 ? r1.y + r1.height : r1.y,
+    width: Math.abs(r1.width),
+    height: Math.abs(r1.height),
+  };
+  const b = {
+    x: r2.width < 0 ? r2.x + r2.width : r2.x,
+    y: r2.height < 0 ? r2.y + r2.height : r2.y,
+    width: Math.abs(r2.width),
+    height: Math.abs(r2.height),
+  };
+  return !(
+    a.x > b.x + b.width ||
+    a.x + a.width < b.x ||
+    a.y > b.y + b.height ||
+    a.y + a.height < b.y
   );
 }
 
