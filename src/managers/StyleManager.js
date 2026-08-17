@@ -5,7 +5,7 @@ import { historyManager } from './HistoryManager';
 class StyleManager {
   constructor() {
     this.activeStyles = {
-      stroke: '#1e3a5f', // Brand Primary Stroke
+      stroke: '#1e293b', // Slate-800 — matches BaseShape default
       fill: 'transparent',
       strokeWidth: 2,
       strokeStyle: 'solid', // 'solid', 'dashed', 'dotted'
@@ -23,18 +23,18 @@ class StyleManager {
     // Listen to theme changes to swap default styles
     eventBus.on('theme-changed', (theme) => {
       if (theme === 'dark') {
-        if (this.activeStyles.stroke === '#1e3a5f') {
+        if (this.activeStyles.stroke === '#1e293b') {
           this.activeStyles.stroke = '#ffffff';
         }
-        if (this.activeStyles.fill === '#1e3a5f') {
+        if (this.activeStyles.fill === '#1e293b') {
           this.activeStyles.fill = '#ffffff';
         }
       } else {
         if (this.activeStyles.stroke === '#ffffff') {
-          this.activeStyles.stroke = '#1e3a5f';
+          this.activeStyles.stroke = '#1e293b';
         }
         if (this.activeStyles.fill === '#ffffff') {
-          this.activeStyles.fill = '#1e3a5f';
+          this.activeStyles.fill = '#1e293b';
         }
       }
       eventBus.emit('active-style-changed', this.activeStyles);

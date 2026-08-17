@@ -33,12 +33,12 @@ export class SnapManager {
     this.clearGuides();
 
     const movingNode = movingShape.konvaNode;
-    // Get client rect bounds in stage coordinate space (world coordinates)
-    const movingBox = movingNode.getClientRect({ skipTransform: false });
+    const stage = this.canvasEngine.stage;
+    const shapeLayer = this.canvasEngine.shapeLayer;
+    // Use relativeTo: shapeLayer to get coordinates in canvas space (consistent with node x/y)
+    const movingBox = movingNode.getClientRect({ relativeTo: shapeLayer });
     
-    // We adjust stage zoom/scale factor out for threshold comparison
-    const scale = this.canvasEngine.stage.scaleX();
-    const threshold = this.snapThreshold / scale;
+    const threshold = this.snapThreshold;
 
     const moving = {
       left: movingBox.x,
@@ -60,13 +60,14 @@ export class SnapManager {
 
     // Scan other shapes
     const otherShapes = this.shapeManager.getShapes().filter((s) => s.id !== movingShape.id);
+    const scale = stage.scaleX();
 
     for (const shape of otherShapes) {
       const node = shape.konvaNode;
       // Skip if invisible
       if (!node.visible()) continue;
 
-      const targetBox = node.getClientRect({ skipTransform: false });
+      const targetBox = node.getClientRect({ relativeTo: shapeLayer });
       const target = {
         left: targetBox.x,
         right: targetBox.x + targetBox.width,

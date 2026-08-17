@@ -108,7 +108,12 @@ export class BaseShape {
     if (styleUpdates.fill) this.backgroundColor = styleUpdates.fill; // Backward compat
     if (styleUpdates.strokeWidth !== undefined) this.strokeWidth = styleUpdates.strokeWidth;
     if (styleUpdates.strokeStyle) this.strokeStyle = styleUpdates.strokeStyle;
-    if (styleUpdates.opacity !== undefined) this.opacity = styleUpdates.opacity;
+    if (styleUpdates.opacity !== undefined) {
+      // Normalize: internal storage is 0-100, but callers may send 0-1
+      this.opacity = styleUpdates.opacity <= 1 && styleUpdates.opacity > 0
+        ? styleUpdates.opacity * 100
+        : styleUpdates.opacity;
+    }
     if (styleUpdates.roughness !== undefined) this.roughness = styleUpdates.roughness;
     if (styleUpdates.fillStyle !== undefined) this.fillStyle = styleUpdates.fillStyle;
     
