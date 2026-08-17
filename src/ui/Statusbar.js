@@ -1,4 +1,5 @@
 import { eventBus } from '../core/EventBus';
+import { historyManager } from '../managers/HistoryManager';
 
 export class Statusbar {
   /**
@@ -13,10 +14,13 @@ export class Statusbar {
     this.btnZoomIn = document.getElementById('btn-zoom-in');
     this.btnZoomOut = document.getElementById('btn-zoom-out');
     this.btnZoomReset = document.getElementById('btn-zoom-reset');
-    // Note: grid select is now in the hamburger menu (MainMenu) → #menu-grid-select
+    this.btnUndo = document.getElementById('btn-undo');
+    this.btnRedo = document.getElementById('btn-redo');
+    this.btnHelpBottom = document.getElementById('btn-help-bottom');
 
     this.initEventListeners();
     this.subscribeEvents();
+    this.updateHistoryButtons();
   }
 
   initEventListeners() {
@@ -38,6 +42,41 @@ export class Statusbar {
         this.canvasEngine.zoomReset();
       });
     }
+
+    if (this.zoomDisplay) {
+      this.zoomDisplay.addEventListener('click', () => {
+        this.canvasEngine.zoomReset();
+      });
+    }
+
+    // Undo / Redo Actions
+    if (this.btnUndo) {
+      this.btnUndo.addEventListener('click', () => {
+        historyManager.undo();
+      });
+    }
+
+    if (this.btnRedo) {
+      this.btnRedo.addEventListener('click', () => {
+        historyManager.redo();
+      });
+    }
+
+    // Help Button
+    if (this.btnHelpBottom) {
+      this.btnHelpBottom.addEventListener('click', () => {
+        eventBus.emit('open-shortcuts-modal');
+      });
+    }
+  }
+
+  updateHistoryButtons() {
+    if (this.btnUndo) {
+      this.btnUndo.disabled = !historyManager.canUndo();
+    }
+    if (this.btnRedo) {
+      this.btnRedo.disabled = !historyManager.canRedo();
+    }
   }
 
   subscribeEvents() {
@@ -57,5 +96,9 @@ export class Statusbar {
         this.zoomDisplay.textContent = `${percentage}%`;
       }
     });
+
+    // Sync Undo/Redo button states
+    eventBus.on('shapes-updated', () => this.updateHistoryButtons());
+    eventBus.on('history-changed', () => this.updateHistoryButtons());
   }
 }

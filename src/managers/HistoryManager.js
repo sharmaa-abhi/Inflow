@@ -54,10 +54,18 @@ class HistoryManager {
     this.notifyState();
   }
 
+  canUndo() {
+    return this.undoStack.length > 0;
+  }
+
+  canRedo() {
+    return this.redoStack.length > 0;
+  }
+
   notifyState() {
     eventBus.emit('history-changed', {
-      canUndo: this.undoStack.length > 0,
-      canRedo: this.redoStack.length > 0,
+      canUndo: this.canUndo(),
+      canRedo: this.canRedo(),
     });
   }
 }

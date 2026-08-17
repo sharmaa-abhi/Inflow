@@ -126,11 +126,58 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // 7. Setup Welcome Screen (Inflow empty state)
+    _setupWelcomeScreen(canvasEngine);
+
     console.log('InkFlow successfully initialized!');
   } catch (error) {
     console.error('Error bootstrapping InkFlow application:', error);
   }
 });
+
+// ── Setup Welcome Screen (Inflow empty state banner) ─────────────────────────
+function _setupWelcomeScreen(canvasEngine) {
+  const welcomeScreen = document.getElementById('welcome-screen');
+  if (!welcomeScreen) return;
+
+  const updateWelcomeVisibility = () => {
+    const shapeCount = shapeManager.getAllShapes().length;
+    if (shapeCount > 0) {
+      welcomeScreen.classList.add('opacity-0', 'pointer-events-none');
+      welcomeScreen.classList.remove('opacity-100');
+    } else {
+      welcomeScreen.classList.remove('opacity-0', 'pointer-events-none');
+      welcomeScreen.classList.add('opacity-100');
+    }
+  };
+
+  // Check initial state
+  updateWelcomeVisibility();
+
+  // Subscribe to changes in shape list
+  eventBus.on('shapes-updated', updateWelcomeVisibility);
+
+  // Wire Welcome Screen Quick Actions
+  document.getElementById('welcome-btn-open')?.addEventListener('click', () => {
+    document.getElementById('menu-btn-import-json')?.click();
+  });
+
+  document.getElementById('welcome-btn-help')?.addEventListener('click', () => {
+    eventBus.emit('open-shortcuts-modal');
+  });
+
+  document.getElementById('welcome-btn-collab')?.addEventListener('click', () => {
+    document.getElementById('btn-share-top')?.click();
+  });
+
+  document.getElementById('welcome-btn-signup')?.addEventListener('click', () => {
+    toolManager.setTool('rectangle');
+  });
+
+  document.getElementById('btn-inflow-plus')?.addEventListener('click', () => {
+    alert('Inflow+ Premium Features:\n- Real-time cloud collaboration\n- Infinite version history\n- Custom shape libraries\n- High-resolution SVG/PDF exports');
+  });
+}
 
 // ── Wire up the merged HTML's mobile-specific (mb-) elements ─────────────────
 function _wireMobileElements(canvasEngine) {

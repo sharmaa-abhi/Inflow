@@ -1856,4 +1856,49 @@ body.dark .canvas-search-bar {
   background: transparent; border: none; font-size: 18px;
   color: #94a3b8; cursor: pointer; line-height: 1;
 }
+
+/* ─── Welcome Screen Empty State (Excalidraw Style with "INFLOW") ───────────── */
+.font-hand {
+  font-family: 'Caveat', 'Virgil', 'Architects Daughter', cursive, sans-serif !important;
+}
+
+#welcome-screen {
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.welcome-content {
+  animation: welcome-fade-in 0.35s ease-out;
+}
+
+@keyframes welcome-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.welcome-action-item {
+  color: #475569;
+  font-family: var(--font-sans);
+  border: 1px solid transparent;
+}
+
+body.dark .welcome-action-item {
+  color: #cbd5e1;
+}
+
+.welcome-action-item:hover {
+  background: rgba(241, 245, 249, 0.9);
+  border-color: rgba(226, 232, 240, 0.8);
+}
+
+body.dark .welcome-action-item:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(51, 65, 85, 0.6);
+}
+
 
