@@ -71,22 +71,30 @@
         <!-- App Brand Header -->
         <div class="menu-brand-header">
           <div class="inkflow-logo-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" width="28" height="28">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" width="30" height="30">
               <defs>
-                <linearGradient id="menuLogoGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#6366f1"/>
-                  <stop offset="50%" stop-color="#8b5cf6"/>
-                  <stop offset="100%" stop-color="#a78bfa"/>
+                <linearGradient id="menuLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#4f46e5"/>
+                  <stop offset="50%" stop-color="#7c3aed"/>
+                  <stop offset="100%" stop-color="#06b6d4"/>
+                </linearGradient>
+                <linearGradient id="menuRibbonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8"/>
+                  <stop offset="50%" stop-color="#818cf8"/>
+                  <stop offset="100%" stop-color="#c084fc"/>
                 </linearGradient>
               </defs>
-              <rect width="48" height="48" rx="12" fill="url(#menuLogoGrad)"/>
-              <path d="M24 8 L34 20 L24 40 L14 20 Z" fill="white" fill-opacity="0.15"/>
-              <path d="M24 8 L14 20 L24 28 Z" fill="white" fill-opacity="0.35"/>
-              <path d="M24 8 L34 20 L24 28 Z" fill="white" fill-opacity="0.55"/>
-              <line x1="24" y1="20" x2="24" y2="40" stroke="white" stroke-width="1.2" stroke-opacity="0.5" stroke-linecap="round"/>
-              <ellipse cx="24" cy="39" rx="2.5" ry="3.5" fill="white" fill-opacity="0.9"/>
-              <path d="M18 14 Q12 18 14 24" stroke="white" stroke-width="1.2" stroke-opacity="0.5" fill="none" stroke-linecap="round"/>
-              <path d="M30 14 Q36 18 34 24" stroke="white" stroke-width="1.2" stroke-opacity="0.5" fill="none" stroke-linecap="round"/>
+              <rect width="64" height="64" rx="16" fill="url(#menuLogoGrad)"/>
+              <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.5" fill="none"/>
+              <path d="M12 36 C12 24, 24 20, 32 30 C40 40, 52 36, 52 24 C52 14, 40 16, 32 24" stroke="url(#menuRibbonGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" fill="none"/>
+              <path d="M12 40 C14 26, 26 24, 32 32 C38 40, 50 38, 52 28" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" fill="none"/>
+              <path d="M32 10 L44 26 C44 33, 40 38, 32 50 C24 38, 20 33, 20 26 Z" fill="white" fill-opacity="0.95"/>
+              <path d="M32 10 L20 26 C20 33, 24 38, 32 50 Z" fill="#e0e7ff" fill-opacity="0.6"/>
+              <path d="M32 10 L44 26 C44 33, 40 38, 32 50 Z" fill="#ffffff" fill-opacity="0.95"/>
+              <line x1="32" y1="26" x2="32" y2="48" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round"/>
+              <circle cx="32" cy="26" r="2.6" fill="#4f46e5"/>
+              <circle cx="32" cy="50" r="3.2" fill="#ffffff"/>
+              <path d="M48 12 Q48 16 52 16 Q48 16 48 20 Q48 16 44 16 Q48 16 48 12 Z" fill="#ffffff" opacity="0.95"/>
             </svg>
           </div>
           <span class="menu-brand-title">InkFlow</span>
@@ -397,10 +405,30 @@
       <div class="welcome-content flex flex-col items-center max-w-lg px-4 pointer-events-auto">
         <!-- Brand Title with Inflow Logo -->
         <div class="flex items-center gap-3.5 mb-2.5">
-          <svg class="w-11 h-11 text-indigo-500" viewBox="0 0 48 48" fill="none">
-            <path d="M12 36 L24 12 L36 36 L24 28 Z" fill="#6366f1" fill-opacity="0.85" stroke="#4f46e5" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-            <path d="M24 12 L24 28" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="24" cy="38" r="2.5" fill="#4f46e5"/>
+          <svg class="w-12 h-12 shadow-md rounded-2xl" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+            <defs>
+              <linearGradient id="welcomeLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4f46e5"/>
+                <stop offset="50%" stop-color="#7c3aed"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+              <linearGradient id="welcomeRibbonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8"/>
+                <stop offset="50%" stop-color="#818cf8"/>
+                <stop offset="100%" stop-color="#c084fc"/>
+              </linearGradient>
+            </defs>
+            <rect width="64" height="64" rx="16" fill="url(#welcomeLogoGrad)"/>
+            <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.5" fill="none"/>
+            <path d="M12 36 C12 24, 24 20, 32 30 C40 40, 52 36, 52 24 C52 14, 40 16, 32 24" stroke="url(#welcomeRibbonGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" fill="none"/>
+            <path d="M12 40 C14 26, 26 24, 32 32 C38 40, 50 38, 52 28" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" fill="none"/>
+            <path d="M32 10 L44 26 C44 33, 40 38, 32 50 C24 38, 20 33, 20 26 Z" fill="white" fill-opacity="0.95"/>
+            <path d="M32 10 L20 26 C20 33, 24 38, 32 50 Z" fill="#e0e7ff" fill-opacity="0.6"/>
+            <path d="M32 10 L44 26 C44 33, 40 38, 32 50 Z" fill="#ffffff" fill-opacity="0.95"/>
+            <line x1="32" y1="26" x2="32" y2="48" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="32" cy="26" r="2.6" fill="#4f46e5"/>
+            <circle cx="32" cy="50" r="3.2" fill="#ffffff"/>
+            <path d="M48 12 Q48 16 52 16 Q48 16 48 20 Q48 16 44 16 Q48 16 48 12 Z" fill="#ffffff" opacity="0.95"/>
           </svg>
           <h1 class="text-5xl sm:text-6xl font-bold tracking-widest text-[#94a3b8] dark:text-[#94a3b8] font-hand select-none uppercase">
             INFLOW
@@ -708,20 +736,20 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <header id="top-bar">
     <div class="top-bar-brand">
-      <svg class="brand-icon" viewBox="0 0 48 48" fill="none">
+      <svg class="brand-icon w-7 h-7 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
         <defs>
-          <linearGradient id="mbLogoGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#6366f1"/>
-            <stop offset="50%" stop-color="#8b5cf6"/>
-            <stop offset="100%" stop-color="#a78bfa"/>
+          <linearGradient id="mbLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4f46e5"/>
+            <stop offset="50%" stop-color="#7c3aed"/>
+            <stop offset="100%" stop-color="#06b6d4"/>
           </linearGradient>
         </defs>
-        <rect width="48" height="48" rx="12" fill="url(#mbLogoGrad)"/>
-        <path d="M24 8 L34 20 L24 40 L14 20 Z" fill="white" fill-opacity="0.15"/>
-        <path d="M24 8 L14 20 L24 28 Z" fill="white" fill-opacity="0.35"/>
-        <path d="M24 8 L34 20 L24 28 Z" fill="white" fill-opacity="0.55"/>
-        <line x1="24" y1="20" x2="24" y2="40" stroke="white" stroke-width="1.2" stroke-opacity="0.5" stroke-linecap="round"/>
-        <ellipse cx="24" cy="39" rx="2.5" ry="3.5" fill="white" fill-opacity="0.9"/>
+        <rect width="64" height="64" rx="16" fill="url(#mbLogoGrad)"/>
+        <path d="M12 40 C14 26, 26 24, 32 32 C38 40, 50 38, 52 28" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" fill="none"/>
+        <path d="M32 10 L44 26 C44 33, 40 38, 32 50 C24 38, 20 33, 20 26 Z" fill="white" fill-opacity="0.95"/>
+        <line x1="32" y1="26" x2="32" y2="48" stroke="#4f46e5" stroke-width="1.8" stroke-linecap="round"/>
+        <circle cx="32" cy="26" r="2.8" fill="#4f46e5"/>
+        <circle cx="32" cy="50" r="3.4" fill="#ffffff"/>
       </svg>
       <span class="brand-name">InkFlow</span>
     </div>
