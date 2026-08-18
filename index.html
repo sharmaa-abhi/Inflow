@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
-  <meta name="description" content="InkFlow – a beautiful, professional diagram and whiteboard application." />
-  <title>InkFlow – Professional Diagram & Whiteboard Application</title>
+  <meta name="description" content="Inflow – a beautiful, professional diagram and whiteboard application." />
+  <title>Inflow – Professional Diagram & Whiteboard Application</title>
   <!-- Google Fonts: Caveat (Virgil), Architects Daughter, Fira Code (Cascadia), Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,33 +71,9 @@
         <!-- App Brand Header -->
         <div class="menu-brand-header">
           <div class="inkflow-logo-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" width="30" height="30">
-              <defs>
-                <linearGradient id="menuLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#4f46e5"/>
-                  <stop offset="50%" stop-color="#7c3aed"/>
-                  <stop offset="100%" stop-color="#06b6d4"/>
-                </linearGradient>
-                <linearGradient id="menuRibbonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#38bdf8"/>
-                  <stop offset="50%" stop-color="#818cf8"/>
-                  <stop offset="100%" stop-color="#c084fc"/>
-                </linearGradient>
-              </defs>
-              <rect width="64" height="64" rx="16" fill="url(#menuLogoGrad)"/>
-              <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.5" fill="none"/>
-              <path d="M12 36 C12 24, 24 20, 32 30 C40 40, 52 36, 52 24 C52 14, 40 16, 32 24" stroke="url(#menuRibbonGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" fill="none"/>
-              <path d="M12 40 C14 26, 26 24, 32 32 C38 40, 50 38, 52 28" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" fill="none"/>
-              <path d="M32 10 L44 26 C44 33, 40 38, 32 50 C24 38, 20 33, 20 26 Z" fill="white" fill-opacity="0.95"/>
-              <path d="M32 10 L20 26 C20 33, 24 38, 32 50 Z" fill="#e0e7ff" fill-opacity="0.6"/>
-              <path d="M32 10 L44 26 C44 33, 40 38, 32 50 Z" fill="#ffffff" fill-opacity="0.95"/>
-              <line x1="32" y1="26" x2="32" y2="48" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round"/>
-              <circle cx="32" cy="26" r="2.6" fill="#4f46e5"/>
-              <circle cx="32" cy="50" r="3.2" fill="#ffffff"/>
-              <path d="M48 12 Q48 16 52 16 Q48 16 48 20 Q48 16 44 16 Q48 16 48 12 Z" fill="#ffffff" opacity="0.95"/>
-            </svg>
+            <img src="/inflow-icon.svg" width="30" height="30" alt="Inflow Logo" class="w-full h-full object-contain" />
           </div>
-          <span class="menu-brand-title">InkFlow</span>
+          <span class="menu-brand-title">Inflow</span>
           <span class="menu-brand-version">v2.0</span>
         </div>
 
@@ -404,35 +380,8 @@
     <div id="welcome-screen" class="fixed inset-0 z-10 flex flex-col items-center justify-center pointer-events-none select-none transition-opacity duration-300">
       <div class="welcome-content flex flex-col items-center max-w-lg px-4 pointer-events-auto">
         <!-- Brand Title with Inflow Logo -->
-        <div class="flex items-center gap-3.5 mb-2.5">
-          <svg class="w-12 h-12 shadow-md rounded-2xl" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-            <defs>
-              <linearGradient id="welcomeLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#4f46e5"/>
-                <stop offset="50%" stop-color="#7c3aed"/>
-                <stop offset="100%" stop-color="#06b6d4"/>
-              </linearGradient>
-              <linearGradient id="welcomeRibbonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#38bdf8"/>
-                <stop offset="50%" stop-color="#818cf8"/>
-                <stop offset="100%" stop-color="#c084fc"/>
-              </linearGradient>
-            </defs>
-            <rect width="64" height="64" rx="16" fill="url(#welcomeLogoGrad)"/>
-            <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" stroke="rgba(255, 255, 255, 0.3)" stroke-width="1.5" fill="none"/>
-            <path d="M12 36 C12 24, 24 20, 32 30 C40 40, 52 36, 52 24 C52 14, 40 16, 32 24" stroke="url(#welcomeRibbonGrad)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.45" fill="none"/>
-            <path d="M12 40 C14 26, 26 24, 32 32 C38 40, 50 38, 52 28" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" fill="none"/>
-            <path d="M32 10 L44 26 C44 33, 40 38, 32 50 C24 38, 20 33, 20 26 Z" fill="white" fill-opacity="0.95"/>
-            <path d="M32 10 L20 26 C20 33, 24 38, 32 50 Z" fill="#e0e7ff" fill-opacity="0.6"/>
-            <path d="M32 10 L44 26 C44 33, 40 38, 32 50 Z" fill="#ffffff" fill-opacity="0.95"/>
-            <line x1="32" y1="26" x2="32" y2="48" stroke="#4f46e5" stroke-width="1.6" stroke-linecap="round"/>
-            <circle cx="32" cy="26" r="2.6" fill="#4f46e5"/>
-            <circle cx="32" cy="50" r="3.2" fill="#ffffff"/>
-            <path d="M48 12 Q48 16 52 16 Q48 16 48 20 Q48 16 44 16 Q48 16 48 12 Z" fill="#ffffff" opacity="0.95"/>
-          </svg>
-          <h1 class="text-5xl sm:text-6xl font-bold tracking-widest text-[#94a3b8] dark:text-[#94a3b8] font-hand select-none uppercase">
-            INFLOW
-          </h1>
+        <div class="flex flex-col items-center justify-center mb-3">
+          <img src="/logo.svg" class="h-28 sm:h-32 w-auto object-contain drop-shadow-sm select-none" alt="Inflow Logo" />
         </div>
 
         <!-- Handwritten Subtitle Message -->
@@ -736,22 +685,8 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <header id="top-bar">
     <div class="top-bar-brand">
-      <svg class="brand-icon w-7 h-7 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-        <defs>
-          <linearGradient id="mbLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#4f46e5"/>
-            <stop offset="50%" stop-color="#7c3aed"/>
-            <stop offset="100%" stop-color="#06b6d4"/>
-          </linearGradient>
-        </defs>
-        <rect width="64" height="64" rx="16" fill="url(#mbLogoGrad)"/>
-        <path d="M12 40 C14 26, 26 24, 32 32 C38 40, 50 38, 52 28" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" fill="none"/>
-        <path d="M32 10 L44 26 C44 33, 40 38, 32 50 C24 38, 20 33, 20 26 Z" fill="white" fill-opacity="0.95"/>
-        <line x1="32" y1="26" x2="32" y2="48" stroke="#4f46e5" stroke-width="1.8" stroke-linecap="round"/>
-        <circle cx="32" cy="26" r="2.8" fill="#4f46e5"/>
-        <circle cx="32" cy="50" r="3.4" fill="#ffffff"/>
-      </svg>
-      <span class="brand-name">InkFlow</span>
+      <img src="/inflow-icon.svg" class="brand-icon w-7 h-7 flex-shrink-0 object-contain" alt="Inflow Logo" />
+      <span class="brand-name">Inflow</span>
     </div>
 
     <div class="top-bar-actions">
