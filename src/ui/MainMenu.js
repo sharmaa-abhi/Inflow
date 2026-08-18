@@ -17,6 +17,7 @@ export class MainMenu {
     this.menuDropdown = document.getElementById('main-menu-dropdown');
 
     // Menu Actions
+    this.btnDemoSheet = document.getElementById('menu-btn-demo-sheet');
     this.btnLoadArchitecture = document.getElementById('menu-btn-architecture');
     this.btnLoadPhysics = document.getElementById('menu-btn-physics');
     this.btnImportJson = document.getElementById('menu-btn-import-json');
@@ -75,6 +76,13 @@ export class MainMenu {
     }
 
     // Bind Menu Actions
+    if (this.btnDemoSheet) {
+      this.btnDemoSheet.addEventListener('click', () => {
+        persistenceManager.loadDemoSheet();
+        this.close();
+      });
+    }
+
     if (this.btnLoadArchitecture) {
       this.btnLoadArchitecture.addEventListener('click', () => {
         persistenceManager.loadDefaultArchitecture();

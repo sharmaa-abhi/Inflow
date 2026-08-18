@@ -1,14 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="100%" height="100%" fill="none">
   <defs>
     <!-- Brand Orange Gradient -->
-    <linearGradient id="favOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="iconOrange" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#faa234"/>
       <stop offset="35%" stop-color="#f6861e"/>
       <stop offset="100%" stop-color="#eb630e"/>
     </linearGradient>
 
     <!-- Deep Brand Teal -->
-    <linearGradient id="favTeal" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="iconTeal" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#0f4e53"/>
       <stop offset="100%" stop-color="#09373b"/>
     </linearGradient>
@@ -18,9 +18,9 @@
     <!-- 1. ORANGE FLOURISH -->
     <g id="orange-flourish">
       <!-- Brush Wisps -->
-      <path d="M 112 76 C 118 62 130 50 148 40 C 140 48 130 60 122 72 Z" fill="url(#favOrange)"/>
-      <path d="M 116 72 C 126 56 142 42 165 32 C 152 42 136 58 126 72 Z" fill="url(#favOrange)"/>
-      <path d="M 122 68 C 136 48 158 34 186 24 C 170 36 148 52 134 70 Z" fill="url(#favOrange)"/>
+      <path d="M 112 76 C 118 62 130 50 148 40 C 140 48 130 60 122 72 Z" fill="url(#iconOrange)"/>
+      <path d="M 116 72 C 126 56 142 42 165 32 C 152 42 136 58 126 72 Z" fill="url(#iconOrange)"/>
+      <path d="M 122 68 C 136 48 158 34 186 24 C 170 36 148 52 134 70 Z" fill="url(#iconOrange)"/>
 
       <!-- Single Continuous Ribbon -->
       <path d="
@@ -47,7 +47,7 @@
         C 214 130, 200 106, 182 86
         C 160 62, 134 66, 114 74
         Z" 
-        fill="url(#favOrange)" />
+        fill="url(#iconOrange)" />
     </g>
 
     <!-- 2. TEAL PEN NIB -->
@@ -59,7 +59,7 @@
         L 86 168
         C 83 156, 76 140, 74 122
         Z" 
-        fill="url(#favTeal)" />
+        fill="url(#iconTeal)" />
 
       <path d="
         M 110.5 76
@@ -71,7 +71,7 @@
 
       <path d="M 86 169 Q 109 161 132 169 L 132 167 Q 109 159 86 167 Z" fill="#ffffff" />
 
-      <rect x="81" y="176" width="56" height="17" rx="8.5" fill="url(#favTeal)" />
+      <rect x="81" y="176" width="56" height="17" rx="8.5" fill="url(#iconTeal)" />
     </g>
   </g>
 </svg>

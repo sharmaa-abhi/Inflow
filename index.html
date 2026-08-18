@@ -9,8 +9,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
-  <meta name="description" content="InkFlow – a beautiful, professional diagram and whiteboard application." />
-  <title>InkFlow – Professional Diagram & Whiteboard Application</title>
+  <meta name="description" content="Inflow – a beautiful, professional diagram and whiteboard application." />
+  <title>Inflow – Professional Diagram & Whiteboard Application</title>
   <!-- Google Fonts: Caveat (Virgil), Architects Daughter, Fira Code (Cascadia), Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,25 +71,9 @@
         <!-- App Brand Header -->
         <div class="menu-brand-header">
           <div class="inkflow-logo-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" width="28" height="28">
-              <defs>
-                <linearGradient id="menuLogoGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#6366f1"/>
-                  <stop offset="50%" stop-color="#8b5cf6"/>
-                  <stop offset="100%" stop-color="#a78bfa"/>
-                </linearGradient>
-              </defs>
-              <rect width="48" height="48" rx="12" fill="url(#menuLogoGrad)"/>
-              <path d="M24 8 L34 20 L24 40 L14 20 Z" fill="white" fill-opacity="0.15"/>
-              <path d="M24 8 L14 20 L24 28 Z" fill="white" fill-opacity="0.35"/>
-              <path d="M24 8 L34 20 L24 28 Z" fill="white" fill-opacity="0.55"/>
-              <line x1="24" y1="20" x2="24" y2="40" stroke="white" stroke-width="1.2" stroke-opacity="0.5" stroke-linecap="round"/>
-              <ellipse cx="24" cy="39" rx="2.5" ry="3.5" fill="white" fill-opacity="0.9"/>
-              <path d="M18 14 Q12 18 14 24" stroke="white" stroke-width="1.2" stroke-opacity="0.5" fill="none" stroke-linecap="round"/>
-              <path d="M30 14 Q36 18 34 24" stroke="white" stroke-width="1.2" stroke-opacity="0.5" fill="none" stroke-linecap="round"/>
-            </svg>
+            <img src="/inflow-icon.svg" width="30" height="30" alt="Inflow Logo" class="w-full h-full object-contain" />
           </div>
-          <span class="menu-brand-title">InkFlow</span>
+          <span class="menu-brand-title">Inflow</span>
           <span class="menu-brand-version">v2.0</span>
         </div>
 
@@ -120,7 +104,14 @@
 
         <!-- File Actions -->
         <div class="menu-section">
-          <span class="menu-section-label">File & Data</span>
+          <span class="menu-section-label">Interactive Sheets & Data</span>
+          <button id="menu-btn-demo-sheet" class="menu-btn font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/60 dark:border-indigo-800/60">
+            <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            <span>✨ Try Demo Sheet (Sandbox)</span>
+            <span class="text-[10px] ml-auto px-1.5 py-0.5 rounded-full bg-indigo-200/80 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold uppercase">No-Save</span>
+          </button>
           <button id="menu-btn-architecture" class="menu-btn">
             <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -361,6 +352,16 @@
 
         <div class="header-divider"></div>
 
+        <!-- Interactive Tool Practice Button -->
+        <button id="btn-header-tool-playground" class="header-playground-btn flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200 bg-indigo-100/90 dark:bg-indigo-950/70 hover:bg-indigo-200/90 dark:hover:bg-indigo-900/80 rounded-xl transition-all duration-150 active:scale-95 border border-indigo-300/80 dark:border-indigo-700/60 shadow-xs" title="Open Step-by-Step Tool Practice Sheet">
+          <svg class="w-3.5 h-3.5 text-indigo-600 dark:text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span class="hidden sm:inline">🎯 Practice Tools</span>
+        </button>
+
+        <div class="header-divider"></div>
+
         <!-- Theme Toggle -->
         <button id="btn-theme-toggle" class="ui-btn" title="Toggle Dark/Light Mode">
           <svg id="theme-icon-sun" class="w-4 h-4 block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -379,15 +380,8 @@
     <div id="welcome-screen" class="fixed inset-0 z-10 flex flex-col items-center justify-center pointer-events-none select-none transition-opacity duration-300">
       <div class="welcome-content flex flex-col items-center max-w-lg px-4 pointer-events-auto">
         <!-- Brand Title with Inflow Logo -->
-        <div class="flex items-center gap-3.5 mb-2.5">
-          <svg class="w-11 h-11 text-indigo-500" viewBox="0 0 48 48" fill="none">
-            <path d="M12 36 L24 12 L36 36 L24 28 Z" fill="#6366f1" fill-opacity="0.85" stroke="#4f46e5" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-            <path d="M24 12 L24 28" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="24" cy="38" r="2.5" fill="#4f46e5"/>
-          </svg>
-          <h1 class="text-5xl sm:text-6xl font-bold tracking-widest text-[#94a3b8] dark:text-[#94a3b8] font-hand select-none uppercase">
-            INFLOW
-          </h1>
+        <div class="flex flex-col items-center justify-center mb-3">
+          <img src="/logo.svg" class="h-28 sm:h-32 w-auto object-contain drop-shadow-sm select-none" alt="Inflow Logo" />
         </div>
 
         <!-- Handwritten Subtitle Message -->
@@ -399,6 +393,16 @@
 
         <!-- Quick Actions Menu -->
         <div class="flex flex-col gap-1.5 w-full max-w-xs text-sm text-slate-600 dark:text-zinc-300 font-medium">
+          <button id="welcome-btn-playground" class="welcome-action-item flex items-center justify-between px-4 py-2.5 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/80 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors cursor-pointer group">
+            <div class="flex items-center gap-3">
+              <svg class="w-4 h-4 text-indigo-600 dark:text-amber-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <span class="font-semibold">🎯 Practice All Tools (Tutorial)</span>
+            </div>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-200/80 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold uppercase">Try</span>
+          </button>
+
           <button id="welcome-btn-open" class="welcome-action-item flex items-center justify-between px-4 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-zinc-800/80 transition-colors cursor-pointer group">
             <div class="flex items-center gap-3">
               <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -681,22 +685,8 @@
   <!-- ═══════════════════════════════════════════════════════════════════════ -->
   <header id="top-bar">
     <div class="top-bar-brand">
-      <svg class="brand-icon" viewBox="0 0 48 48" fill="none">
-        <defs>
-          <linearGradient id="mbLogoGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#6366f1"/>
-            <stop offset="50%" stop-color="#8b5cf6"/>
-            <stop offset="100%" stop-color="#a78bfa"/>
-          </linearGradient>
-        </defs>
-        <rect width="48" height="48" rx="12" fill="url(#mbLogoGrad)"/>
-        <path d="M24 8 L34 20 L24 40 L14 20 Z" fill="white" fill-opacity="0.15"/>
-        <path d="M24 8 L14 20 L24 28 Z" fill="white" fill-opacity="0.35"/>
-        <path d="M24 8 L34 20 L24 28 Z" fill="white" fill-opacity="0.55"/>
-        <line x1="24" y1="20" x2="24" y2="40" stroke="white" stroke-width="1.2" stroke-opacity="0.5" stroke-linecap="round"/>
-        <ellipse cx="24" cy="39" rx="2.5" ry="3.5" fill="white" fill-opacity="0.9"/>
-      </svg>
-      <span class="brand-name">InkFlow</span>
+      <img src="/inflow-icon.svg" class="brand-icon w-7 h-7 flex-shrink-0 object-contain" alt="Inflow Logo" />
+      <span class="brand-name">Inflow</span>
     </div>
 
     <div class="top-bar-actions">
