@@ -4,7 +4,6 @@ export class Tooltip {
   constructor() {
     this.tooltipEl = null;
     this.activeElement = null;
-    console.log('Tooltip system constructor called');
     this.init();
   }
 
@@ -13,7 +12,6 @@ export class Tooltip {
     this.tooltipEl = document.createElement('div');
     this.tooltipEl.className = 'custom-tooltip';
     document.body.appendChild(this.tooltipEl);
-    console.log('Tooltip container appended to body');
 
     // Global listener for hover (delegated for dynamically created elements too!)
     document.addEventListener('mouseover', (e) => {

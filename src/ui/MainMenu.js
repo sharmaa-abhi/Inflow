@@ -203,10 +203,11 @@ export class MainMenu {
 
     if (this.btnThemeToggle) {
       this.btnThemeToggle.addEventListener('click', () => {
-        themeManager.setDarkTheme(!themeManager.isDark);
+        themeManager.toggle();
         this.syncThemeLabel();
       });
       this.syncThemeLabel();
+      eventBus.on('theme-changed', () => this.syncThemeLabel());
     }
 
     if (this.gridSelect) {

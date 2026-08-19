@@ -148,14 +148,23 @@ function _setupWelcomeScreen(canvasEngine) {
   const welcomeScreen = document.getElementById('welcome-screen');
   if (!welcomeScreen) return;
 
+  let welcomeDismissed = false;
+
+  const dismissWelcome = () => {
+    if (welcomeDismissed) return;
+    welcomeDismissed = true;
+    welcomeScreen.classList.add('opacity-0', 'pointer-events-none');
+    welcomeScreen.classList.remove('opacity-100');
+    // After fade-out animation, hide completely
+    setTimeout(() => {
+      welcomeScreen.style.display = 'none';
+    }, 300);
+  };
+
   const updateWelcomeVisibility = () => {
     const shapeCount = shapeManager.getAllShapes().length;
     if (shapeCount > 0) {
-      welcomeScreen.classList.add('opacity-0', 'pointer-events-none');
-      welcomeScreen.classList.remove('opacity-100');
-    } else {
-      welcomeScreen.classList.remove('opacity-0', 'pointer-events-none');
-      welcomeScreen.classList.add('opacity-100');
+      dismissWelcome();
     }
   };
 
@@ -164,6 +173,21 @@ function _setupWelcomeScreen(canvasEngine) {
 
   // Subscribe to changes in shape list
   eventBus.on('shapes-updated', updateWelcomeVisibility);
+
+  // Dismiss welcome screen on any user interaction (touch, click, key)
+  const canvasContainer = document.getElementById('canvas-container');
+  const interactionEvents = ['pointerdown', 'touchstart', 'mousedown'];
+  
+  interactionEvents.forEach(eventName => {
+    canvasContainer?.addEventListener(eventName, dismissWelcome, { once: true });
+  });
+
+  // Also dismiss on any keyboard interaction (e.g. pressing a shortcut key)
+  document.addEventListener('keydown', (e) => {
+    // Don't dismiss on modifier-only keys
+    if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) return;
+    dismissWelcome();
+  }, { once: true });
 
   // Wire Welcome Screen Quick Actions
   document.getElementById('welcome-btn-open')?.addEventListener('click', () => {
@@ -258,24 +282,22 @@ function _wireMobileElements(canvasEngine) {
   const mbSunIcon  = document.getElementById('mb-theme-icon-sun');
   const mbMoonIcon = document.getElementById('mb-theme-icon-moon');
 
-  mbThemeBtn?.addEventListener('click', () => {
-    document.getElementById('btn-theme-toggle')?.click();
-    // Sync icon state
-    const isDark = document.body.classList.contains('dark');
+  const updateMobileThemeIcons = (isDark) => {
     mbSunIcon?.classList.toggle('hidden', isDark);
     mbMoonIcon?.classList.toggle('hidden', !isDark);
+  };
+
+  mbThemeBtn?.addEventListener('click', () => {
+    themeManager.toggle();
   });
 
-  // Keep icons in sync when theme changes via desktop button
-  const origToggle = themeManager.toggle?.bind(themeManager);
-  if (origToggle) {
-    themeManager.toggle = (...args) => {
-      origToggle(...args);
-      const isDark = document.body.classList.contains('dark');
-      mbSunIcon?.classList.toggle('hidden', isDark);
-      mbMoonIcon?.classList.toggle('hidden', !isDark);
-    };
-  }
+  // Keep mobile icons synchronized on any theme change event
+  eventBus.on('theme-changed', (theme) => {
+    updateMobileThemeIcons(theme === 'dark');
+  });
+
+  // Initialize initial mobile theme icons state
+  updateMobileThemeIcons(document.body.classList.contains('dark'));
 
   // ── Export PNG ────────────────────────────────────────────────────────────────
   document.getElementById('mb-btn-export-png')?.addEventListener('click', () => {
