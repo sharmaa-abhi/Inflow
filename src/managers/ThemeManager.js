@@ -28,8 +28,12 @@ class ThemeManager {
 
     // Bind click listener
     this.btnToggle.addEventListener('click', () => {
-      this.setDarkTheme(!this.isDark);
+      this.toggle();
     });
+  }
+
+  toggle() {
+    this.setDarkTheme(!this.isDark);
   }
 
   setDarkTheme(isDark) {

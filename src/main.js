@@ -282,24 +282,22 @@ function _wireMobileElements(canvasEngine) {
   const mbSunIcon  = document.getElementById('mb-theme-icon-sun');
   const mbMoonIcon = document.getElementById('mb-theme-icon-moon');
 
-  mbThemeBtn?.addEventListener('click', () => {
-    document.getElementById('btn-theme-toggle')?.click();
-    // Sync icon state
-    const isDark = document.body.classList.contains('dark');
+  const updateMobileThemeIcons = (isDark) => {
     mbSunIcon?.classList.toggle('hidden', isDark);
     mbMoonIcon?.classList.toggle('hidden', !isDark);
+  };
+
+  mbThemeBtn?.addEventListener('click', () => {
+    themeManager.toggle();
   });
 
-  // Keep icons in sync when theme changes via desktop button
-  const origToggle = themeManager.toggle?.bind(themeManager);
-  if (origToggle) {
-    themeManager.toggle = (...args) => {
-      origToggle(...args);
-      const isDark = document.body.classList.contains('dark');
-      mbSunIcon?.classList.toggle('hidden', isDark);
-      mbMoonIcon?.classList.toggle('hidden', !isDark);
-    };
-  }
+  // Keep mobile icons synchronized on any theme change event
+  eventBus.on('theme-changed', (theme) => {
+    updateMobileThemeIcons(theme === 'dark');
+  });
+
+  // Initialize initial mobile theme icons state
+  updateMobileThemeIcons(document.body.classList.contains('dark'));
 
   // ── Export PNG ────────────────────────────────────────────────────────────────
   document.getElementById('mb-btn-export-png')?.addEventListener('click', () => {

@@ -145,8 +145,11 @@ export class PropertiesPanel {
     // Bind Z-index change
     if (this.inpZIndex) {
       this.inpZIndex.addEventListener('change', (e) => {
-        const val = parseInt(e.target.value, 10);
-        if (!isNaN(val)) {
+        const allShapes = shapeManager.getAllShapes();
+        let val = parseInt(e.target.value, 10);
+        if (!isNaN(val) && allShapes.length > 0) {
+          val = Math.max(0, Math.min(val, allShapes.length - 1));
+          this.inpZIndex.value = val;
           toolManager.changeSelectedZIndex(val);
         }
       });
