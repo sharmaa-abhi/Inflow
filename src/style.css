@@ -978,28 +978,28 @@ body.dark .three-d-plate.active-plate {
   border-color: #444455;
 }
 
-/* Main Menu Dropdown Flyout */
+/* Main Menu Dropdown Flyout (Compact Excalidraw Style) */
 .main-menu-dropdown {
   position: absolute;
-  top: 48px;
+  top: 46px;
   left: 0;
-  width: 236px;
-  max-height: calc(100vh - 65px);
-  max-height: calc(100dvh - 65px);
+  width: 204px;
+  max-height: calc(100vh - 110px);
+  max-height: calc(100dvh - 110px);
   overflow-y: auto;
   overflow-x: visible;
-  padding: 6px;
-  border-radius: 12px;
+  padding: 4px;
+  border-radius: 10px;
   background: #1e1e24;
   border: 1px solid #2e2e38;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   transform-origin: top left;
   transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
-  z-index: 50;
+  z-index: 60;
   scrollbar-width: thin;
   scrollbar-color: #3e3e4e transparent;
 }
@@ -1031,18 +1031,18 @@ body.dark .three-d-plate.active-plate {
 .menu-action-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .menu-action-item {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 7px 10px;
-  border-radius: 8px;
+  padding: 4.5px 7px;
+  border-radius: 6px;
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #ced2dc;
   cursor: pointer;
@@ -1058,7 +1058,9 @@ body.dark .three-d-plate.active-plate {
 }
 
 .menu-action-icon {
-  margin-right: 10px;
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
   flex-shrink: 0;
   color: #9b9ea8;
 }
@@ -1075,7 +1077,7 @@ body.dark .three-d-plate.active-plate {
 }
 
 .menu-shortcut-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-family: var(--font-sans);
   color: #727483;
   margin-left: auto;
@@ -1104,22 +1106,22 @@ body.dark .three-d-plate.active-plate {
 .menu-flyout-divider {
   height: 1px;
   background: #2b2b36;
-  margin: 4px 6px;
+  margin: 2px 4px;
 }
 
-/* Preferences Submenu Popout */
+/* Preferences Submenu Popout (Compact) */
 .preferences-submenu {
   position: fixed;
-  width: 228px;
+  width: 208px;
   background: #1e1e24;
   border: 1px solid #2e2e38;
-  border-radius: 12px;
-  padding: 6px;
+  border-radius: 10px;
+  padding: 4px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 90;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   animation: fadeInPop 0.15s ease-out;
 }
 
@@ -1132,11 +1134,11 @@ body.dark .three-d-plate.active-plate {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
+  padding: 4px 7px;
 }
 
 .pref-row-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #ced2dc;
 }
@@ -1144,15 +1146,15 @@ body.dark .three-d-plate.active-plate {
 .pref-segmented-switch {
   display: inline-flex;
   background: #141418;
-  padding: 2px;
-  border-radius: 8px;
+  padding: 1.5px;
+  border-radius: 6px;
   border: 1px solid #2e2e38;
 }
 
 .pref-segment-btn {
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 11px;
   font-weight: 600;
   color: #787a8b;
   background: transparent;
@@ -1170,11 +1172,11 @@ body.dark .three-d-plate.active-plate {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 7px 10px;
-  border-radius: 8px;
+  padding: 4.5px 7px;
+  border-radius: 6px;
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #ced2dc;
   cursor: pointer;
@@ -1198,8 +1200,8 @@ body.dark .three-d-plate.active-plate {
 }
 
 .pref-check-icon {
-  width: 16px;
-  font-size: 13px;
+  width: 14px;
+  font-size: 12px;
   font-weight: 700;
   color: #ced2dc;
   margin-right: 4px;
@@ -1210,12 +1212,12 @@ body.dark .three-d-plate.active-plate {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  margin-top: 2px;
+  padding: 4px 7px;
+  margin-top: 1px;
 }
 
 .menu-theme-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #ced2dc;
 }
@@ -1223,15 +1225,15 @@ body.dark .three-d-plate.active-plate {
 .theme-segmented-pills {
   display: inline-flex;
   background: #141418;
-  padding: 2px;
-  border-radius: 8px;
+  padding: 1.5px;
+  border-radius: 6px;
   border: 1px solid #2e2e38;
 }
 
 .theme-pill-btn {
-  width: 30px;
-  height: 26px;
-  border-radius: 6px;
+  width: 25px;
+  height: 22px;
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1254,16 +1256,16 @@ body.dark .three-d-plate.active-plate {
 /* Language Selector */
 .menu-language-wrap {
   position: relative;
-  margin: 4px 6px;
+  margin: 2px 4px;
 }
 
 .menu-language-dropdown {
   width: 100%;
   background: #141418;
   border: 1px solid #2e2e38;
-  border-radius: 8px;
-  padding: 6px 28px 6px 10px;
-  font-size: 13px;
+  border-radius: 6px;
+  padding: 4px 22px 4px 7px;
+  font-size: 11px;
   font-weight: 500;
   color: #ced2dc;
   appearance: none;
@@ -1277,7 +1279,7 @@ body.dark .three-d-plate.active-plate {
 
 .menu-lang-chevron {
   position: absolute;
-  right: 10px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
@@ -1286,27 +1288,27 @@ body.dark .three-d-plate.active-plate {
 
 /* Canvas Background Swatches */
 .menu-canvas-bg-wrap {
-  padding: 6px 10px 4px 10px;
+  padding: 4px 7px 2px 7px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .menu-canvas-bg-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: #ced2dc;
 }
 
 .menu-canvas-bg-palette {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
 .canvas-bg-swatch {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
   border: 1px solid #3e3e4c;
   cursor: pointer;
   transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;

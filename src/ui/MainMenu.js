@@ -435,9 +435,10 @@ export class MainMenu {
     const shapes = shapeManager.getAllShapes();
     if (shapes.length === 0) return;
 
-    if (!confirm('Are you sure you want to clear the canvas?')) return;
+    if (!confirm('Are you sure you want to reset the canvas?')) return;
 
     shapeManager.deselectAll();
+    eventBus.emit('selection-changed', []);
     const serialized = shapes.map((s) => s.serialize());
 
     shapes.forEach((s) => {
@@ -445,35 +446,49 @@ export class MainMenu {
     });
     shapeManager.clear();
     this.canvasEngine.shapeLayer.destroyChildren();
+    this.canvasEngine.penLayer?.destroyChildren();
+    this.canvasEngine.textLayer?.destroyChildren();
     this.canvasEngine.batchDrawAll();
 
     historyManager.registerChange({
       type: 'clear-canvas',
       undo: () => {
         shapeManager.deselectAll();
+        eventBus.emit('selection-changed', []);
         const old = shapeManager.getAllShapes();
         old.forEach((s) => {
           if (typeof s.destroy === 'function') s.destroy();
         });
         shapeManager.clear();
         this.canvasEngine.shapeLayer.destroyChildren();
+        this.canvasEngine.penLayer?.destroyChildren();
+        this.canvasEngine.textLayer?.destroyChildren();
 
         serialized.forEach((json) => {
           const restored = shapeManager.recreateShape(json);
           if (restored) {
-            this.canvasEngine.shapeLayer.add(restored.konvaNode);
+            if (restored.type === 'pen' && this.canvasEngine.penLayer) {
+              this.canvasEngine.penLayer.add(restored.konvaNode);
+            } else if (restored.type === 'text' && this.canvasEngine.textLayer) {
+              this.canvasEngine.textLayer.add(restored.konvaNode);
+            } else {
+              this.canvasEngine.shapeLayer.add(restored.konvaNode);
+            }
           }
         });
         this.canvasEngine.batchDrawAll();
       },
       redo: () => {
         shapeManager.deselectAll();
+        eventBus.emit('selection-changed', []);
         const currentShapes = shapeManager.getAllShapes();
         currentShapes.forEach((s) => {
           if (typeof s.destroy === 'function') s.destroy();
         });
         shapeManager.clear();
         this.canvasEngine.shapeLayer.destroyChildren();
+        this.canvasEngine.penLayer?.destroyChildren();
+        this.canvasEngine.textLayer?.destroyChildren();
         this.canvasEngine.batchDrawAll();
       },
     });
