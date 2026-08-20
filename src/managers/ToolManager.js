@@ -26,6 +26,12 @@ class ToolManager {
     this.isSpacePanActive = false;
     this.previousToolBeforeSpace = null;
 
+    // Tool Lock state (Excalidraw Q toggle)
+    this.toolLockEnabled = localStorage.getItem('inkflow_tool_lock') === 'true';
+
+    // Zen Mode state (Alt+Z)
+    this.isZenMode = false;
+
     // Keyboard arrow nudging states
     this.isNudging = false;
     this.nudgeStartPositions = null;
@@ -86,6 +92,22 @@ class ToolManager {
     eventBus.emit('tool-changed', type);
   }
 
+  toggleToolLock(forceVal = null) {
+    this.toolLockEnabled = forceVal !== null ? forceVal : !this.toolLockEnabled;
+    localStorage.setItem('inkflow_tool_lock', this.toolLockEnabled ? 'true' : 'false');
+    eventBus.emit('tool-lock-changed', this.toolLockEnabled);
+  }
+
+  toggleZenMode(forceVal = null) {
+    this.isZenMode = forceVal !== null ? forceVal : !this.isZenMode;
+    if (this.isZenMode) {
+      document.body.classList.add('zen-mode');
+    } else {
+      document.body.classList.remove('zen-mode');
+    }
+    eventBus.emit('zen-mode-changed', this.isZenMode);
+  }
+
   isEditingText() {
     return document.activeElement && (
       document.activeElement.tagName === 'INPUT' ||
@@ -108,10 +130,16 @@ class ToolManager {
       if (this.activeTool) this.activeTool.onPointerUp(data);
     });
 
-    // Auto switch to select tool when text/shape creation completes
+    // Auto switch to select tool when text/shape creation completes (unless tool lock is enabled)
     eventBus.on('tool-action-completed', () => {
-      this.setTool('select');
+      if (!this.toolLockEnabled) {
+        this.setTool('select');
+      }
     });
+
+    eventBus.on('toggle-tool-lock', (val) => this.toggleToolLock(val));
+    eventBus.on('toggle-zen-mode', (val) => this.toggleZenMode(val));
+    eventBus.on('toggle-view-mode', () => this.canvasEngine?.toggleViewMode());
   }
 
   setupKeyboardShortcuts() {
@@ -200,8 +228,27 @@ class ToolManager {
         }
       }
 
-      // ─── NUMBER KEYS & ALPHANUMERIC SHORTCUTS (No Ctrl/Cmd) ─────────
-      if (!e.ctrlKey && !e.metaKey) {
+      // ─── ALT SHORTCUTS ───────────────────────────────────────────────
+      if (e.altKey && !e.ctrlKey && !e.metaKey) {
+        const key = e.key.toLowerCase();
+        if (key === 'z') {
+          e.preventDefault();
+          this.toggleZenMode();
+        } else if (key === 'r') {
+          e.preventDefault();
+          this.canvasEngine?.toggleViewMode();
+        } else if (key === 's') {
+          e.preventDefault();
+          eventBus.emit('toggle-snap-objects');
+        } else if (key === '/' || key === '?') {
+          e.preventDefault();
+          eventBus.emit('toggle-properties-panel');
+        }
+      }
+
+      // ─── NUMBER KEYS & ALPHANUMERIC SHORTCUTS (No Ctrl/Cmd/Alt) ───────
+      if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+        const key = e.key.toLowerCase();
         if (e.shiftKey) {
           // Shift + Number Key Combinations
           switch (e.key) {
@@ -244,37 +291,53 @@ class ToolManager {
               break;
           }
         } else {
-          // Pure Number Keys 1–0 & Essential Keys
-          switch (e.key) {
+          // Pure Number Keys 1–0 & Essential Keys & Excalidraw Tool Keys
+          switch (key) {
             case '1':
+            case 'v':
               this.setTool('select');
               break;
             case '2':
+            case 'h':
               this.setTool('hand');
               break;
             case '3':
+            case 'r':
               this.setTool('rectangle');
               break;
             case '4':
+            case 'o':
               this.setTool('circle');
               break;
             case '5':
+            case 'd':
               this.setTool('diamond');
               break;
             case '6':
+            case 'l':
               this.setTool('line');
               break;
             case '7':
+            case 'a':
               this.setTool('arrow');
               break;
             case '8':
+            case 'p':
               this.setTool('pen');
               break;
             case '9':
+            case 't':
               this.setTool('text');
               break;
             case '0':
+            case 'e':
               this.setTool('eraser');
+              break;
+            case 'k':
+              this.setTool('laser');
+              break;
+            case 'q':
+              this.toggleToolLock();
               break;
             case '+':
             case '=':
@@ -287,15 +350,17 @@ class ToolManager {
             case '?':
               eventBus.emit('open-shortcuts-modal');
               break;
-            case 'Escape':
-              if (this.activeToolType !== 'select') {
+            case 'escape':
+              if (this.isZenMode) {
+                this.toggleZenMode(false);
+              } else if (this.activeToolType !== 'select') {
                 this.setTool('select');
               } else {
                 shapeManager.deselectAll();
               }
               break;
-            case 'Delete':
-            case 'Backspace':
+            case 'delete':
+            case 'backspace':
               this.deleteSelectedShapes();
               break;
           }
@@ -365,6 +430,15 @@ class ToolManager {
           e.preventDefault();
         } else if (key === 'f') {
           eventBus.emit('open-search');
+          e.preventDefault();
+        } else if (key === '/' || key === 'k') {
+          eventBus.emit('open-command-palette');
+          e.preventDefault();
+        } else if (key === "'") {
+          this.canvasEngine?.toggleGrid();
+          e.preventDefault();
+        } else if (key === 'delete' || key === 'backspace') {
+          document.getElementById('menu-btn-clear')?.click();
           e.preventDefault();
         } else if (key === '0') {
           if (this.canvasEngine) this.canvasEngine.zoomReset();

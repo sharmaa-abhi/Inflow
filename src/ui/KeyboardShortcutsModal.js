@@ -18,88 +18,74 @@ export class KeyboardShortcutsModal {
   }
 
   createDom() {
-    // ─── Keyboard Shortcuts Modal ──────────────────────────────────────
+    // ─── Help / Keyboard Shortcuts Modal ──────────────────────────────────────
     const modal = document.createElement('div');
     modal.id = 'shortcuts-modal';
     modal.className = 'shortcuts-modal-backdrop hidden';
     modal.innerHTML = `
       <div class="shortcuts-modal-card">
         <div class="shortcuts-modal-header">
-          <div class="shortcuts-modal-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 3H6a3 3 0 00-3 3v12a3 3 0 003 3h12a3 3 0 003-3V6a3 3 0 00-3-3z"/><path d="M8 8h.01M12 8h.01M16 8h.01M8 12h.01M12 12h.01M16 12h.01M8 16h8"/></svg>
-            <span>Keyboard Shortcuts</span>
-          </div>
+          <h2 class="shortcuts-modal-title">Help</h2>
           <button class="shortcuts-modal-close" title="Close (Esc)">&times;</button>
         </div>
 
-        <div class="shortcuts-modal-body">
-          <!-- Tools Section -->
-          <div class="shortcuts-group">
-            <h4 class="shortcuts-group-title">Primary Drawing Tools (Number Keys)</h4>
-            <div class="shortcuts-grid">
-              <div class="shortcut-item"><kbd>1</kbd><span>Select Tool</span></div>
-              <div class="shortcut-item"><kbd>2</kbd><span>Hand / Pan Tool</span></div>
-              <div class="shortcut-item"><kbd>3</kbd><span>Rectangle</span></div>
-              <div class="shortcut-item"><kbd>4</kbd><span>Ellipse / Circle</span></div>
-              <div class="shortcut-item"><kbd>5</kbd><span>Diamond</span></div>
-              <div class="shortcut-item"><kbd>6</kbd><span>Line</span></div>
-              <div class="shortcut-item"><kbd>7</kbd><span>Arrow</span></div>
-              <div class="shortcut-item"><kbd>8</kbd><span>Freehand / Pencil</span></div>
-              <div class="shortcut-item"><kbd>9</kbd><span>Text Tool</span></div>
-              <div class="shortcut-item"><kbd>0</kbd><span>Eraser</span></div>
+        <div class="shortcuts-modal-action-pills">
+          <a href="https://github.com/sharmaa-abhi/Inflow" target="_blank" rel="noopener noreferrer" class="help-pill-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            <span>Documentation</span>
+          </a>
+          <a href="https://github.com/sharmaa-abhi/Inflow/releases" target="_blank" rel="noopener noreferrer" class="help-pill-btn active">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            <span>Read our blog</span>
+          </a>
+          <a href="https://github.com/sharmaa-abhi/Inflow/issues" target="_blank" rel="noopener noreferrer" class="help-pill-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            <span>Found an issue? Submit</span>
+          </a>
+          <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="help-pill-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            <span>YouTube</span>
+          </a>
+        </div>
+
+        <h3 class="shortcuts-subtitle">Keyboard shortcuts</h3>
+
+        <div class="shortcuts-two-column-body">
+          <!-- Left Column: Tools -->
+          <div class="shortcuts-column">
+            <h4 class="shortcuts-col-heading">Tools</h4>
+            <div class="shortcuts-list">
+              <div class="shortcut-row"><span>Hand (panning tool)</span><div class="shortcut-keys"><kbd>H</kbd></div></div>
+              <div class="shortcut-row"><span>Selection</span><div class="shortcut-keys"><kbd>V</kbd><span>or</span><kbd>1</kbd></div></div>
+              <div class="shortcut-row"><span>Rectangle</span><div class="shortcut-keys"><kbd>R</kbd><span>or</span><kbd>2</kbd></div></div>
+              <div class="shortcut-row"><span>Diamond</span><div class="shortcut-keys"><kbd>D</kbd><span>or</span><kbd>3</kbd></div></div>
+              <div class="shortcut-row"><span>Ellipse</span><div class="shortcut-keys"><kbd>O</kbd><span>or</span><kbd>4</kbd></div></div>
+              <div class="shortcut-row"><span>Arrow</span><div class="shortcut-keys"><kbd>A</kbd><span>or</span><kbd>5</kbd></div></div>
+              <div class="shortcut-row"><span>Line</span><div class="shortcut-keys"><kbd>L</kbd><span>or</span><kbd>6</kbd></div></div>
+              <div class="shortcut-row"><span>Draw</span><div class="shortcut-keys"><kbd>P</kbd><span>or</span><kbd>7</kbd></div></div>
+              <div class="shortcut-row"><span>Text</span><div class="shortcut-keys"><kbd>T</kbd><span>or</span><kbd>8</kbd></div></div>
+              <div class="shortcut-row"><span>Eraser</span><div class="shortcut-keys"><kbd>E</kbd><span>or</span><kbd>0</kbd></div></div>
+              <div class="shortcut-row"><span>Laser pointer</span><div class="shortcut-keys"><kbd>K</kbd></div></div>
             </div>
           </div>
 
-          <!-- Secondary Tools Section -->
-          <div class="shortcuts-group">
-            <h4 class="shortcuts-group-title">Secondary Tools (Shift + Number)</h4>
-            <div class="shortcuts-grid">
-              <div class="shortcut-item"><kbd>Shift + 1</kbd><span>Multi Select</span></div>
-              <div class="shortcut-item"><kbd>Shift + 2</kbd><span>Laser Pointer</span></div>
-              <div class="shortcut-item"><kbd>Shift + 3</kbd><span>Rounded Rectangle</span></div>
-              <div class="shortcut-item"><kbd>Shift + 4</kbd><span>Perfect Circle</span></div>
-              <div class="shortcut-item"><kbd>Shift + 5</kbd><span>Hexagon / Star</span></div>
-              <div class="shortcut-item"><kbd>Shift + 6</kbd><span>Polyline</span></div>
-              <div class="shortcut-item"><kbd>Shift + 7</kbd><span>Curved Arrow</span></div>
-              <div class="shortcut-item"><kbd>Shift + 8</kbd><span>Highlighter</span></div>
-              <div class="shortcut-item"><kbd>Shift + 9</kbd><span>Sticky Note</span></div>
-              <div class="shortcut-item"><kbd>Shift + 0</kbd><span>Clear Selection</span></div>
-            </div>
-          </div>
-
-          <!-- Mouse & Canvas Modifiers -->
-          <div class="shortcuts-group">
-            <h4 class="shortcuts-group-title">Mouse & Canvas Actions</h4>
-            <div class="shortcuts-grid">
-              <div class="shortcut-item"><kbd>Space (Hold)</kbd><span>Temporary Hand Tool</span></div>
-              <div class="shortcut-item"><kbd>Alt + Drag</kbd><span>Duplicate Object</span></div>
-              <div class="shortcut-item"><kbd>Shift + Drag</kbd><span>Constrain Movement Axis</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + Drag</kbd><span>Disable Snapping</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + Wheel</kbd><span>Zoom In / Out</span></div>
-              <div class="shortcut-item"><kbd>Shift + Wheel</kbd><span>Horizontal Scroll</span></div>
-              <div class="shortcut-item"><kbd>Middle Click</kbd><span>Pan Canvas</span></div>
-              <div class="shortcut-item"><kbd>Double Click</kbd><span>Edit Text</span></div>
-            </div>
-          </div>
-
-          <!-- Essential Commands -->
-          <div class="shortcuts-group">
-            <h4 class="shortcuts-group-title">Essential Shortcuts</h4>
-            <div class="shortcuts-grid">
-              <div class="shortcut-item"><kbd>Ctrl + Z</kbd><span>Undo</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + Y / Shift+Z</kbd><span>Redo</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + C</kbd><span>Copy</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + X</kbd><span>Cut</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + V</kbd><span>Paste</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + D</kbd><span>Duplicate</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + G</kbd><span>Group</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + Shift + G</kbd><span>Ungroup</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + A</kbd><span>Select All</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + F</kbd><span>Find Text on Canvas</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + S</kbd><span>Save / Export JSON</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + E</kbd><span>Export PNG</span></div>
-              <div class="shortcut-item"><kbd>+</kbd> / <kbd>-</kbd><span>Zoom In / Out</span></div>
-              <div class="shortcut-item"><kbd>Ctrl + 0</kbd><span>Reset Zoom (100%)</span></div>
+          <!-- Right Column: Editor -->
+          <div class="shortcuts-column">
+            <h4 class="shortcuts-col-heading">Editor</h4>
+            <div class="shortcuts-list">
+              <div class="shortcut-row"><span>Create a flowchart from a generic element</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>Arrow Key</kbd></div></div>
+              <div class="shortcut-row"><span>Navigate a flowchart</span><div class="shortcut-keys"><kbd>Alt</kbd><kbd>Arrow Key</kbd></div></div>
+              <div class="shortcut-row"><span>Move canvas</span><div class="shortcut-keys"><kbd>Space</kbd><span>drag</span><span>or</span><kbd>Wheel</kbd><span>drag</span></div></div>
+              <div class="shortcut-row"><span>Reset the canvas</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>Delete</kbd></div></div>
+              <div class="shortcut-row"><span>Delete</span><div class="shortcut-keys"><kbd>Delete</kbd></div></div>
+              <div class="shortcut-row"><span>Cut</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>X</kbd></div></div>
+              <div class="shortcut-row"><span>Copy</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>C</kbd></div></div>
+              <div class="shortcut-row"><span>Paste</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>V</kbd></div></div>
+              <div class="shortcut-row"><span>Paste as plaintext</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>V</kbd></div></div>
+              <div class="shortcut-row"><span>Undo / Redo</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>Z</kbd><span>/</span><kbd>Ctrl</kbd><kbd>Y</kbd></div></div>
+              <div class="shortcut-row"><span>Group / Ungroup</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>G</kbd><span>/</span><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>G</kbd></div></div>
+              <div class="shortcut-row"><span>Command palette</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>/</kbd></div></div>
+              <div class="shortcut-row"><span>Find on canvas</span><div class="shortcut-keys"><kbd>Ctrl</kbd><kbd>F</kbd></div></div>
             </div>
           </div>
         </div>
