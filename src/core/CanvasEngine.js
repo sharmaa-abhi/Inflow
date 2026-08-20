@@ -85,6 +85,11 @@ export class CanvasEngine {
         // Reset scale/translation for drawing screen-aligned grid
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
+        if (engine.canvasBackground) {
+          ctx.fillStyle = engine.canvasBackground;
+          ctx.fillRect(0, 0, width, height);
+        }
+
         const type = engine.gridType;
         if (type === 'plain') {
           ctx.restore();
@@ -151,6 +156,41 @@ export class CanvasEngine {
       this.backgroundLayer.batchDraw();
       eventBus.emit('grid-changed', type);
     }
+  }
+
+  toggleGrid() {
+    if (this.gridType === 'plain') {
+      this.setGridType('dot-grid');
+    } else {
+      this.setGridType('plain');
+    }
+  }
+
+  setCanvasBackground(color) {
+    this.canvasBackground = color;
+    if (color) {
+      this.container.style.backgroundColor = color;
+      document.body.style.backgroundColor = color;
+    } else {
+      this.container.style.backgroundColor = '';
+      document.body.style.backgroundColor = '';
+    }
+    this.backgroundLayer.batchDraw();
+    eventBus.emit('canvas-background-changed', color);
+  }
+
+  setViewMode(enabled) {
+    this.isViewMode = !!enabled;
+    if (this.isViewMode) {
+      document.body.classList.add('view-mode');
+    } else {
+      document.body.classList.remove('view-mode');
+    }
+    eventBus.emit('view-mode-changed', this.isViewMode);
+  }
+
+  toggleViewMode() {
+    this.setViewMode(!this.isViewMode);
   }
 
   setupEventListeners() {

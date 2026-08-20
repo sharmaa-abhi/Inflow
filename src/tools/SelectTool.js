@@ -59,6 +59,12 @@ export class SelectTool extends BaseTool {
       }
     });
 
+    this.selectMode = localStorage.getItem('inkflow_select_mode') || 'wrap'; // 'wrap' | 'overlap'
+    eventBus.on('select-mode-changed', (mode) => {
+      this.selectMode = mode;
+      localStorage.setItem('inkflow_select_mode', mode);
+    });
+
     // BUG-007 fix: timestamp for manual double-tap detection on mobile touch devices
     this._lastTapTime = 0;
   }
@@ -222,8 +228,19 @@ export class SelectTool extends BaseTool {
         height: bb.maxY - bb.minY,
       };
 
-      if (rectIntersect(selectionBox, shapeBox)) {
-        shapesToSelect.push(shape);
+      if (this.selectMode === 'wrap') {
+        const isContained =
+          selectionBox.x <= shapeBox.x &&
+          selectionBox.y <= shapeBox.y &&
+          (selectionBox.x + selectionBox.width) >= (shapeBox.x + shapeBox.width) &&
+          (selectionBox.y + selectionBox.height) >= (shapeBox.y + shapeBox.height);
+        if (isContained) {
+          shapesToSelect.push(shape);
+        }
+      } else {
+        if (rectIntersect(selectionBox, shapeBox)) {
+          shapesToSelect.push(shape);
+        }
       }
     });
 

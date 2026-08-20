@@ -15,6 +15,7 @@ import { Tooltip } from './ui/Tooltip';
 import { MainMenu } from './ui/MainMenu';
 import { TextFormattingToolbar } from './ui/TextFormattingToolbar';
 import { KeyboardShortcutsModal } from './ui/KeyboardShortcutsModal';
+import { CommandPalette } from './ui/CommandPalette';
 import { threeDPreviewManager } from './managers/ThreeDPreviewManager';
 import { initMobileUI } from './mobile-ui';
 import { eventBus } from './core/EventBus';
@@ -47,9 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
     canvasEngine.stage.setAttr('toolManager', toolManager);
     window.toolManager = toolManager;
 
-    // Initialize Floating Text Formatting Toolbar
+    // Initialize Floating Text Formatting Toolbar, Modals & Command Palette
     const textFormattingToolbar = new TextFormattingToolbar(canvasEngine);
     const shortcutsModal = new KeyboardShortcutsModal(canvasEngine);
+    const commandPalette = new CommandPalette(canvasEngine);
 
     // 3. Initialize Document Autosave & File Loaders
     persistenceManager.init(canvasEngine);
@@ -61,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('welcome-btn-playground')?.addEventListener('click', () => {
       persistenceManager.loadDemoSheet();
+    });
+    document.getElementById('btn-exit-zen-mode')?.addEventListener('click', () => {
+      toolManager.toggleZenMode(false);
     });
 
     // Desktop UI will be initialized in the resize handler below if needed
