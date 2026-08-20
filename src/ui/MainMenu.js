@@ -377,6 +377,14 @@ export class MainMenu {
     if (!this.prefSubmenu) return;
     this.isPrefOpen = true;
     this.prefSubmenu.classList.remove('hidden');
+    if (this.prefItem) {
+      const rect = this.prefItem.getBoundingClientRect();
+      this.prefSubmenu.style.position = 'fixed';
+      this.prefSubmenu.style.left = `${rect.right + 6}px`;
+      const idealTop = rect.top - 40;
+      const maxTop = window.innerHeight - (this.prefSubmenu.offsetHeight || 340) - 16;
+      this.prefSubmenu.style.top = `${Math.max(16, Math.min(idealTop, maxTop))}px`;
+    }
   }
 
   closePrefSubmenu() {

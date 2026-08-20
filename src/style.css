@@ -1109,16 +1109,14 @@ body.dark .three-d-plate.active-plate {
 
 /* Preferences Submenu Popout */
 .preferences-submenu {
-  position: absolute;
-  left: calc(100% + 6px);
-  top: 180px;
+  position: fixed;
   width: 228px;
   background: #1e1e24;
   border: 1px solid #2e2e38;
   border-radius: 12px;
   padding: 6px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
-  z-index: 60;
+  z-index: 90;
   display: flex;
   flex-direction: column;
   gap: 2px;
